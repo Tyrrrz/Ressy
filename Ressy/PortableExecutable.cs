@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Ressy.Native;
 
 namespace Ressy
@@ -26,18 +27,11 @@ namespace Ressy
             if (resourceHandle == IntPtr.Zero)
                 return null;
 
-            return new Resource(
-                resourceHandle,
-                this,
-                type,
-                name,
-                language
-            );
+            return new Resource(resourceHandle, this, type, name, language);
         }
 
         public Resource GetResource(ResourceType type, ResourceName name, ResourceLanguage language = default) =>
-            TryGetResource(type, name, language) ??
-            throw new Win32Exception();
+            TryGetResource(type, name, language) ?? throw new Win32Exception();
 
         private IReadOnlyList<ResourceType> GetResourceTypes()
         {
@@ -47,7 +41,12 @@ namespace Ressy
                 (_, typeHandle, _) => typeHandles.Add(typeHandle),
                 IntPtr.Zero, 0, 0))
             {
-                throw new Win32Exception();
+                var errorCode = Marshal.GetLastWin32Error();
+
+                // Ignore "The specified image file did not contain a resource section",
+                // just return an empty collection.
+                if (errorCode != 1812)
+                    throw new Win32Exception(errorCode);
             }
 
             return typeHandles.Select(ResourceType.FromHandle).ToArray();

@@ -15,17 +15,9 @@ namespace Ressy
 
     public partial class ResourceName
     {
-        public static ResourceName FromCode(int code)
-        {
-            var identifier = '#' + code.ToString(CultureInfo.InvariantCulture);
-            return new ResourceName(identifier);
-        }
+        public static ResourceName FromCode(int code) => new('#' + code.ToString(CultureInfo.InvariantCulture));
 
-        public static ResourceName FromString(string name) =>
-            name.StartsWith('#') &&
-            int.TryParse(name.Substring(1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var code)
-                ? FromCode(code)
-                : new ResourceName(name);
+        public static ResourceName FromString(string name) => new(name);
 
         public static ResourceName FromHandle(IntPtr handle) =>
             NativeHelpers.IsIntegerCode(handle)
