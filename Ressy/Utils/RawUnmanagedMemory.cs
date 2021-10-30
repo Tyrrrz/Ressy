@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace Ressy.Utils
@@ -13,6 +14,7 @@ namespace Ressy.Utils
             Marshal.Copy(data, 0, Handle, data.Length);
         }
 
+        [ExcludeFromCodeCoverage]
         ~RawUnmanagedMemory() => Dispose();
 
         public void Dispose() => Marshal.FreeHGlobal(Handle);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Ressy.Identification;
 using Ressy.Native;
 using Ressy.Utils;
@@ -13,6 +14,7 @@ namespace Ressy
 
         public ResourceUpdateContext(IntPtr handle) => Handle = handle;
 
+        [ExcludeFromCodeCoverage]
         ~ResourceUpdateContext() => Dispose();
 
         public void Set(ResourceIdentifier identifier, byte[] data)

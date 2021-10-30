@@ -1,4 +1,6 @@
-﻿namespace Ressy.Identification
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Ressy.Identification
 {
     /// <summary>
     /// Identifies a single resource stored in a portable executable image.
@@ -39,6 +41,7 @@
         }
 
         /// <inheritdoc />
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"{Type} / {Name} / {Language}";
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace Ressy.Utils
@@ -10,6 +11,7 @@ namespace Ressy.Utils
         public StringUnmanagedMemory(string value) =>
             Handle = Marshal.StringToHGlobalUni(value);
 
+        [ExcludeFromCodeCoverage]
         ~StringUnmanagedMemory() => Dispose();
 
         public void Dispose() => Marshal.FreeHGlobal(Handle);

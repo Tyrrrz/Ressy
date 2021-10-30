@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ressy.Native
 {
@@ -8,6 +9,7 @@ namespace Ressy.Native
 
         public NativeLibrary(IntPtr handle) => Handle = handle;
 
+        [ExcludeFromCodeCoverage]
         ~NativeLibrary() => Dispose();
 
         public void Dispose()

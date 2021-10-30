@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Ressy.Native;
 using Ressy.Utils;
 
@@ -24,6 +25,7 @@ namespace Ressy.Identification
         internal abstract IUnmanagedMemory CreateMemory();
 
         /// <inheritdoc />
+        [ExcludeFromCodeCoverage]
         public override string ToString() => Label;
 
     }

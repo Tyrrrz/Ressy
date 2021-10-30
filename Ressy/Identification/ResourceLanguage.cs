@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
 namespace Ressy.Identification
@@ -19,6 +19,7 @@ namespace Ressy.Identification
         public ResourceLanguage(ushort id) => Id = id;
 
         /// <inheritdoc />
+        [ExcludeFromCodeCoverage]
         public override string ToString() => Id.ToString(CultureInfo.InvariantCulture);
     }
 
@@ -33,30 +34,5 @@ namespace Ressy.Identification
         /// English (United States) language.
         /// </summary>
         public static ResourceLanguage EnglishUnitedStates { get; } = new(1033);
-    }
-
-    public partial class ResourceLanguage : IEquatable<ResourceLanguage>
-    {
-        /// <inheritdoc />
-        public bool Equals(ResourceLanguage? other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-
-            return Id == other.Id;
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-
-            return obj is ResourceLanguage other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode() => Id.GetHashCode();
     }
 }

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Ressy.Utils;
 
 namespace Ressy.Identification
 {
-    internal partial class OrdinalResourceType : ResourceType
+    internal class OrdinalResourceType : ResourceType
     {
         private readonly int _code;
 
@@ -51,27 +50,5 @@ namespace Ressy.Identification
         public OrdinalResourceType(int code) => _code = code;
 
         internal override IUnmanagedMemory CreateMemory() => new PreallocatedUnmanagedMemory(_code);
-    }
-
-    internal partial class OrdinalResourceType : IEquatable<OrdinalResourceType>
-    {
-        public bool Equals(OrdinalResourceType? other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-
-            return _code == other._code;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-
-            return Equals((OrdinalResourceType)obj);
-        }
-
-        public override int GetHashCode() => _code;
     }
 }
