@@ -13,6 +13,8 @@ namespace Ressy.Utils
             Marshal.Copy(data, 0, Handle, data.Length);
         }
 
+        ~RawUnmanagedMemory() => Dispose();
+
         public void Dispose() => Marshal.FreeHGlobal(Handle);
     }
 }
