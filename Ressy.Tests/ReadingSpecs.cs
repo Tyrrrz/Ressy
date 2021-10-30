@@ -155,12 +155,12 @@ namespace Ressy.Tests
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
 
             // Act
-            var descriptor = PortableExecutable
+            var identifier = PortableExecutable
                 .GetResources(imageFilePath)
                 .First(r => r.Type.Code == (int) StandardResourceTypeCode.GroupIcon);
 
             // Assert
-            descriptor.Type.Label.Should().Be("GROUP_ICON");
+            identifier.Type.Label.Should().Be("GROUP_ICON");
         }
 
         [Fact]

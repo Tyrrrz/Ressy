@@ -13,7 +13,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
 
-            var descriptor = new ResourceIdentifier(
+            var identifier = new ResourceIdentifier(
                 ResourceType.FromCode(6),
                 ResourceName.FromCode(7)
             );
@@ -21,10 +21,10 @@ namespace Ressy.Tests
             // Act
             PortableExecutable.UpdateResources(imageFilePath, ctx =>
             {
-                ctx.Set(descriptor, new byte[] { 1, 2, 3, 4, 5 });
+                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
             });
 
-            var data = PortableExecutable.GetResourceData(imageFilePath, descriptor);
+            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
 
             // Assert
             data.Should().Equal(1, 2, 3, 4, 5);
@@ -36,7 +36,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
 
-            var descriptor = new ResourceIdentifier(
+            var identifier = new ResourceIdentifier(
                 ResourceType.FromString("FOO"),
                 ResourceName.FromCode(7)
             );
@@ -44,10 +44,10 @@ namespace Ressy.Tests
             // Act
             PortableExecutable.UpdateResources(imageFilePath, ctx =>
             {
-                ctx.Set(descriptor, new byte[] { 1, 2, 3, 4, 5 });
+                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
             });
 
-            var data = PortableExecutable.GetResourceData(imageFilePath, descriptor);
+            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
 
             // Assert
             data.Should().Equal(1, 2, 3, 4, 5);
@@ -59,7 +59,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
 
-            var descriptor = new ResourceIdentifier(
+            var identifier = new ResourceIdentifier(
                 ResourceType.FromCode(6),
                 ResourceName.FromString("BAR")
             );
@@ -67,10 +67,10 @@ namespace Ressy.Tests
             // Act
             PortableExecutable.UpdateResources(imageFilePath, ctx =>
             {
-                ctx.Set(descriptor, new byte[] { 1, 2, 3, 4, 5 });
+                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
             });
 
-            var data = PortableExecutable.GetResourceData(imageFilePath, descriptor);
+            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
 
             // Assert
             data.Should().Equal(1, 2, 3, 4, 5);
@@ -82,7 +82,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
 
-            var descriptor = new ResourceIdentifier(
+            var identifier = new ResourceIdentifier(
                 ResourceType.FromString("FOO"),
                 ResourceName.FromString("BAR")
             );
@@ -90,10 +90,10 @@ namespace Ressy.Tests
             // Act
             PortableExecutable.UpdateResources(imageFilePath, ctx =>
             {
-                ctx.Set(descriptor, new byte[] { 1, 2, 3, 4, 5 });
+                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
             });
 
-            var data = PortableExecutable.GetResourceData(imageFilePath, descriptor);
+            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
 
             // Assert
             data.Should().Equal(1, 2, 3, 4, 5);
@@ -105,7 +105,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
 
-            var descriptor = new ResourceIdentifier(
+            var identifier = new ResourceIdentifier(
                 ResourceType.FromCode(6),
                 ResourceName.FromCode(7)
             );
@@ -113,10 +113,10 @@ namespace Ressy.Tests
             // Act
             PortableExecutable.UpdateResources(imageFilePath, ctx =>
             {
-                ctx.Set(descriptor, new byte[] { 1, 2, 3, 4, 5 });
+                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
             });
 
-            var data = PortableExecutable.GetResourceData(imageFilePath, descriptor);
+            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
 
             // Assert
             data.Should().Equal(1, 2, 3, 4, 5);
@@ -128,7 +128,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
 
-            var descriptor = new ResourceIdentifier(
+            var identifier = new ResourceIdentifier(
                 ResourceType.FromCode(6),
                 ResourceName.FromCode(7)
             );
@@ -136,11 +136,11 @@ namespace Ressy.Tests
             // Act
             PortableExecutable.UpdateResources(imageFilePath, ctx =>
             {
-                ctx.Remove(descriptor);
+                ctx.Remove(identifier);
             });
 
             // Assert
-            PortableExecutable.GetResources(imageFilePath).Should().NotContain(descriptor);
+            PortableExecutable.GetResources(imageFilePath).Should().NotContain(identifier);
         }
 
         [Fact]
