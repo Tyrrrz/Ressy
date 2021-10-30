@@ -9,8 +9,7 @@ namespace Ressy.Demo
     {
         public static void Main(string[] args)
         {
-            var moduleFilePath = args.ElementAtOrDefault(0) ?? typeof(Program).Assembly.Location;
-            using var module = PortableExecutable.FromFile(moduleFilePath);
+            var imageFilePath = args.ElementAtOrDefault(0) ?? typeof(Program).Assembly.Location;
 
             var resourceType = args.ElementAtOrDefault(1);
             var resourceName = args.ElementAtOrDefault(2);
