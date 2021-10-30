@@ -10,7 +10,7 @@
 ✅ **Project status: active**.
 
 Ressy is a library for managing native resources stored in portable executable images (i.e. EXE and DLL files).
-Effectively, it provides a high-level abstraction model for working with [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
+It offers a high-level abstraction model for working with [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
 
 💬 **If you want to chat, join my [Discord server](https://discord.gg/2SUWKFnHSm)**.
 
