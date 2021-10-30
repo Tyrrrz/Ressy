@@ -6,23 +6,22 @@ namespace Ressy
 {
     public partial class ResourceName
     {
-        public string Identifier { get; }
+        internal IntPtr Handle { get; }
 
-        public ResourceName(string identifier) => Identifier = identifier;
+        public string Identifier => NativeHelpers.IsIntegerCode(Handle)
+            ? '#' + Handle.ToInt32().ToString(CultureInfo.InvariantCulture)
+            : NativeHelpers.GetString(Handle);
+
+        internal ResourceName(IntPtr handle) => Handle = handle;
 
         public override string ToString() => Identifier;
     }
 
     public partial class ResourceName
     {
-        public static ResourceName FromCode(int code) => new('#' + code.ToString(CultureInfo.InvariantCulture));
+        public static ResourceName FromCode(int code) => new(new IntPtr(code));
 
-        public static ResourceName FromString(string name) => new(name);
-
-        public static ResourceName FromHandle(IntPtr handle) =>
-            NativeHelpers.IsIntegerCode(handle)
-                ? FromCode(handle.ToInt32())
-                : FromString(NativeHelpers.GetString(handle));
+        public static ResourceName FromString(string name) => throw new NotImplementedException();
     }
 
     public partial class ResourceName : IEquatable<ResourceName>

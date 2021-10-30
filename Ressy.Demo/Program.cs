@@ -19,7 +19,7 @@ namespace Ressy.Demo
             {
                 Console.WriteLine("Resources:");
 
-                foreach (var resource in module.GetResources())
+                foreach (var resource in PortableExecutable.GetResources(imageFilePath))
                 {
                     Console.Write("  ");
                     Console.WriteLine(resource);
@@ -28,12 +28,15 @@ namespace Ressy.Demo
             // Get specific resource
             else
             {
-                var data = module.GetResource(
-                    ResourceType.FromString(resourceType),
-                    ResourceName.FromString(resourceName)
-                ).GetData();
+                var data = PortableExecutable.GetResourceData(
+                    imageFilePath,
+                    new ResourceDescriptor(
+                        ResourceType.FromString(resourceType),
+                        ResourceName.FromString(resourceName)
+                    )
+                );
 
-                var dataString = Encoding.UTF8.GetString(data);
+                var dataString = Encoding.Unicode.GetString(data);
 
                 Console.WriteLine(dataString);
             }

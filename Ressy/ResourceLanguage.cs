@@ -2,7 +2,7 @@
 
 namespace Ressy
 {
-    public partial struct ResourceLanguage
+    public partial class ResourceLanguage
     {
         public ushort Id { get; }
 
@@ -11,23 +11,36 @@ namespace Ressy
         public override string ToString() => Id.ToString();
     }
 
-    public partial struct ResourceLanguage
+    public partial class ResourceLanguage
     {
-        public static ResourceLanguage Neutral => new(0);
+        public static ResourceLanguage Neutral { get; } = new(0);
 
-        public static ResourceLanguage EnglishUnitedStates => new(1033);
+        public static ResourceLanguage EnglishUnitedStates { get; } = new(1033);
     }
 
-    public partial struct ResourceLanguage : IEquatable<ResourceLanguage>
+    public partial class ResourceLanguage : IEquatable<ResourceLanguage>
     {
-        public bool Equals(ResourceLanguage other) => Id == other.Id;
+        public bool Equals(ResourceLanguage? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
 
-        public override bool Equals(object? obj) => obj is ResourceLanguage other && Equals(other);
+            return Id == other.Id;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+
+            return obj is ResourceLanguage other && Equals(other);
+        }
 
         public override int GetHashCode() => Id.GetHashCode();
 
-        public static bool operator ==(ResourceLanguage a, ResourceLanguage b) => a.Equals(b);
+        public static bool operator ==(ResourceLanguage? a, ResourceLanguage? b) => a?.Equals(b) ?? b is null;
 
-        public static bool operator !=(ResourceLanguage a, ResourceLanguage b) => !(a == b);
+        public static bool operator !=(ResourceLanguage? a, ResourceLanguage? b) => !(a == b);
     }
 }

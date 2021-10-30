@@ -23,7 +23,7 @@ namespace Ressy.Native
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool EnumResourceNamesEx(
             IntPtr hModule,
-            string lpType,
+            IntPtr lpType,
             EnumResNameProc lpEnumFunc,
             IntPtr lParam,
             uint dwFlags,
@@ -33,8 +33,8 @@ namespace Ressy.Native
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool EnumResourceLanguagesEx(
             IntPtr hModule,
-            string lpType,
-            string lpName,
+            IntPtr lpType,
+            IntPtr lpName,
             EnumResLangProc lpEnumFunc,
             IntPtr lParam,
             uint dwFlags,
@@ -44,13 +44,25 @@ namespace Ressy.Native
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern IntPtr FindResourceEx(
             IntPtr hModule,
-            string lpType,
-            string lpName,
+            IntPtr lpType,
+            IntPtr lpName,
             ushort wLanguage
         );
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern uint SizeofResource(IntPtr hModule, IntPtr hResInfo);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr LoadResource(IntPtr hModule, IntPtr hResInfo);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr LockResource(IntPtr hResData);
+
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern IntPtr BeginUpdateResource(string pFileName, bool bDeleteExistingResources);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool EndUpdateResource(IntPtr hUpdate, bool fDiscard);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool UpdateResource(
@@ -61,17 +73,5 @@ namespace Ressy.Native
             IntPtr lpData,
             uint cbData
         );
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool EndUpdateResource(IntPtr hUpdate, bool fDiscard);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern uint SizeofResource(IntPtr hModule, IntPtr hResInfo);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern IntPtr LoadResource(IntPtr hModule, IntPtr hResInfo);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern IntPtr LockResource(IntPtr hResData);
     }
 }

@@ -6,17 +6,43 @@ namespace Ressy
 {
     public partial class ResourceType
     {
-        public string Identifier { get; }
+        internal IntPtr Handle { get; }
 
-        public string? FriendlyName { get; }
+        public string Identifier => NativeHelpers.IsIntegerCode(Handle)
+            ? '#' + Handle.ToInt32().ToString(CultureInfo.InvariantCulture)
+            : NativeHelpers.GetString(Handle);
 
-        public ResourceType(string identifier, string? friendlyName = null)
-        {
-            Identifier = identifier;
-            FriendlyName = friendlyName;
-        }
+        public string Label => NativeHelpers.IsIntegerCode(Handle)
+            ? (StandardResourceTypeCode)Handle.ToInt32() switch
+            {
+                StandardResourceTypeCode.Cursor => "CURSOR",
+                StandardResourceTypeCode.Bitmap => "BITMAP",
+                StandardResourceTypeCode.Icon => "ICON",
+                StandardResourceTypeCode.Menu => "MENU",
+                StandardResourceTypeCode.Dialog => "DIALOG",
+                StandardResourceTypeCode.String => "STRING",
+                StandardResourceTypeCode.FontDir => "FONTDIR",
+                StandardResourceTypeCode.Font => "FONT",
+                StandardResourceTypeCode.Accelerator => "ACCELERATOR",
+                StandardResourceTypeCode.RawData => "RCDATA",
+                StandardResourceTypeCode.MessageTable => "MESSAGETABLE",
+                StandardResourceTypeCode.GroupCursor => "GROUP_CURSOR",
+                StandardResourceTypeCode.GroupIcon => "GROUP_ICON",
+                StandardResourceTypeCode.Version => "VERSION",
+                StandardResourceTypeCode.DlgInclude => "DLGINCLUDE",
+                StandardResourceTypeCode.PlugAndPlay => "PLUGPLAY",
+                StandardResourceTypeCode.Vxd => "VXD",
+                StandardResourceTypeCode.AnimatedCursor => "ANICURSOR",
+                StandardResourceTypeCode.AnimatedIcon => "ANIICON",
+                StandardResourceTypeCode.Html => "HTML",
+                StandardResourceTypeCode.Manifest => "MANIFEST",
+                _ => Identifier
+            }
+            : Identifier;
 
-        public override string ToString() => FriendlyName ?? Identifier;
+        internal ResourceType(IntPtr handle) => Handle = handle;
+
+        public override string ToString() => Label;
     }
 
     public enum StandardResourceTypeCode
@@ -46,55 +72,12 @@ namespace Ressy
 
     public partial class ResourceType
     {
-        public static ResourceType FromCode(StandardResourceTypeCode code)
-        {
-            var codeNumeric = (int) code;
+        public static ResourceType FromCode(int code) => new(new IntPtr(code));
 
-            var identifier = '#' + codeNumeric.ToString(CultureInfo.InvariantCulture);
-
-            var friendlyName = code switch
-            {
-                StandardResourceTypeCode.Cursor => "CURSOR",
-                StandardResourceTypeCode.Bitmap => "BITMAP",
-                StandardResourceTypeCode.Icon => "ICON",
-                StandardResourceTypeCode.Menu => "MENU",
-                StandardResourceTypeCode.Dialog => "DIALOG",
-                StandardResourceTypeCode.String => "STRING",
-                StandardResourceTypeCode.FontDir => "FONTDIR",
-                StandardResourceTypeCode.Font => "FONT",
-                StandardResourceTypeCode.Accelerator => "ACCELERATOR",
-                StandardResourceTypeCode.RawData => "RCDATA",
-                StandardResourceTypeCode.MessageTable => "MESSAGETABLE",
-                StandardResourceTypeCode.GroupCursor => "GROUP_CURSOR",
-                StandardResourceTypeCode.GroupIcon => "GROUP_ICON",
-                StandardResourceTypeCode.Version => "VERSION",
-                StandardResourceTypeCode.DlgInclude => "DLGINCLUDE",
-                StandardResourceTypeCode.PlugAndPlay => "PLUGPLAY",
-                StandardResourceTypeCode.Vxd => "VXD",
-                StandardResourceTypeCode.AnimatedCursor => "ANICURSOR",
-                StandardResourceTypeCode.AnimatedIcon => "ANIICON",
-                StandardResourceTypeCode.Html => "HTML",
-                StandardResourceTypeCode.Manifest => "MANIFEST",
-                _ => null
-            };
-
-            return new ResourceType(identifier, friendlyName);
-        }
-
-        public static ResourceType FromCode(int code) => FromCode((StandardResourceTypeCode) code);
+        public static ResourceType FromCode(StandardResourceTypeCode code) => FromCode((int)code);
 
         public static ResourceType FromString(string type) =>
-            type.StartsWith('#') &&
-            int.TryParse(type.Substring(1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var code)
-                ? FromCode(code)
-                : new ResourceType(type);
-
-        public static ResourceType FromHandle(IntPtr handle)
-        {
-            return NativeHelpers.IsIntegerCode(handle)
-                ? FromCode(handle.ToInt32())
-                : FromString(NativeHelpers.GetString(handle));
-        }
+            throw new NotImplementedException();
     }
 
     public partial class ResourceType : IEquatable<ResourceType>

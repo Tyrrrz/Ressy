@@ -6,11 +6,13 @@
     <IsTestProject>true</IsTestProject>
     <CollectCoverage>true</CollectCoverage>
     <CoverletOutputFormat>opencover</CoverletOutputFormat>
+    <NoWarn>$(NoWarn);xUnit1013</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="SmallPEpe.exe" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="LargePEpe.exe" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

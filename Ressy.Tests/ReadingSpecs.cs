@@ -1,57 +1,204 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 using FluentAssertions;
-using Ressy.Tests.Dummy;
+using Ressy.Tests.Fixtures;
 using Xunit;
 
 namespace Ressy.Tests
 {
-    public class ReadingSpecs
+    public record ReadingSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
     {
         [Fact]
-        public void User_can_get_a_list_of_resources_from_an_empty_file()
+        public void User_can_get_a_list_of_resources_stored_in_a_portable_executable()
         {
             // Arrange
-            using var dummy = DummyPortableExecutable.Create();
-            using var executable = PortableExecutable.FromFile(dummy.FilePath);
+            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
 
             // Act
-            var resources = executable.GetResources();
+            var resources = PortableExecutable.GetResources(imageFilePath);
+
+            // Assert
+            resources.Should().BeEquivalentTo(
+                // -- RT_ICON/1/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(1),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/2/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(2),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/3/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(3),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/4/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(4),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/5/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(5),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/6/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(6),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/7/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(7),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/8/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(8),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/9/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(9),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/10/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(10),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/11/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(11),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_ICON/12/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceName.FromCode(12),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_STRING/7/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.String),
+                    ResourceName.FromCode(7),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_STRING/7/Ukrainian (UA)
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.String),
+                    ResourceName.FromCode(7),
+                    new ResourceLanguage(1058)
+                ),
+
+                // -- RT_GROUP_ICON/1/Neutral
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.GroupIcon),
+                    ResourceName.FromCode(1),
+                    ResourceLanguage.Neutral
+                ),
+
+                // -- RT_VERSION/1/English (US)
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.Version),
+                    ResourceName.FromCode(1),
+                    ResourceLanguage.EnglishUnitedStates
+                )
+            );
+        }
+
+        [Fact]
+        public void User_can_get_a_list_of_resources_stored_in_an_empty_portable_executable()
+        {
+            // Arrange
+            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
+
+            // Act
+            var resources = PortableExecutable.GetResources(imageFilePath);
 
             // Assert
             resources.Should().BeEmpty();
         }
 
         [Fact]
-        public void User_can_try_to_safely_get_a_non_existing_resource_which_returns_null()
+        public void User_can_get_label_of_a_type_of_resource_stored_in_a_portable_executable()
         {
             // Arrange
-            using var dummy = DummyPortableExecutable.Create();
-            using var executable = PortableExecutable.FromFile(dummy.FilePath);
+            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
 
             // Act
-            var resource = executable.TryGetResource(
-                ResourceType.FromString("#1"),
-                ResourceName.FromString("#1"),
-                ResourceLanguage.Neutral
-            );
+            var descriptor = PortableExecutable
+                .GetResources(imageFilePath)
+                .First(r => r.Type == ResourceType.FromCode(StandardResourceTypeCode.GroupIcon));
 
             // Assert
-            resource.Should().BeNull();
+            descriptor.Type.Label.Should().Be("GROUP_ICON");
         }
 
         [Fact]
-        public void User_can_try_to_get_a_non_existing_resource_which_throws()
+        public void User_can_read_a_specific_resource_stored_in_a_portable_executable()
         {
             // Arrange
-            using var dummy = DummyPortableExecutable.Create();
-            using var executable = PortableExecutable.FromFile(dummy.FilePath);
+            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
+
+            // Act
+            var data = PortableExecutable.GetResourceData(
+                imageFilePath,
+                new ResourceDescriptor(
+                    ResourceType.FromCode(StandardResourceTypeCode.String),
+                    ResourceName.FromCode(7),
+                    new ResourceLanguage(1058)
+                )
+            );
+
+            var dataText = Encoding.Unicode.GetString(data);
+
+            // Assert
+            dataText.Should().Contain("Привіт, світ");
+        }
+
+        [Fact]
+        public void User_can_try_to_read_a_non_existing_resource_in_a_portable_executable_and_receive_an_exception()
+        {
+            // Arrange
+            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
 
             // Act & assert
             Assert.ThrowsAny<Exception>(() =>
-                executable.GetResource(
-                    ResourceType.FromString("#1"),
-                    ResourceName.FromString("#1"),
-                    ResourceLanguage.Neutral
+                PortableExecutable.GetResourceData(
+                    imageFilePath,
+                    new ResourceDescriptor(
+                        ResourceType.FromCode(1),
+                        ResourceName.FromCode(1),
+                        ResourceLanguage.Neutral
+                    )
                 )
             );
         }
