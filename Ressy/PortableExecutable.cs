@@ -9,6 +9,9 @@ using Ressy.Native;
 
 namespace Ressy
 {
+    /// <summary>
+    /// Methods for working with resources stored in a portable executable image.
+    /// </summary>
     public static class PortableExecutable
     {
         private static IEnumerable<ResourceType> GetResourceTypes(IntPtr imageHandle)
@@ -61,6 +64,9 @@ namespace Ressy
             return languageIds.Select(i => new ResourceLanguage(i));
         }
 
+        /// <summary>
+        /// Gets the list of identifiers for all resources stored in a portable executable image.
+        /// </summary>
         public static IReadOnlyList<ResourceIdentifier> GetResources(string imageFilePath)
         {
             using var image = NativeLibrary.Load(imageFilePath);
@@ -73,6 +79,9 @@ namespace Ressy
             ).ToArray();
         }
 
+        /// <summary>
+        /// Gets the raw binary data for the specified resource stored in a portable executable image.
+        /// </summary>
         public static byte[] GetResourceData(string imageFilePath, ResourceIdentifier identifier)
         {
             using var typeMemory = identifier.Type.CreateMemory();
@@ -108,6 +117,9 @@ namespace Ressy
             return data;
         }
 
+        /// <summary>
+        /// Updates resources stored in a portable executable image.
+        /// </summary>
         public static void UpdateResources(
             string imageFilePath,
             Action<IResourceUpdateContext> update,
@@ -117,6 +129,9 @@ namespace Ressy
             update(context);
         }
 
+        /// <summary>
+        /// Clears all resources stored in a portable executable image.
+        /// </summary>
         public static void ClearResources(string imageFilePath) =>
             UpdateResources(imageFilePath, _ => { }, true);
     }
