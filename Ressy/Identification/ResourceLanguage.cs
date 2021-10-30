@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ressy
+namespace Ressy.Identification
 {
     public partial class ResourceLanguage
     {
@@ -38,9 +38,5 @@ namespace Ressy
         }
 
         public override int GetHashCode() => Id.GetHashCode();
-
-        public static bool operator ==(ResourceLanguage? a, ResourceLanguage? b) => a?.Equals(b) ?? b is null;
-
-        public static bool operator !=(ResourceLanguage? a, ResourceLanguage? b) => !(a == b);
     }
 }

@@ -1,51 +1,65 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
+using Ressy.Identification;
 using Ressy.Native;
+using Ressy.Utils;
+
+// ReSharper disable AccessToDisposedClosure
 
 namespace Ressy
 {
-    public class ResourceUpdateContext
+    internal partial class ResourceUpdateContext : IResourceUpdateContext, IDisposable
     {
-        private readonly IntPtr _handle;
+        public IntPtr Handle { get; }
 
-        internal ResourceUpdateContext(IntPtr handle) => _handle = handle;
+        public ResourceUpdateContext(IntPtr handle) => Handle = handle;
 
-        public void Set(ResourceDescriptor descriptor, byte[] data)
+        ~ResourceUpdateContext() => Dispose();
+
+        public void Set(ResourceIdentifier identifier, byte[] data)
         {
-            var dataHandle = Marshal.AllocHGlobal(data.Length);
+            using var typeMemory = identifier.Type.CreateMemory();
+            using var nameMemory = identifier.Name.CreateMemory();
+            using var dataMemory = new RawUnmanagedMemory(data);
 
-            try
-            {
-                Marshal.Copy(data, 0, dataHandle, data.Length);
-
-                if (!NativeMethods.UpdateResource(_handle,
-                    descriptor.Type.Handle, descriptor.Name.Handle, descriptor.Language.Id,
-                    dataHandle, (uint)data.Length))
-                {
-                    throw new Win32Exception();
-                }
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(dataHandle);
-            }
+            NativeHelpers.ErrorCheck(() =>
+                NativeMethods.UpdateResource(
+                    Handle,
+                    typeMemory.Handle, nameMemory.Handle, identifier.Language.Id,
+                    dataMemory.Handle, (uint)data.Length
+                )
+            );
         }
 
-        public void Remove(ResourceDescriptor descriptor)
+        public void Remove(ResourceIdentifier identifier)
         {
-            if (!NativeMethods.UpdateResource(_handle,
-                descriptor.Type.Handle, descriptor.Name.Handle, descriptor.Language.Id,
-                IntPtr.Zero, 0))
-            {
-                throw new Win32Exception();
-            }
+            using var typeMemory = identifier.Type.CreateMemory();
+            using var nameMemory = identifier.Name.CreateMemory();
+
+            NativeHelpers.ErrorCheck(() =>
+                NativeMethods.UpdateResource(
+                    Handle,
+                    typeMemory.Handle, nameMemory.Handle, identifier.Language.Id,
+                    IntPtr.Zero, 0
+                )
+            );
         }
 
-        internal void Commit(bool discardChanges = false)
+        public void Dispose()
         {
-            if (!NativeMethods.EndUpdateResource(_handle, discardChanges))
-                throw new Win32Exception();
+            // No error check, because we don't want to throw while disposing
+            NativeMethods.EndUpdateResource(Handle, false);
+        }
+    }
+
+    internal partial class ResourceUpdateContext
+    {
+        public static ResourceUpdateContext Create(string filePath, bool deleteExistingResources = false)
+        {
+            var handle = NativeHelpers.ErrorCheck(() =>
+                NativeMethods.BeginUpdateResource(filePath, deleteExistingResources)
+            );
+
+            return new ResourceUpdateContext(handle);
         }
     }
 }

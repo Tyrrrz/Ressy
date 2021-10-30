@@ -1,6 +1,6 @@
-﻿namespace Ressy
+﻿namespace Ressy.Identification
 {
-    public class ResourceDescriptor
+    public class ResourceIdentifier
     {
         public ResourceType Type { get; }
 
@@ -8,14 +8,14 @@
 
         public ResourceLanguage Language { get; }
 
-        public ResourceDescriptor(ResourceType type, ResourceName name, ResourceLanguage language)
+        public ResourceIdentifier(ResourceType type, ResourceName name, ResourceLanguage language)
         {
             Type = type;
             Name = name;
             Language = language;
         }
 
-        public ResourceDescriptor(ResourceType type, ResourceName name)
+        public ResourceIdentifier(ResourceType type, ResourceName name)
             : this(type, name, ResourceLanguage.Neutral)
         {
         }

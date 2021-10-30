@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using Ressy.Identification;
 
 namespace Ressy.Demo
 {
@@ -30,7 +31,7 @@ namespace Ressy.Demo
             {
                 var data = PortableExecutable.GetResourceData(
                     imageFilePath,
-                    new ResourceDescriptor(
+                    new ResourceIdentifier(
                         ResourceType.FromString(resourceType),
                         ResourceName.FromString(resourceName)
                     )

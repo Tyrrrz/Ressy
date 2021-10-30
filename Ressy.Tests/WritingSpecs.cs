@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Ressy.Identification;
 using Ressy.Tests.Fixtures;
 using Xunit;
 
@@ -12,7 +13,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
 
-            var descriptor = new ResourceDescriptor(
+            var descriptor = new ResourceIdentifier(
                 ResourceType.FromCode(6),
                 ResourceName.FromCode(7)
             );
@@ -35,7 +36,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
 
-            var descriptor = new ResourceDescriptor(
+            var descriptor = new ResourceIdentifier(
                 ResourceType.FromString("FOO"),
                 ResourceName.FromCode(7)
             );
@@ -58,7 +59,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
 
-            var descriptor = new ResourceDescriptor(
+            var descriptor = new ResourceIdentifier(
                 ResourceType.FromCode(6),
                 ResourceName.FromString("BAR")
             );
@@ -81,7 +82,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
 
-            var descriptor = new ResourceDescriptor(
+            var descriptor = new ResourceIdentifier(
                 ResourceType.FromString("FOO"),
                 ResourceName.FromString("BAR")
             );
@@ -104,7 +105,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
 
-            var descriptor = new ResourceDescriptor(
+            var descriptor = new ResourceIdentifier(
                 ResourceType.FromCode(6),
                 ResourceName.FromCode(7)
             );
@@ -127,7 +128,7 @@ namespace Ressy.Tests
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
 
-            var descriptor = new ResourceDescriptor(
+            var descriptor = new ResourceIdentifier(
                 ResourceType.FromCode(6),
                 ResourceName.FromCode(7)
             );
