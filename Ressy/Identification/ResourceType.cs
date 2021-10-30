@@ -16,8 +16,8 @@ namespace Ressy.Identification
         public abstract int? Code { get; }
 
         /// <summary>
-        /// Resource type label in the format of "GROUP_ICON" (for standard ordinal types) or
-        /// "#69" (for custom ordinal types) or "MyResource" (for non-ordinal types).
+        /// Resource type label in the format of "#14 (GROUP_ICON)" (for standard ordinal types) or
+        /// "#69" (for non-standard ordinal types) or "MyResource" (for non-ordinal types).
         /// </summary>
         public abstract string Label { get; }
 

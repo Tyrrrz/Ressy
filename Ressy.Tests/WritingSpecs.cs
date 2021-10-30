@@ -31,7 +31,30 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_add_a_resource_with_a_custom_type_to_the_portable_executable()
+        public void User_can_add_a_resource_with_a_non_standard_ordinal_type_to_the_portable_executable()
+        {
+            // Arrange
+            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
+
+            var identifier = new ResourceIdentifier(
+                ResourceType.FromCode(420),
+                ResourceName.FromCode(7)
+            );
+
+            // Act
+            PortableExecutable.UpdateResources(imageFilePath, ctx =>
+            {
+                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
+            });
+
+            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
+
+            // Assert
+            data.Should().Equal(1, 2, 3, 4, 5);
+        }
+
+        [Fact]
+        public void User_can_add_a_resource_with_a_non_ordinal_type_to_the_portable_executable()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
@@ -54,7 +77,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_add_a_resource_with_a_custom_name_to_the_portable_executable()
+        public void User_can_add_a_resource_with_a_non_ordinal_name_to_the_portable_executable()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
@@ -77,7 +100,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_add_a_resource_with_a_custom_type_and_name_to_the_portable_executable()
+        public void User_can_add_a_resource_with_a_non_ordinal_type_and_non_ordinal_name_to_the_portable_executable()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();

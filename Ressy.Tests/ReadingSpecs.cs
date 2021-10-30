@@ -160,7 +160,7 @@ namespace Ressy.Tests
                 .First(r => r.Type.Code == (int) StandardResourceTypeCode.GroupIcon);
 
             // Assert
-            identifier.Type.Label.Should().Be("GROUP_ICON");
+            identifier.Type.Label.Should().Be("#14 (GROUP_ICON)");
         }
 
         [Fact]

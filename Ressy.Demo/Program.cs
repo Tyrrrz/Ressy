@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Ressy.Identification;
@@ -9,13 +10,25 @@ namespace Ressy.Demo
     {
         public static void Main(string[] args)
         {
-            var imageFilePath = args.ElementAtOrDefault(0) ?? typeof(Program).Assembly.Location;
+            var imageFilePath = args.ElementAtOrDefault(0);
+            if (string.IsNullOrWhiteSpace(imageFilePath) || string.Equals(imageFilePath, "-", StringComparison.Ordinal))
+                imageFilePath = typeof(Program).Assembly.Location;
 
-            var resourceType = args.ElementAtOrDefault(1);
-            var resourceName = args.ElementAtOrDefault(2);
+            var resourceType =
+                args.ElementAtOrDefault(1) is { } typeString
+                    ? int.TryParse(typeString, NumberStyles.Integer, CultureInfo.InvariantCulture, out var typeCode)
+                        ? ResourceType.FromCode(typeCode)
+                        : ResourceType.FromString(typeString)
+                    : null;
+
+            var resourceName = args.ElementAtOrDefault(2) is { } nameString
+                ? int.TryParse(nameString, NumberStyles.Integer, CultureInfo.InvariantCulture, out var nameCode)
+                    ? ResourceName.FromCode(nameCode)
+                    : ResourceName.FromString(nameString)
+                : null;
 
             // List resources
-            if (string.IsNullOrWhiteSpace(resourceType) || string.IsNullOrWhiteSpace(resourceName))
+            if (resourceType is null || resourceName is null)
             {
                 Console.WriteLine("Resources:");
 
@@ -30,10 +43,7 @@ namespace Ressy.Demo
             {
                 var data = PortableExecutable.GetResourceData(
                     imageFilePath,
-                    new ResourceIdentifier(
-                        ResourceType.FromString(resourceType),
-                        ResourceName.FromString(resourceName)
-                    )
+                    new ResourceIdentifier(resourceType, resourceName)
                 );
 
                 var dataString = Encoding.Unicode.GetString(data);
