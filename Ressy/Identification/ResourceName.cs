@@ -21,7 +21,10 @@ namespace Ressy.Identification
         /// </summary>
         public abstract string Label { get; }
 
-        internal abstract IUnmanagedMemory CreateMemory();
+        /// <summary>
+        /// Marshals the value of this resource name to native memory for use with Windows API.
+        /// </summary>
+        internal abstract IUnmanagedMemory ToUnmanagedMemory();
 
         /// <inheritdoc />
         [ExcludeFromCodeCoverage]

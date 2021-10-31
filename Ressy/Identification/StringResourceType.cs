@@ -12,6 +12,7 @@ namespace Ressy.Identification
 
         public StringResourceType(string name) => _name = name;
 
-        internal override IUnmanagedMemory CreateMemory() => new StringUnmanagedMemory(_name);
+        internal override IUnmanagedMemory ToUnmanagedMemory() =>
+            new StringUnmanagedMemory(_name);
     }
 }

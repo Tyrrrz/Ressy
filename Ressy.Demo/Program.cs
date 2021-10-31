@@ -14,12 +14,11 @@ namespace Ressy.Demo
             if (string.IsNullOrWhiteSpace(imageFilePath) || string.Equals(imageFilePath, "-", StringComparison.Ordinal))
                 imageFilePath = typeof(Program).Assembly.Location;
 
-            var resourceType =
-                args.ElementAtOrDefault(1) is { } typeString
-                    ? int.TryParse(typeString, NumberStyles.Integer, CultureInfo.InvariantCulture, out var typeCode)
-                        ? ResourceType.FromCode(typeCode)
-                        : ResourceType.FromString(typeString)
-                    : null;
+            var resourceType = args.ElementAtOrDefault(1) is { } typeString
+                ? int.TryParse(typeString, NumberStyles.Integer, CultureInfo.InvariantCulture, out var typeCode)
+                    ? ResourceType.FromCode(typeCode)
+                    : ResourceType.FromString(typeString)
+                : null;
 
             var resourceName = args.ElementAtOrDefault(2) is { } nameString
                 ? int.TryParse(nameString, NumberStyles.Integer, CultureInfo.InvariantCulture, out var nameCode)

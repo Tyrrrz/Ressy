@@ -9,7 +9,7 @@ namespace Ressy.Utils
         public IntPtr Handle { get; }
 
         public StringUnmanagedMemory(string value) =>
-            Handle = Marshal.StringToHGlobalUni(value);
+            Handle = Marshal.StringToHGlobalAuto(value);
 
         [ExcludeFromCodeCoverage]
         ~StringUnmanagedMemory() => Dispose();

@@ -19,9 +19,9 @@ namespace Ressy
 
         public void Set(ResourceIdentifier identifier, byte[] data)
         {
-            using var typeMemory = identifier.Type.CreateMemory();
-            using var nameMemory = identifier.Name.CreateMemory();
-            using var dataMemory = new RawUnmanagedMemory(data);
+            using var typeMemory = identifier.Type.ToUnmanagedMemory();
+            using var nameMemory = identifier.Name.ToUnmanagedMemory();
+            using var dataMemory = new BinaryUnmanagedMemory(data);
 
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.UpdateResource(
@@ -34,8 +34,8 @@ namespace Ressy
 
         public void Remove(ResourceIdentifier identifier)
         {
-            using var typeMemory = identifier.Type.CreateMemory();
-            using var nameMemory = identifier.Name.CreateMemory();
+            using var typeMemory = identifier.Type.ToUnmanagedMemory();
+            using var nameMemory = identifier.Name.ToUnmanagedMemory();
 
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.UpdateResource(

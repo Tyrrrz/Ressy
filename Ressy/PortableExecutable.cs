@@ -22,7 +22,8 @@ namespace Ressy
                 NativeMethods.EnumResourceTypesEx(
                     imageHandle,
                     (_, typeHandle, _) => typeHandles.Add(typeHandle),
-                    IntPtr.Zero, 0, 0)
+                    IntPtr.Zero, 0, 0
+                )
             );
 
             return typeHandles.Select(ResourceType.FromHandle);
@@ -30,7 +31,7 @@ namespace Ressy
 
         private static IEnumerable<ResourceName> GetResourceNames(IntPtr imageHandle, ResourceType type)
         {
-            using var typeMemory = type.CreateMemory();
+            using var typeMemory = type.ToUnmanagedMemory();
 
             var nameHandles = new List<IntPtr>();
 
@@ -38,7 +39,8 @@ namespace Ressy
                 NativeMethods.EnumResourceNamesEx(
                     imageHandle, typeMemory.Handle,
                     (_, _, nameHandle, _) => nameHandles.Add(nameHandle),
-                    IntPtr.Zero, 0, 0)
+                    IntPtr.Zero, 0, 0
+                )
             );
 
             return nameHandles.Select(ResourceName.FromHandle);
@@ -49,8 +51,8 @@ namespace Ressy
             ResourceType type,
             ResourceName name)
         {
-            using var typeMemory = type.CreateMemory();
-            using var nameMemory = name.CreateMemory();
+            using var typeMemory = type.ToUnmanagedMemory();
+            using var nameMemory = name.ToUnmanagedMemory();
 
             var languageIds = new List<ushort>();
 
@@ -58,7 +60,8 @@ namespace Ressy
                 NativeMethods.EnumResourceLanguagesEx(
                     imageHandle, typeMemory.Handle, nameMemory.Handle,
                     (_, _, _, languageId, _) => languageIds.Add(languageId),
-                    IntPtr.Zero, 0, 0)
+                    IntPtr.Zero, 0, 0
+                )
             );
 
             return languageIds.Select(i => new ResourceLanguage(i));
@@ -84,8 +87,8 @@ namespace Ressy
         /// </summary>
         public static byte[] GetResourceData(string imageFilePath, ResourceIdentifier identifier)
         {
-            using var typeMemory = identifier.Type.CreateMemory();
-            using var nameMemory = identifier.Name.CreateMemory();
+            using var typeMemory = identifier.Type.ToUnmanagedMemory();
+            using var nameMemory = identifier.Name.ToUnmanagedMemory();
 
             using var image = NativeLibrary.Load(imageFilePath);
 

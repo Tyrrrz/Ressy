@@ -22,12 +22,14 @@ namespace Ressy.Identification
         /// </summary>
         public abstract string Label { get; }
 
-        internal abstract IUnmanagedMemory CreateMemory();
+        /// <summary>
+        /// Marshals the value of this resource type to native memory for use with Windows API.
+        /// </summary>
+        internal abstract IUnmanagedMemory ToUnmanagedMemory();
 
         /// <inheritdoc />
         [ExcludeFromCodeCoverage]
         public override string ToString() => Label;
-
     }
 
     public partial class ResourceType
@@ -36,7 +38,6 @@ namespace Ressy.Identification
         /// Creates an ordinal resource type from an integer code.
         /// </summary>
         public static ResourceType FromCode(int code) => new OrdinalResourceType(code);
-
 
         /// <summary>
         /// Creates a standard ordinal resource type from an integer code.
