@@ -12,7 +12,7 @@ namespace Ressy
     /// <summary>
     /// Methods for working with resources stored in a portable executable image.
     /// </summary>
-    public static class PortableExecutable
+    public static partial class PortableExecutable
     {
         private static IEnumerable<ResourceType> GetResourceTypes(IntPtr imageHandle)
         {
@@ -121,21 +121,29 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Updates resources stored in a portable executable image.
+        /// Clears all resources stored in a portable executable image.
         /// </summary>
-        public static void UpdateResources(
-            string imageFilePath,
-            Action<IResourceUpdateContext> update,
-            bool clearExistingResources = false)
+        public static void ClearResources(string imageFilePath)
         {
-            using var context = ResourceUpdateContext.Create(imageFilePath, clearExistingResources);
-            update(context);
+            using var context = ResourceUpdateContext.Create(imageFilePath, true);
         }
 
         /// <summary>
-        /// Clears all resources stored in a portable executable image.
+        /// Adds or replaces a resource in a portable executable image.
         /// </summary>
-        public static void ClearResources(string imageFilePath) =>
-            UpdateResources(imageFilePath, _ => { }, true);
+        public static void SetResource(string imageFilePath, ResourceIdentifier identifier, byte[] data)
+        {
+            using var context = ResourceUpdateContext.Create(imageFilePath);
+            context.Set(identifier, data);
+        }
+
+        /// <summary>
+        /// Removes a resource from a portable executable image.
+        /// </summary>
+        public static void RemoveResource(string imageFilePath, ResourceIdentifier identifier)
+        {
+            using var context = ResourceUpdateContext.Create(imageFilePath);
+            context.Remove(identifier);
+        }
     }
 }

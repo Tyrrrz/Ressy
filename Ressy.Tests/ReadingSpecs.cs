@@ -179,10 +179,8 @@ namespace Ressy.Tests
                 )
             );
 
-            var dataText = Encoding.Unicode.GetString(data);
-
             // Assert
-            dataText.Should().Contain("Привіт, світ");
+            Encoding.Unicode.GetString(data).Should().Contain("Привіт, світ");
         }
 
         [Fact]

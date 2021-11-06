@@ -19,16 +19,10 @@ namespace Ressy.Tests
             );
 
             // Act
-            PortableExecutable.UpdateResources(imageFilePath, ctx =>
-            {
-                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
-            });
-
-            var resources = PortableExecutable.GetResources(imageFilePath);
-            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
+            PortableExecutable.SetResource(imageFilePath, identifier, new byte[] { 1, 2, 3, 4, 5 });
 
             // Assert
-            resources.Should().ContainSingle(r =>
+            PortableExecutable.GetResources(imageFilePath).Should().ContainSingle(r =>
                 r.Type.Code == identifier.Type.Code &&
                 r.Type.Label == identifier.Type.Label &&
                 r.Name.Code == identifier.Name.Code &&
@@ -36,7 +30,7 @@ namespace Ressy.Tests
                 r.Language.Id == identifier.Language.Id
             );
 
-            data.Should().Equal(1, 2, 3, 4, 5);
+            PortableExecutable.GetResourceData(imageFilePath, identifier).Should().Equal(1, 2, 3, 4, 5);
         }
 
         [Fact]
@@ -51,16 +45,10 @@ namespace Ressy.Tests
             );
 
             // Act
-            PortableExecutable.UpdateResources(imageFilePath, ctx =>
-            {
-                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
-            });
-
-            var resources = PortableExecutable.GetResources(imageFilePath);
-            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
+            PortableExecutable.SetResource(imageFilePath, identifier, new byte[] { 1, 2, 3, 4, 5 });
 
             // Assert
-            resources.Should().ContainSingle(r =>
+            PortableExecutable.GetResources(imageFilePath).Should().ContainSingle(r =>
                 r.Type.Code == identifier.Type.Code &&
                 r.Type.Label == identifier.Type.Label &&
                 r.Name.Code == identifier.Name.Code &&
@@ -68,7 +56,7 @@ namespace Ressy.Tests
                 r.Language.Id == identifier.Language.Id
             );
 
-            data.Should().Equal(1, 2, 3, 4, 5);
+            PortableExecutable.GetResourceData(imageFilePath, identifier).Should().Equal(1, 2, 3, 4, 5);
         }
 
         [Fact]
@@ -83,16 +71,10 @@ namespace Ressy.Tests
             );
 
             // Act
-            PortableExecutable.UpdateResources(imageFilePath, ctx =>
-            {
-                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
-            });
-
-            var resources = PortableExecutable.GetResources(imageFilePath);
-            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
+            PortableExecutable.SetResource(imageFilePath, identifier, new byte[] { 1, 2, 3, 4, 5 });
 
             // Assert
-            resources.Should().ContainSingle(r =>
+            PortableExecutable.GetResources(imageFilePath).Should().ContainSingle(r =>
                 r.Type.Code == identifier.Type.Code &&
                 r.Type.Label == identifier.Type.Label &&
                 r.Name.Code == identifier.Name.Code &&
@@ -100,7 +82,7 @@ namespace Ressy.Tests
                 r.Language.Id == identifier.Language.Id
             );
 
-            data.Should().Equal(1, 2, 3, 4, 5);
+            PortableExecutable.GetResourceData(imageFilePath, identifier).Should().Equal(1, 2, 3, 4, 5);
         }
 
         [Fact]
@@ -115,16 +97,10 @@ namespace Ressy.Tests
             );
 
             // Act
-            PortableExecutable.UpdateResources(imageFilePath, ctx =>
-            {
-                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
-            });
-
-            var resources = PortableExecutable.GetResources(imageFilePath);
-            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
+            PortableExecutable.SetResource(imageFilePath, identifier, new byte[] { 1, 2, 3, 4, 5 });
 
             // Assert
-            resources.Should().ContainSingle(r =>
+            PortableExecutable.GetResources(imageFilePath).Should().ContainSingle(r =>
                 r.Type.Code == identifier.Type.Code &&
                 r.Type.Label == identifier.Type.Label &&
                 r.Name.Code == identifier.Name.Code &&
@@ -132,7 +108,7 @@ namespace Ressy.Tests
                 r.Language.Id == identifier.Language.Id
             );
 
-            data.Should().Equal(1, 2, 3, 4, 5);
+            PortableExecutable.GetResourceData(imageFilePath, identifier).Should().Equal(1, 2, 3, 4, 5);
         }
 
         [Fact]
@@ -147,16 +123,10 @@ namespace Ressy.Tests
             );
 
             // Act
-            PortableExecutable.UpdateResources(imageFilePath, ctx =>
-            {
-                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
-            });
-
-            var resources = PortableExecutable.GetResources(imageFilePath);
-            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
+            PortableExecutable.SetResource(imageFilePath, identifier, new byte[] { 1, 2, 3, 4, 5 });
 
             // Assert
-            resources.Should().ContainSingle(r =>
+            PortableExecutable.GetResources(imageFilePath).Should().ContainSingle(r =>
                 r.Type.Code == identifier.Type.Code &&
                 r.Type.Label == identifier.Type.Label &&
                 r.Name.Code == identifier.Name.Code &&
@@ -164,7 +134,7 @@ namespace Ressy.Tests
                 r.Language.Id == identifier.Language.Id
             );
 
-            data.Should().Equal(1, 2, 3, 4, 5);
+            PortableExecutable.GetResourceData(imageFilePath, identifier).Should().Equal(1, 2, 3, 4, 5);
         }
 
         [Fact]
@@ -179,16 +149,10 @@ namespace Ressy.Tests
             );
 
             // Act
-            PortableExecutable.UpdateResources(imageFilePath, ctx =>
-            {
-                ctx.Set(identifier, new byte[] { 1, 2, 3, 4, 5 });
-            });
-
-            var resources = PortableExecutable.GetResources(imageFilePath);
-            var data = PortableExecutable.GetResourceData(imageFilePath, identifier);
+            PortableExecutable.SetResource(imageFilePath, identifier, new byte[] { 1, 2, 3, 4, 5 });
 
             // Assert
-            resources.Should().ContainSingle(r =>
+            PortableExecutable.GetResources(imageFilePath).Should().ContainSingle(r =>
                 r.Type.Code == identifier.Type.Code &&
                 r.Type.Label == identifier.Type.Label &&
                 r.Name.Code == identifier.Name.Code &&
@@ -196,7 +160,7 @@ namespace Ressy.Tests
                 r.Language.Id == identifier.Language.Id
             );
 
-            data.Should().Equal(1, 2, 3, 4, 5);
+            PortableExecutable.GetResourceData(imageFilePath, identifier).Should().Equal(1, 2, 3, 4, 5);
         }
 
         [Fact]
@@ -211,15 +175,10 @@ namespace Ressy.Tests
             );
 
             // Act
-            PortableExecutable.UpdateResources(imageFilePath, ctx =>
-            {
-                ctx.Remove(identifier);
-            });
-
-            var resources = PortableExecutable.GetResources(imageFilePath);
+            PortableExecutable.RemoveResource(imageFilePath, identifier);
 
             // Assert
-            resources.Should().NotContain(r =>
+            PortableExecutable.GetResources(imageFilePath).Should().NotContain(r =>
                 r.Type.Code == identifier.Type.Code &&
                 r.Type.Label == identifier.Type.Label &&
                 r.Name.Code == identifier.Name.Code &&
@@ -237,10 +196,8 @@ namespace Ressy.Tests
             // Act
             PortableExecutable.ClearResources(imageFilePath);
 
-            var resources = PortableExecutable.GetResources(imageFilePath);
-
             // Assert
-            resources.Should().BeEmpty();
+            PortableExecutable.GetResources(imageFilePath).Should().BeEmpty();
         }
     }
 }

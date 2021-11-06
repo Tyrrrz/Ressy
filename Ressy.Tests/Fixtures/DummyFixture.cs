@@ -10,12 +10,9 @@ namespace Ressy.Tests.Fixtures
         private readonly int _id = Guid.NewGuid().GetHashCode();
         private int _dummyCount;
 
-        private string SourceDirPath { get; } = Path.Combine(
-            Path.GetDirectoryName(typeof(DummyFixture).Assembly.Location) ??
-            Directory.GetCurrentDirectory()
-        );
+        private string SourceDirPath => Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData");
 
-        private string StorageDirPath => Path.Combine(SourceDirPath, $"Dummies_{_id}");
+        private string StorageDirPath => Path.Combine(DirectoryEx.ExecutingDirectoryPath, $"Dummies_{_id}");
 
         private string CreatePortableExecutable(string sourceFileName)
         {

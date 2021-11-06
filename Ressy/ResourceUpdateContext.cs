@@ -8,7 +8,7 @@ using Ressy.Utils;
 
 namespace Ressy
 {
-    internal partial class ResourceUpdateContext : IResourceUpdateContext, IDisposable
+    internal partial class ResourceUpdateContext : IDisposable
     {
         public IntPtr Handle { get; }
 
