@@ -11,7 +11,7 @@ namespace Ressy.Tests
     public record IconSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
     {
         [Fact]
-        public void User_can_add_an_icon_to_a_portable_executable()
+        public void User_can_add_an_icon()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
@@ -61,7 +61,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_overwrite_an_icon_in_a_portable_executable()
+        public void User_can_overwrite_an_icon()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
@@ -114,6 +114,25 @@ namespace Ressy.Tests
                         ResourceLanguage.Neutral
                     )
                 );
+        }
+
+        [Fact]
+        public void User_can_remove_an_icon()
+        {
+            // Arrange
+            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
+
+            // Act
+            PortableExecutable.RemoveIcon(imageFilePath);
+
+            // Assert
+            PortableExecutable
+                .GetResources(imageFilePath)
+                .Where(
+                    r => r.Type.Code is (int)StandardResourceTypeCode.GroupIcon or (int)StandardResourceTypeCode.Icon
+                )
+                .Should()
+                .BeEmpty();
         }
     }
 }

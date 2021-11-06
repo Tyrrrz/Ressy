@@ -11,7 +11,7 @@ namespace Ressy.Tests
     public record ReadingSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
     {
         [Fact]
-        public void User_can_get_a_list_of_resources_stored_in_a_portable_executable()
+        public void User_can_get_a_list_of_resources()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
@@ -131,12 +131,19 @@ namespace Ressy.Tests
                     ResourceType.FromCode(StandardResourceTypeCode.Version),
                     ResourceName.FromCode(1),
                     ResourceLanguage.EnglishUnitedStates
+                ),
+
+                // -- RT_MANIFEST/1/Neutral
+                new ResourceIdentifier(
+                    ResourceType.FromCode(StandardResourceTypeCode.Manifest),
+                    ResourceName.FromCode(1),
+                    ResourceLanguage.Neutral
                 )
             );
         }
 
         [Fact]
-        public void User_can_get_a_list_of_resources_stored_in_an_empty_portable_executable()
+        public void User_can_get_a_list_of_resources_in_an_empty_image()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
@@ -149,7 +156,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_get_label_of_a_type_of_resource_stored_in_a_portable_executable()
+        public void User_can_get_label_of_a_type_of_resource()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
@@ -164,7 +171,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_read_a_specific_resource_stored_in_a_portable_executable()
+        public void User_can_read_data_of_a_specific_resource()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
@@ -184,7 +191,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_try_to_read_a_non_existing_resource_in_a_portable_executable_and_receive_an_exception()
+        public void User_can_try_to_read_data_of_a_non_existing_resource_and_receive_an_exception()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();

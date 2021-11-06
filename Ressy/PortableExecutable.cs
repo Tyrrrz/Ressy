@@ -68,7 +68,7 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Gets the list of identifiers for all resources stored in a portable executable image.
+        /// Gets the list of identifiers for all stored resources.
         /// </summary>
         public static IReadOnlyList<ResourceIdentifier> GetResources(string imageFilePath)
         {
@@ -83,7 +83,7 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Gets the raw binary data for the specified resource stored in a portable executable image.
+        /// Gets the raw binary data of the specified resource.
         /// </summary>
         public static byte[] GetResourceData(string imageFilePath, ResourceIdentifier identifier)
         {
@@ -121,7 +121,7 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Clears all resources stored in a portable executable image.
+        /// Clears all resources.
         /// </summary>
         public static void ClearResources(string imageFilePath)
         {
@@ -129,7 +129,7 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Adds or replaces a resource in a portable executable image.
+        /// Adds or overwrites a resource.
         /// </summary>
         public static void SetResource(string imageFilePath, ResourceIdentifier identifier, byte[] data)
         {
@@ -138,7 +138,7 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Removes a resource from a portable executable image.
+        /// Removes a resource.
         /// </summary>
         public static void RemoveResource(string imageFilePath, ResourceIdentifier identifier)
         {

@@ -6,7 +6,7 @@ namespace Ressy
 {
     public partial class PortableExecutable
     {
-        private static void AddIconGroupResource(
+        private static void SetIconGroupResource(
             string imageFilePath,
             IconFile iconFile,
             ResourceLanguage language)
@@ -21,7 +21,7 @@ namespace Ressy
             var index = (short)1;
             foreach (var icon in iconFile.GetIcons())
             {
-                // Write metadata except for the last 4 bytes (offset)
+                // Write metadata except for the last 4 bytes (no offset)
                 var metaData = icon.GetMetaData();
                 writer.Write(metaData, 0, metaData.Length - 4);
 
@@ -40,7 +40,7 @@ namespace Ressy
             );
         }
 
-        private static void AddIconResource(
+        private static void SetIconResource(
             string imageFilePath,
             IconFileEntry iconFileEntry,
             ResourceName name,
@@ -58,7 +58,7 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Removes existing icon resources stored in a portable executable image.
+        /// Removes existing icon resources.
         /// </summary>
         public static void RemoveIcon(string imageFilePath, ResourceLanguage language)
         {
@@ -77,8 +77,13 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Removes existing icon resources stored in a portable executable image
-        /// and replaces them with the specified icon.
+        /// Removes existing icon resources.
+        /// </summary>
+        public static void RemoveIcon(string imageFilePath) =>
+            RemoveIcon(imageFilePath, ResourceLanguage.Neutral);
+
+        /// <summary>
+        /// Removes existing icon resources and adds icon data from the specified ICO file.
         /// </summary>
         public static void SetIcon(string imageFilePath, string iconFilePath, ResourceLanguage language)
         {
@@ -89,17 +94,16 @@ namespace Ressy
             RemoveIcon(imageFilePath, language);
 
             // Add icon group resource
-            AddIconGroupResource(imageFilePath, iconFile, language);
+            SetIconGroupResource(imageFilePath, iconFile, language);
 
             // Add icon resources
             var index = 1;
             foreach (var icon in iconFile.GetIcons())
-                AddIconResource(imageFilePath, icon, ResourceName.FromCode(index++), language);
+                SetIconResource(imageFilePath, icon, ResourceName.FromCode(index++), language);
         }
 
         /// <summary>
-        /// Clears existing icon resources stored in a portable executable image
-        /// and replaces them with the specified icon.
+        /// Clears existing icon resources and adds icon data from the specified ICO file.
         /// </summary>
         public static void SetIcon(string imageFilePath, string iconFilePath) =>
             SetIcon(imageFilePath, iconFilePath, ResourceLanguage.Neutral);

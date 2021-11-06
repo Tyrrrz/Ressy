@@ -8,7 +8,7 @@ namespace Ressy.Tests
     public record WritingSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
     {
         [Fact]
-        public void User_can_add_a_resource_to_the_portable_executable()
+        public void User_can_add_a_resource()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
@@ -34,7 +34,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_add_a_resource_with_a_non_standard_ordinal_type_to_the_portable_executable()
+        public void User_can_add_a_resource_with_a_non_standard_ordinal_type()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
@@ -60,7 +60,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_add_a_resource_with_a_non_ordinal_type_to_the_portable_executable()
+        public void User_can_add_a_resource_with_a_non_ordinal_type()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
@@ -86,7 +86,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_add_a_resource_with_a_non_ordinal_name_to_the_portable_executable()
+        public void User_can_add_a_resource_with_a_non_ordinal_name()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
@@ -112,7 +112,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_add_a_resource_with_a_non_ordinal_type_and_non_ordinal_name_to_the_portable_executable()
+        public void User_can_add_a_resource_with_a_non_ordinal_type_and_non_ordinal_name()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
@@ -138,7 +138,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_overwrite_a_specific_resource_in_a_portable_executable()
+        public void User_can_overwrite_a_specific_resource()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
@@ -164,7 +164,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_remove_a_specific_resource_in_a_portable_executable()
+        public void User_can_remove_a_specific_resource()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
@@ -188,7 +188,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_clear_resources_in_a_portable_executable()
+        public void User_can_clear_resources()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
