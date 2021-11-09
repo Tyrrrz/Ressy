@@ -21,7 +21,11 @@ namespace Ressy
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.EnumResourceTypesEx(
                     imageHandle,
-                    (_, typeHandle, _) => typeHandles.Add(typeHandle),
+                    (_, typeHandle, _) =>
+                    {
+                        typeHandles.Add(typeHandle);
+                        return true;
+                    },
                     IntPtr.Zero, 0, 0
                 )
             );
@@ -38,7 +42,11 @@ namespace Ressy
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.EnumResourceNamesEx(
                     imageHandle, typeMemory.Handle,
-                    (_, _, nameHandle, _) => nameHandles.Add(nameHandle),
+                    (_, _, nameHandle, _) =>
+                    {
+                        nameHandles.Add(nameHandle);
+                        return true;
+                    },
                     IntPtr.Zero, 0, 0
                 )
             );
@@ -59,7 +67,11 @@ namespace Ressy
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.EnumResourceLanguagesEx(
                     imageHandle, typeMemory.Handle, nameMemory.Handle,
-                    (_, _, _, languageId, _) => languageIds.Add(languageId),
+                    (_, _, _, languageId, _) =>
+                    {
+                        languageIds.Add(languageId);
+                        return true;
+                    },
                     IntPtr.Zero, 0, 0
                 )
             );
@@ -68,11 +80,11 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Gets the list of identifiers for all stored resources.
+        /// Gets the list of identifiers of all stored resources.
         /// </summary>
         public static IReadOnlyList<ResourceIdentifier> GetResources(string imageFilePath)
         {
-            using var image = NativeLibrary.Load(imageFilePath);
+            using var image = NativeImage.Load(imageFilePath);
 
             return (
                 from type in GetResourceTypes(image.Handle)
@@ -90,7 +102,7 @@ namespace Ressy
             using var typeMemory = identifier.Type.ToUnmanagedMemory();
             using var nameMemory = identifier.Name.ToUnmanagedMemory();
 
-            using var image = NativeLibrary.Load(imageFilePath);
+            using var image = NativeImage.Load(imageFilePath);
 
             // Resource handle does not need to be freed up
             var resourceHandle = NativeHelpers.ErrorCheck(() =>
@@ -121,7 +133,7 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Clears all resources.
+        /// Removes all stored resources.
         /// </summary>
         public static void ClearResources(string imageFilePath)
         {

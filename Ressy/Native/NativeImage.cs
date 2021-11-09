@@ -3,14 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Ressy.Native
 {
-    internal partial class NativeLibrary : IDisposable
+    internal partial class NativeImage : IDisposable
     {
         public IntPtr Handle { get; }
 
-        public NativeLibrary(IntPtr handle) => Handle = handle;
+        public NativeImage(IntPtr handle) => Handle = handle;
 
         [ExcludeFromCodeCoverage]
-        ~NativeLibrary() => Dispose();
+        ~NativeImage() => Dispose();
 
         public void Dispose()
         {
@@ -19,15 +19,15 @@ namespace Ressy.Native
         }
     }
 
-    internal partial class NativeLibrary
+    internal partial class NativeImage
     {
-        public static NativeLibrary Load(string filePath)
+        public static NativeImage Load(string filePath)
         {
             var handle = NativeHelpers.ErrorCheck(() =>
                 NativeMethods.LoadLibraryEx(filePath, IntPtr.Zero, 0x00000002)
             );
 
-            return new NativeLibrary(handle);
+            return new NativeImage(handle);
         }
     }
 }
