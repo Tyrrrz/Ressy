@@ -47,30 +47,6 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_overwrite_the_application_manifest()
-        {
-            // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
-
-            const string manifest = @"
-                <?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>
-                <assembly xmlns=""urn:schemas-microsoft-com:asm.v1"" manifestVersion=""1.0"">
-                    <assemblyIdentity
-                        name=""MyAssembly""
-                        processorArchitecture=""x86""
-                        version=""1.0.0.0""
-                        type=""win32""/>
-                </assembly>";
-
-            // Act
-            portableExecutable.SetManifest(manifest);
-
-            // Assert
-            portableExecutable.GetManifest().Should().Be(manifest);
-        }
-
-        [Fact]
         public void User_can_remove_the_application_manifest()
         {
             // Arrange

@@ -74,36 +74,6 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_overwrite_the_application_version()
-        {
-            // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
-
-            var version = new VersionInfo(
-                new Version(6, 7, 8, 9),
-                new Version(2, 3, 1, 9),
-                FileFlags.None,
-                FileOperatingSystem.NT | FileOperatingSystem.Windows32,
-                FileType.App,
-                FileSubType.Unknown,
-                new DateTimeOffset(2021, 11, 17, 00, 00, 00, TimeSpan.Zero),
-                new Dictionary<string, string>(StringComparer.Ordinal)
-                {
-                    ["Foo"] = "Bar",
-                    ["Baz"] = "Boom"
-                },
-                new[] { new TranslationInfo(0, 1252) }
-            );
-
-            // Act
-            portableExecutable.SetVersionInfo(version);
-
-            // Assert
-            portableExecutable.GetVersionInfo().Should().BeEquivalentTo(version);
-        }
-
-        [Fact]
         public void User_can_remove_the_application_version()
         {
             // Arrange
