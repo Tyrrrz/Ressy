@@ -31,13 +31,9 @@ namespace Ressy
         public static ResourceLanguage Neutral { get; } = new(0);
 
         /// <summary>
-        /// English (United States) language.
-        /// </summary>
-        public static ResourceLanguage EnglishUnitedStates { get; } = new(1033);
-
-        /// <summary>
         /// Creates a language identifier from a culture descriptor.
         /// </summary>
-        public static ResourceLanguage FromCultureInfo(CultureInfo cultureInfo) => new(cultureInfo.LCID);
+        // https://docs.microsoft.com/en-us/windows/win32/intl/locale-identifiers?redirectedfrom=MSDN
+        public static ResourceLanguage FromCultureInfo(CultureInfo cultureInfo) => new(cultureInfo.LCID & 0xffff);
     }
 }

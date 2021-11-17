@@ -13,14 +13,24 @@ namespace Ressy.Abstractions.Manifests
         // because that's the default encoding for XML files.
         private static readonly Encoding DefaultManifestEncoding = Encoding.UTF8;
 
-        private static Resource? TryGetManifestResource(this PortableExecutable portableExecutable)
+        /// <summary>
+        /// Gets the application manifest resource and reads its data as an XML text string.
+        /// Returns <c>null</c> if the resource doesn't exist.
+        /// </summary>
+        /// <remarks>
+        /// In case of multiple application manifest resources, this method retrieves
+        /// the one with the lowest ordinal resource name in the neutral language.
+        /// If there are no resources matching aforementioned criteria, this method
+        /// retrieves the first application manifest resource it encounters.
+        /// </remarks>
+        public static string? TryGetManifest(this PortableExecutable portableExecutable, Encoding? encoding = null)
         {
             var identifiers = portableExecutable.GetResourceIdentifiers()
                 .Where(r => r.Type.Code == (int)StandardResourceTypeCode.Manifest)
                 .ToArray();
 
             var identifier =
-                // Among neutral language resources, find one with the lowest ordinal name (ID)
+                // Among neutral language resources, find the one with the lowest ordinal name (ID)
                 identifiers
                     .Where(r => r.Language.Id == ResourceLanguage.Neutral.Id)
                     .Where(r => r.Name.Code is not null)
@@ -32,12 +42,11 @@ namespace Ressy.Abstractions.Manifests
             if (identifier is null)
                 return null;
 
-            return portableExecutable.TryGetResource(identifier);
+            return portableExecutable.TryGetResource(identifier)?.ReadAsString(encoding ?? DefaultManifestEncoding);
         }
 
         /// <summary>
         /// Gets the application manifest resource and reads its data as an XML text string.
-        /// Returns <c>null</c> if the resource doesn't exist.
         /// </summary>
         /// <remarks>
         /// In case of multiple application manifest resources, this method retrieves
@@ -45,23 +54,7 @@ namespace Ressy.Abstractions.Manifests
         /// If there are no resources matching aforementioned criteria, this method
         /// retrieves the first application manifest resource it encounters.
         /// </remarks>
-        public static string? TryGetManifest(
-            this PortableExecutable portableExecutable,
-            Encoding? encoding = null) =>
-            portableExecutable.TryGetManifestResource()?.ReadAsString(encoding ?? DefaultManifestEncoding);
-
-        /// <summary>
-        /// Gets the application manifest resource and reads its data as an XML text string.
-        /// </summary>
-        /// <remarks>
-        /// In case of multiple application manifest resources, this method retrieves
-        /// the one with the lowest ordinal resource name in the neutral language.
-        /// If there are no resources matching aforementioned criteria, this method
-        /// retrieves the first application manifest resource it encounters.
-        /// </remarks>
-        public static string GetManifest(
-            this PortableExecutable portableExecutable,
-            Encoding? encoding = null) =>
+        public static string GetManifest(this PortableExecutable portableExecutable, Encoding? encoding = null) =>
             portableExecutable.TryGetManifest(encoding) ??
             throw new InvalidOperationException("Application manifest resource does not exist.");
 
@@ -76,7 +69,7 @@ namespace Ressy.Abstractions.Manifests
             {
                 foreach (var identifier in identifiers)
                 {
-                    if (identifier.Type.Code is (int)StandardResourceTypeCode.Manifest)
+                    if (identifier.Type.Code == (int)StandardResourceTypeCode.Manifest)
                         ctx.Remove(identifier);
                 }
             });

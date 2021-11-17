@@ -129,7 +129,7 @@ namespace Ressy.Tests
                 new ResourceIdentifier(
                     ResourceType.FromCode(StandardResourceTypeCode.Version),
                     ResourceName.FromCode(1),
-                    ResourceLanguage.EnglishUnitedStates
+                    ResourceLanguage.FromCultureInfo(new CultureInfo("en-US"))
                 ),
 
                 // -- RT_MANIFEST/1/Neutral
@@ -166,7 +166,7 @@ namespace Ressy.Tests
             var resource = portableExecutable.GetResource(new ResourceIdentifier(
                 ResourceType.FromCode(StandardResourceTypeCode.String),
                 ResourceName.FromCode(7),
-                ResourceLanguage.FromCultureInfo(CultureInfo.GetCultureInfo("ua"))
+                ResourceLanguage.FromCultureInfo(CultureInfo.GetCultureInfo("uk-UA"))
             ));
 
             // Assert

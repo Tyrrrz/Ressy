@@ -11,7 +11,7 @@ namespace Ressy.Abstractions.Versions
     /// </summary>
     public static class VersionExtensions
     {
-        private static Resource? TryGetVersionInfoResource(this PortableExecutable portableExecutable)
+        public static VersionInfo? TryGetVersionInfo(this PortableExecutable portableExecutable)
         {
             var identifiers = portableExecutable.GetResourceIdentifiers()
                 .Where(r => r.Type.Code == (int)StandardResourceTypeCode.Version)
@@ -30,16 +30,11 @@ namespace Ressy.Abstractions.Versions
             if (identifier is null)
                 return null;
 
-            return portableExecutable.TryGetResource(identifier);
-        }
-
-        public static VersionInfo? TryGetVersionInfo(this PortableExecutable portableExecutable)
-        {
-            var data = portableExecutable.TryGetVersionInfoResource()?.Data;
-            if (data is null)
+            var resource = portableExecutable.TryGetResource(identifier);
+            if (resource is null)
                 return null;
 
-            return VersionInfo.Deserialize(data);
+            return VersionInfo.Deserialize(resource.Data);
         }
 
         public static VersionInfo GetVersionInfo(this PortableExecutable portableExecutable) =>
@@ -61,7 +56,7 @@ namespace Ressy.Abstractions.Versions
             new Version(1, 0, 0, 0),
             new Version(1, 0, 0, 0),
             FileFlags.None,
-            FileOperatingSystem.Windows32 | FileOperatingSystem.NT,
+            FileOperatingSystem.NT | FileOperatingSystem.Windows32,
             portableExecutable.GetFileType(),
             FileSubType.Unknown,
             portableExecutable.GetFileTimestamp(),
@@ -80,7 +75,7 @@ namespace Ressy.Abstractions.Versions
             {
                 foreach (var identifier in identifiers)
                 {
-                    if (identifier.Type.Code is (int)StandardResourceTypeCode.Version)
+                    if (identifier.Type.Code == (int)StandardResourceTypeCode.Version)
                         ctx.Remove(identifier);
                 }
             });
