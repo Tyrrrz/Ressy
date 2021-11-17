@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Ressy.Identification;
 using Ressy.Native;
 
 // ReSharper disable AccessToDisposedClosure
@@ -10,17 +11,54 @@ using Ressy.Native;
 namespace Ressy
 {
     /// <summary>
-    /// Methods for working with resources stored in a portable executable image.
+    /// Portable executable image file.
     /// </summary>
-    public static partial class PortableExecutable
+    public class PortableExecutable : IDisposable
     {
-        private static IEnumerable<ResourceType> GetResourceTypes(IntPtr imageHandle)
+        private SafeIntPtr? _handle;
+
+        /// <summary>
+        /// Path to the portable executable image file.
+        /// </summary>
+        public string FilePath { get; }
+
+        /// <summary>
+        /// Initializes an instance of <see cref="PortableExecutable"/>.
+        /// </summary>
+        public PortableExecutable(string filePath) => FilePath = filePath;
+
+        [ExcludeFromCodeCoverage]
+        ~PortableExecutable() => Dispose();
+
+        private SafeIntPtr ResolveHandle()
+        {
+            if (_handle is not null)
+                return _handle;
+
+            var handle = new SafeIntPtr(
+                NativeHelpers.ErrorCheck(() =>
+                    NativeMethods.LoadLibraryEx(FilePath, IntPtr.Zero, 0x00000002)
+                ),
+                h => NativeMethods.FreeLibrary(h)
+            );
+
+            _handle = handle;
+            return handle;
+        }
+
+        private void ResetHandle()
+        {
+            _handle?.Dispose();
+            _handle = null;
+        }
+
+        private IEnumerable<ResourceType> GetResourceTypes()
         {
             var typeHandles = new List<IntPtr>();
 
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.EnumResourceTypesEx(
-                    imageHandle,
+                    ResolveHandle(),
                     (_, typeHandle, _) =>
                     {
                         typeHandles.Add(typeHandle);
@@ -33,15 +71,15 @@ namespace Ressy
             return typeHandles.Select(ResourceType.FromHandle);
         }
 
-        private static IEnumerable<ResourceName> GetResourceNames(IntPtr imageHandle, ResourceType type)
+        private IEnumerable<ResourceName> GetResourceNames(ResourceType type)
         {
-            using var typeMemory = type.ToUnmanagedMemory();
+            using var typeHandle = type.ToPointer();
 
             var nameHandles = new List<IntPtr>();
 
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.EnumResourceNamesEx(
-                    imageHandle, typeMemory.Handle,
+                    ResolveHandle(), typeHandle,
                     (_, _, nameHandle, _) =>
                     {
                         nameHandles.Add(nameHandle);
@@ -54,19 +92,16 @@ namespace Ressy
             return nameHandles.Select(ResourceName.FromHandle);
         }
 
-        private static IEnumerable<ResourceLanguage> GetResourceLanguages(
-            IntPtr imageHandle,
-            ResourceType type,
-            ResourceName name)
+        private IEnumerable<ResourceLanguage> GetResourceLanguages(ResourceType type, ResourceName name)
         {
-            using var typeMemory = type.ToUnmanagedMemory();
-            using var nameMemory = name.ToUnmanagedMemory();
+            using var typeHandle = type.ToPointer();
+            using var nameHandle = name.ToPointer();
 
             var languageIds = new List<ushort>();
 
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.EnumResourceLanguagesEx(
-                    imageHandle, typeMemory.Handle, nameMemory.Handle,
+                    ResolveHandle(), typeHandle, nameHandle,
                     (_, _, _, languageId, _) =>
                     {
                         languageIds.Add(languageId);
@@ -80,42 +115,46 @@ namespace Ressy
         }
 
         /// <summary>
-        /// Gets the list of identifiers of all stored resources.
+        /// Gets the identifiers of all existing resources.
         /// </summary>
-        public static IReadOnlyList<ResourceIdentifier> GetResources(string imageFilePath)
-        {
-            using var image = NativeImage.Load(imageFilePath);
-
-            return (
-                from type in GetResourceTypes(image.Handle)
-                from name in GetResourceNames(image.Handle, type)
-                from language in GetResourceLanguages(image.Handle, type, name)
-                select new ResourceIdentifier(type, name, language)
-            ).ToArray();
-        }
+        public IReadOnlyList<ResourceIdentifier> GetResourceIdentifiers() =>
+        (
+            from type in GetResourceTypes()
+            from name in GetResourceNames(type)
+            from language in GetResourceLanguages(type, name)
+            select new ResourceIdentifier(type, name, language)
+        ).ToArray();
 
         /// <summary>
         /// Gets the raw binary data of the specified resource.
+        /// Returns <c>null</c> if the resource does not exist.
         /// </summary>
-        public static byte[] GetResourceData(string imageFilePath, ResourceIdentifier identifier)
+        public Resource? TryGetResource(ResourceIdentifier identifier)
         {
-            using var typeMemory = identifier.Type.ToUnmanagedMemory();
-            using var nameMemory = identifier.Name.ToUnmanagedMemory();
+            using var typeHandle = identifier.Type.ToPointer();
+            using var nameHandle = identifier.Name.ToPointer();
 
-            using var image = NativeImage.Load(imageFilePath);
-
-            // Resource handle does not need to be freed up
-            var resourceHandle = NativeHelpers.ErrorCheck(() =>
-                NativeMethods.FindResourceEx(
-                    image.Handle,
-                    typeMemory.Handle,
-                    nameMemory.Handle,
-                    identifier.Language.Id
-                )
+            var resourceHandle = NativeMethods.FindResourceEx(
+                ResolveHandle(),
+                typeHandle,
+                nameHandle,
+                (ushort)identifier.Language.Id
             );
 
+            if (resourceHandle == IntPtr.Zero)
+            {
+                var error = Marshal.GetLastWin32Error();
+
+                // Return null if the resource does not exist
+                if (error is 1813 or 1814 or 1815)
+                    return null;
+
+                // Throw in other cases
+                throw new Win32Exception(error);
+            }
+
             var dataHandle = NativeHelpers.ErrorCheck(() =>
-                NativeMethods.LoadResource(image.Handle, resourceHandle)
+                NativeMethods.LoadResource(ResolveHandle(), resourceHandle)
             );
 
             var dataSource = NativeHelpers.ErrorCheck(() =>
@@ -123,39 +162,49 @@ namespace Ressy
             );
 
             var length = NativeHelpers.ErrorCheck(() =>
-                NativeMethods.SizeofResource(image.Handle, resourceHandle)
+                NativeMethods.SizeofResource(ResolveHandle(), resourceHandle)
             );
 
             var data = new byte[length];
             Marshal.Copy(dataSource, data, 0, (int)length);
 
-            return data;
+            return new Resource(identifier, data);
         }
 
         /// <summary>
-        /// Removes all stored resources.
+        /// Gets the raw binary data of the specified resource.
         /// </summary>
-        public static void ClearResources(string imageFilePath)
+        public Resource GetResource(ResourceIdentifier identifier) =>
+            TryGetResource(identifier) ??
+            throw new InvalidOperationException($"Resource '{identifier}' does not exist.");
+
+        internal void UpdateResources(Action<ResourceUpdateContext> update, bool deleteExistingResources = false)
         {
-            using var context = ResourceUpdateContext.Create(imageFilePath, true);
+            using (var context = ResourceUpdateContext.Create(FilePath, deleteExistingResources))
+                update(context);
+
+            // Reset previously obtained handle because the data may have become out of date after changes
+            ResetHandle();
         }
 
         /// <summary>
-        /// Adds or overwrites a resource.
+        /// Removes all existing resources.
         /// </summary>
-        public static void SetResource(string imageFilePath, ResourceIdentifier identifier, byte[] data)
-        {
-            using var context = ResourceUpdateContext.Create(imageFilePath);
-            context.Set(identifier, data);
-        }
+        public void ClearResources() => UpdateResources(_ => { }, true);
 
         /// <summary>
-        /// Removes a resource.
+        /// Adds or overwrites the specified resource.
         /// </summary>
-        public static void RemoveResource(string imageFilePath, ResourceIdentifier identifier)
-        {
-            using var context = ResourceUpdateContext.Create(imageFilePath);
-            context.Remove(identifier);
-        }
+        public void SetResource(ResourceIdentifier identifier, byte[] data) =>
+            UpdateResources(ctx => ctx.Set(identifier, data));
+
+        /// <summary>
+        /// Removes the specified resource.
+        /// </summary>
+        public void RemoveResource(ResourceIdentifier identifier) =>
+            UpdateResources(ctx => ctx.Remove(identifier));
+
+        /// <inheritdoc />
+        public void Dispose() => ResetHandle();
     }
 }

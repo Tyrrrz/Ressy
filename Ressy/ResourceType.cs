@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Ressy.Native;
-using Ressy.Utils;
 
-namespace Ressy.Identification
+namespace Ressy
 {
     /// <summary>
     /// Type of a resource stored in a portable executable image.
@@ -25,7 +24,7 @@ namespace Ressy.Identification
         /// <summary>
         /// Marshals the value of this resource type to native memory for use with Windows API.
         /// </summary>
-        internal abstract IUnmanagedMemory ToUnmanagedMemory();
+        internal abstract SafeIntPtr ToPointer();
 
         /// <inheritdoc />
         [ExcludeFromCodeCoverage]

@@ -1,27 +1,30 @@
 using System.IO;
 using System.Linq;
 using FluentAssertions;
-using Ressy.Identification;
+using Ressy.Abstractions.Icons;
 using Ressy.Tests.Fixtures;
 using Ressy.Tests.Utils;
 using Xunit;
 
 namespace Ressy.Tests
 {
-    public record IconSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
+    public record IconsSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
     {
         [Fact]
-        public void User_can_add_an_icon()
+        public void User_can_add_an_application_icon()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
+            using var portableExecutable = new PortableExecutable(imageFilePath);
+
             var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
 
             // Act
-            PortableExecutable.SetIcon(imageFilePath, iconFilePath);
+            portableExecutable.SetIcon(iconFilePath);
 
             // Assert
-            PortableExecutable.GetResources(imageFilePath).Should().BeEquivalentTo(
+            portableExecutable.GetResourceIdentifiers().Should().BeEquivalentTo(new[]
+            {
                 new ResourceIdentifier(
                     ResourceType.FromCode(StandardResourceTypeCode.GroupIcon),
                     ResourceName.FromCode(1),
@@ -57,27 +60,32 @@ namespace Ressy.Tests
                     ResourceName.FromCode(5),
                     ResourceLanguage.Neutral
                 )
-            );
+            });
         }
 
         [Fact]
-        public void User_can_overwrite_an_icon()
+        public void User_can_overwrite_the_application_icon()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
+            using var portableExecutable = new PortableExecutable(imageFilePath);
+
             var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
 
             // Act
-            PortableExecutable.SetIcon(imageFilePath, iconFilePath, ResourceLanguage.Neutral);
+            portableExecutable.SetIcon(iconFilePath);
 
             // Assert
-            PortableExecutable
-                .GetResources(imageFilePath)
+            portableExecutable
+                .GetResourceIdentifiers()
                 .Where(
-                    r => r.Type.Code is (int)StandardResourceTypeCode.GroupIcon or (int)StandardResourceTypeCode.Icon
+                    r => r.Type.Code is
+                        (int)StandardResourceTypeCode.GroupIcon or
+                        (int)StandardResourceTypeCode.Icon
                 )
                 .Should()
-                .BeEquivalentTo(
+                .BeEquivalentTo(new[]
+                {
                     new ResourceIdentifier(
                         ResourceType.FromCode(StandardResourceTypeCode.GroupIcon),
                         ResourceName.FromCode(1),
@@ -113,23 +121,25 @@ namespace Ressy.Tests
                         ResourceName.FromCode(5),
                         ResourceLanguage.Neutral
                     )
-                );
+                });
         }
 
         [Fact]
-        public void User_can_remove_an_icon()
+        public void User_can_remove_the_application_icon()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
+            using var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
-            PortableExecutable.RemoveIcon(imageFilePath);
+            portableExecutable.RemoveIcon();
 
             // Assert
-            PortableExecutable
-                .GetResources(imageFilePath)
-                .Where(
-                    r => r.Type.Code is (int)StandardResourceTypeCode.GroupIcon or (int)StandardResourceTypeCode.Icon
+            portableExecutable
+                .GetResourceIdentifiers()
+                .Where(r => r.Type.Code is
+                    (int)StandardResourceTypeCode.GroupIcon or
+                    (int)StandardResourceTypeCode.Icon
                 )
                 .Should()
                 .BeEmpty();

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Globalization;
-using Ressy.Utils;
+﻿using System.Globalization;
+using Ressy.Native;
 
-namespace Ressy.Identification
+namespace Ressy
 {
     internal class OrdinalResourceName : ResourceName
     {
@@ -14,7 +13,6 @@ namespace Ressy.Identification
 
         public OrdinalResourceName(int code) => _code = code;
 
-        internal override IUnmanagedMemory ToUnmanagedMemory() =>
-            new PreallocatedUnmanagedMemory(new IntPtr(_code));
+        internal override SafeIntPtr ToPointer() => SafeIntPtr.FromValue(_code);
     }
 }

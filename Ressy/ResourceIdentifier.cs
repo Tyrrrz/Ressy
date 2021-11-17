@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Ressy.Identification
+namespace Ressy
 {
     /// <summary>
     /// Identifies a single resource stored in a portable executable image.
@@ -25,19 +25,11 @@ namespace Ressy.Identification
         /// <summary>
         /// Initializes an instance of <see cref="ResourceIdentifier"/>.
         /// </summary>
-        public ResourceIdentifier(ResourceType type, ResourceName name, ResourceLanguage language)
+        public ResourceIdentifier(ResourceType type, ResourceName name, ResourceLanguage language = default)
         {
             Type = type;
             Name = name;
             Language = language;
-        }
-
-        /// <summary>
-        /// Initializes an instance of <see cref="ResourceIdentifier"/>.
-        /// </summary>
-        public ResourceIdentifier(ResourceType type, ResourceName name)
-            : this(type, name, ResourceLanguage.Neutral)
-        {
         }
 
         /// <inheritdoc />

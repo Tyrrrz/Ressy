@@ -1,4 +1,4 @@
-﻿namespace Ressy.Identification
+﻿namespace Ressy
 {
     /// <summary>
     /// Defines codes for standard ordinal resource types.

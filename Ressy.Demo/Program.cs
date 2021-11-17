@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using Ressy.Identification;
 
 namespace Ressy.Demo
 {
@@ -26,28 +24,24 @@ namespace Ressy.Demo
                     : ResourceName.FromString(nameString)
                 : null;
 
+            using var portableExecutable = new PortableExecutable(imageFilePath);
+
             // List resources
             if (resourceType is null || resourceName is null)
             {
                 Console.WriteLine("Resources:");
 
-                foreach (var resource in PortableExecutable.GetResources(imageFilePath))
+                foreach (var identifier in portableExecutable.GetResourceIdentifiers())
                 {
                     Console.Write("  ");
-                    Console.WriteLine(resource);
+                    Console.WriteLine(identifier);
                 }
             }
             // Get specific resource
             else
             {
-                var data = PortableExecutable.GetResourceData(
-                    imageFilePath,
-                    new ResourceIdentifier(resourceType, resourceName)
-                );
-
-                var dataString = Encoding.Unicode.GetString(data);
-
-                Console.WriteLine(dataString);
+                var resource = portableExecutable.GetResource(new ResourceIdentifier(resourceType, resourceName));
+                Console.WriteLine(resource.ReadAsString());
             }
         }
     }

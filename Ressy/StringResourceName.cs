@@ -1,6 +1,6 @@
-﻿using Ressy.Utils;
+﻿using Ressy.Native;
 
-namespace Ressy.Identification
+namespace Ressy
 {
     internal class StringResourceName : ResourceName
     {
@@ -12,7 +12,6 @@ namespace Ressy.Identification
 
         public StringResourceName(string name) => _name = name;
 
-        internal override IUnmanagedMemory ToUnmanagedMemory() =>
-            new StringUnmanagedMemory(_name);
+        internal override SafeIntPtr ToPointer() => SafeMarshal.AllocHGlobal(_name);
     }
 }

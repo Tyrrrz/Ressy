@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Text;
+﻿using System.Globalization;
 using FluentAssertions;
-using Ressy.Identification;
 using Ressy.Tests.Fixtures;
 using Xunit;
 
@@ -11,16 +8,18 @@ namespace Ressy.Tests
     public record ReadingSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
     {
         [Fact]
-        public void User_can_get_a_list_of_resources()
+        public void User_can_get_a_list_of_resource_identifiers()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
+            using var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
-            var resources = PortableExecutable.GetResources(imageFilePath);
+            var identifiers = portableExecutable.GetResourceIdentifiers();
 
             // Assert
-            resources.Should().BeEquivalentTo(
+            identifiers.Should().BeEquivalentTo(new[]
+            {
                 // -- RT_ICON/1/Neutral
                 new ResourceIdentifier(
                     ResourceType.FromCode(StandardResourceTypeCode.Icon),
@@ -139,74 +138,57 @@ namespace Ressy.Tests
                     ResourceName.FromCode(1),
                     ResourceLanguage.Neutral
                 )
-            );
+            });
         }
 
         [Fact]
-        public void User_can_get_a_list_of_resources_in_an_empty_image()
+        public void User_can_get_a_list_of_resource_identifiers_in_an_empty_image()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
+            using var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
-            var resources = PortableExecutable.GetResources(imageFilePath);
+            var identifiers = portableExecutable.GetResourceIdentifiers();
 
             // Assert
-            resources.Should().BeEmpty();
+            identifiers.Should().BeEmpty();
         }
 
         [Fact]
-        public void User_can_get_label_of_a_type_of_resource()
+        public void User_can_get_a_specific_resource()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
+            using var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
-            var identifier = PortableExecutable
-                .GetResources(imageFilePath)
-                .First(r => r.Type.Code == (int) StandardResourceTypeCode.GroupIcon);
+            var resource = portableExecutable.GetResource(new ResourceIdentifier(
+                ResourceType.FromCode(StandardResourceTypeCode.String),
+                ResourceName.FromCode(7),
+                ResourceLanguage.FromCultureInfo(CultureInfo.GetCultureInfo("ua"))
+            ));
 
             // Assert
-            identifier.Type.Label.Should().Be("#14 (GROUP_ICON)");
+            resource.ReadAsString().Should().Contain("Привіт, світ");
         }
 
         [Fact]
-        public void User_can_read_data_of_a_specific_resource()
-        {
-            // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-
-            // Act
-            var data = PortableExecutable.GetResourceData(
-                imageFilePath,
-                new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.String),
-                    ResourceName.FromCode(7),
-                    new ResourceLanguage(1058)
-                )
-            );
-
-            // Assert
-            Encoding.Unicode.GetString(data).Should().Contain("Привіт, світ");
-        }
-
-        [Fact]
-        public void User_can_try_to_read_data_of_a_non_existing_resource_and_receive_an_exception()
+        public void User_can_try_to_get_a_non_existing_resource_and_receive_null_instead()
         {
             // Arrange
             var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
+            using var portableExecutable = new PortableExecutable(imageFilePath);
 
-            // Act & assert
-            Assert.ThrowsAny<Exception>(() =>
-                PortableExecutable.GetResourceData(
-                    imageFilePath,
-                    new ResourceIdentifier(
-                        ResourceType.FromCode(1),
-                        ResourceName.FromCode(1),
-                        ResourceLanguage.Neutral
-                    )
-                )
-            );
+            // Act
+            var resource = portableExecutable.TryGetResource(new ResourceIdentifier(
+                ResourceType.FromCode(1),
+                ResourceName.FromCode(1),
+                ResourceLanguage.Neutral
+            ));
+
+            // Assert
+            resource.Should().BeNull();
         }
     }
 }

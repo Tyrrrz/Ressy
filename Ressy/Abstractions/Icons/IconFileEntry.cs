@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace Ressy.Utils
+namespace Ressy.Abstractions.Icons
 {
     internal class IconFileEntry
     {
