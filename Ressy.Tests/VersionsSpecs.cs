@@ -8,14 +8,18 @@ using Xunit;
 
 namespace Ressy.Tests
 {
-    public record VersionsSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
+    public class VersionsSpecs : IClassFixture<DummyFixture>
     {
+        private readonly DummyFixture _dummy;
+
+        public VersionsSpecs(DummyFixture dummy) => _dummy = dummy;
+
         [Fact]
         public void User_can_get_the_application_version()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
             var version = portableExecutable.GetVersionInfo();
@@ -47,8 +51,8 @@ namespace Ressy.Tests
         public void User_can_add_an_application_version()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             var version = new VersionInfo(
                 new Version(6, 7, 8, 9),
@@ -77,8 +81,8 @@ namespace Ressy.Tests
         public void User_can_remove_the_application_version()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
             portableExecutable.RemoveVersionInfo();

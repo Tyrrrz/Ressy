@@ -4,14 +4,18 @@ using Xunit;
 
 namespace Ressy.Tests
 {
-    public record WritingSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
+    public class WritingSpecs : IClassFixture<DummyFixture>
     {
+        private readonly DummyFixture _dummy;
+
+        public WritingSpecs(DummyFixture dummy) => _dummy = dummy;
+
         [Fact]
         public void User_can_add_a_resource()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             var identifier = new ResourceIdentifier(
                 ResourceType.FromCode(6),
@@ -37,8 +41,8 @@ namespace Ressy.Tests
         public void User_can_add_a_resource_with_a_non_standard_ordinal_type()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             var identifier = new ResourceIdentifier(
                 ResourceType.FromCode(420),
@@ -64,8 +68,8 @@ namespace Ressy.Tests
         public void User_can_add_a_resource_with_a_non_ordinal_type()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             var identifier = new ResourceIdentifier(
                 ResourceType.FromString("FOO"),
@@ -91,8 +95,8 @@ namespace Ressy.Tests
         public void User_can_add_a_resource_with_a_non_ordinal_name()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             var identifier = new ResourceIdentifier(
                 ResourceType.FromCode(6),
@@ -118,8 +122,8 @@ namespace Ressy.Tests
         public void User_can_add_a_resource_with_a_non_ordinal_type_and_non_ordinal_name()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             var identifier = new ResourceIdentifier(
                 ResourceType.FromString("FOO"),
@@ -145,8 +149,8 @@ namespace Ressy.Tests
         public void User_can_overwrite_a_specific_resource()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             var identifier = new ResourceIdentifier(
                 ResourceType.FromCode(6),
@@ -172,8 +176,8 @@ namespace Ressy.Tests
         public void User_can_remove_a_specific_resource()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             var identifier = new ResourceIdentifier(
                 ResourceType.FromCode(6),
@@ -197,8 +201,8 @@ namespace Ressy.Tests
         public void User_can_clear_resources()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
             portableExecutable.ClearResources();

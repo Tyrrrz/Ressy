@@ -6,14 +6,18 @@ using Xunit;
 
 namespace Ressy.Tests
 {
-    public record ManifestsSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
+    public class ManifestsSpecs : IClassFixture<DummyFixture>
     {
+        private readonly DummyFixture _dummy;
+
+        public ManifestsSpecs(DummyFixture dummy) => _dummy = dummy;
+
         [Fact]
         public void User_can_get_the_application_manifest()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
             var manifest = portableExecutable.GetManifest();
@@ -26,8 +30,8 @@ namespace Ressy.Tests
         public void User_can_add_an_application_manifest()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             const string manifest = @"
                 <?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>
@@ -50,8 +54,8 @@ namespace Ressy.Tests
         public void User_can_remove_the_application_manifest()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
             portableExecutable.RemoveManifest();

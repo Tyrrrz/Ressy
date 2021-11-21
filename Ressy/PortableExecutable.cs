@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Ressy.Native;
@@ -13,10 +12,8 @@ namespace Ressy
     /// <summary>
     /// Portable executable image file.
     /// </summary>
-    public class PortableExecutable : IDisposable
+    public class PortableExecutable
     {
-        private SafeIntPtr? _handle;
-
         /// <summary>
         /// Path to the portable executable image file.
         /// </summary>
@@ -27,14 +24,8 @@ namespace Ressy
         /// </summary>
         public PortableExecutable(string filePath) => FilePath = filePath;
 
-        [ExcludeFromCodeCoverage]
-        ~PortableExecutable() => Dispose();
-
-        private SafeIntPtr ResolveHandle()
+        private SafeIntPtr GetImageHandle()
         {
-            if (_handle is not null)
-                return _handle;
-
             var handle = new SafeIntPtr(
                 NativeHelpers.ErrorCheck(() =>
                     NativeMethods.LoadLibraryEx(FilePath, IntPtr.Zero, 0x00000002)
@@ -42,88 +33,85 @@ namespace Ressy
                 h => NativeMethods.FreeLibrary(h)
             );
 
-            _handle = handle;
             return handle;
-        }
-
-        private void ResetHandle()
-        {
-            _handle?.Dispose();
-            _handle = null;
-        }
-
-        private IReadOnlyList<ResourceType> GetResourceTypes()
-        {
-            var result = new List<ResourceType>();
-
-            NativeHelpers.ErrorCheck(() =>
-                NativeMethods.EnumResourceTypesEx(
-                    ResolveHandle(),
-                    (_, typeHandle, _) =>
-                    {
-                        result.Add(ResourceType.FromHandle(typeHandle));
-                        return true;
-                    },
-                    IntPtr.Zero, 0, 0
-                )
-            );
-
-            return result;
-        }
-
-        private IReadOnlyList<ResourceName> GetResourceNames(ResourceType type)
-        {
-            using var typeHandle = type.ToPointer();
-
-            var result = new List<ResourceName>();
-
-            NativeHelpers.ErrorCheck(() =>
-                NativeMethods.EnumResourceNamesEx(
-                    ResolveHandle(), typeHandle,
-                    (_, _, nameHandle, _) =>
-                    {
-                        result.Add(ResourceName.FromHandle(nameHandle));
-                        return true;
-                    },
-                    IntPtr.Zero, 0, 0
-                )
-            );
-
-            return result;
-        }
-
-        private IReadOnlyList<ResourceLanguage> GetResourceLanguages(ResourceType type, ResourceName name)
-        {
-            using var typeHandle = type.ToPointer();
-            using var nameHandle = name.ToPointer();
-
-            var result = new List<ResourceLanguage>();
-
-            NativeHelpers.ErrorCheck(() =>
-                NativeMethods.EnumResourceLanguagesEx(
-                    ResolveHandle(), typeHandle, nameHandle,
-                    (_, _, _, languageId, _) =>
-                    {
-                        result.Add(new ResourceLanguage(languageId));
-                        return true;
-                    },
-                    IntPtr.Zero, 0, 0
-                )
-            );
-
-            return result;
         }
 
         /// <summary>
         /// Gets the identifiers of all existing resources.
         /// </summary>
-        public IReadOnlyList<ResourceIdentifier> GetResourceIdentifiers() =>
-        (
-            from type in GetResourceTypes()
-            from name in GetResourceNames(type)
-            from language in GetResourceLanguages(type, name)
-            select new ResourceIdentifier(type, name, language)
-        ).ToArray();
+        public IReadOnlyList<ResourceIdentifier> GetResourceIdentifiers()
+        {
+            using var imageHandle = GetImageHandle();
+
+            IReadOnlyList<ResourceType> GetResourceTypes()
+            {
+                var result = new List<ResourceType>();
+
+                NativeHelpers.ErrorCheck(() =>
+                    NativeMethods.EnumResourceTypesEx(
+                        imageHandle,
+                        (_, typeHandle, _) =>
+                        {
+                            result.Add(ResourceType.FromHandle(typeHandle));
+                            return true;
+                        },
+                        IntPtr.Zero, 0, 0
+                    )
+                );
+
+                return result;
+            }
+
+            IReadOnlyList<ResourceName> GetResourceNames(ResourceType type)
+            {
+                using var typeHandle = type.ToPointer();
+
+                var result = new List<ResourceName>();
+
+                NativeHelpers.ErrorCheck(() =>
+                    NativeMethods.EnumResourceNamesEx(
+                        imageHandle, typeHandle,
+                        (_, _, nameHandle, _) =>
+                        {
+                            result.Add(ResourceName.FromHandle(nameHandle));
+                            return true;
+                        },
+                        IntPtr.Zero, 0, 0
+                    )
+                );
+
+                return result;
+            }
+
+            IReadOnlyList<ResourceLanguage> GetResourceLanguages(ResourceType type, ResourceName name)
+            {
+                using var typeHandle = type.ToPointer();
+                using var nameHandle = name.ToPointer();
+
+                var result = new List<ResourceLanguage>();
+
+                NativeHelpers.ErrorCheck(() =>
+                    NativeMethods.EnumResourceLanguagesEx(
+                        imageHandle, typeHandle, nameHandle,
+                        (_, _, _, languageId, _) =>
+                        {
+                            result.Add(new ResourceLanguage(languageId));
+                            return true;
+                        },
+                        IntPtr.Zero, 0, 0
+                    )
+                );
+
+                return result;
+            }
+
+            return (
+                from type in GetResourceTypes()
+                from name in GetResourceNames(type)
+                from language in GetResourceLanguages(type, name)
+                select new ResourceIdentifier(type, name, language)
+            ).ToArray();
+        }
 
         /// <summary>
         /// Gets the raw binary data of the specified resource.
@@ -131,11 +119,12 @@ namespace Ressy
         /// </summary>
         public Resource? TryGetResource(ResourceIdentifier identifier)
         {
+            using var imageHandle = GetImageHandle();
             using var typeHandle = identifier.Type.ToPointer();
             using var nameHandle = identifier.Name.ToPointer();
 
             var resourceHandle = NativeMethods.FindResourceEx(
-                ResolveHandle(),
+                imageHandle,
                 typeHandle,
                 nameHandle,
                 (ushort)identifier.Language.Id
@@ -143,18 +132,18 @@ namespace Ressy
 
             if (resourceHandle == IntPtr.Zero)
             {
-                var error = Marshal.GetLastWin32Error();
+                var errorCode = Marshal.GetLastWin32Error();
 
                 // Return null if the resource does not exist
-                if (error is 1813 or 1814 or 1815)
+                if (errorCode is 1813 or 1814 or 1815)
                     return null;
 
                 // Throw in other cases
-                throw new Win32Exception(error);
+                throw new Win32Exception(errorCode);
             }
 
             var dataHandle = NativeHelpers.ErrorCheck(() =>
-                NativeMethods.LoadResource(ResolveHandle(), resourceHandle)
+                NativeMethods.LoadResource(imageHandle, resourceHandle)
             );
 
             var dataSource = NativeHelpers.ErrorCheck(() =>
@@ -162,7 +151,7 @@ namespace Ressy
             );
 
             var length = NativeHelpers.ErrorCheck(() =>
-                NativeMethods.SizeofResource(ResolveHandle(), resourceHandle)
+                NativeMethods.SizeofResource(imageHandle, resourceHandle)
             );
 
             var data = new byte[length];
@@ -180,11 +169,8 @@ namespace Ressy
 
         internal void UpdateResources(Action<ResourceUpdateContext> update, bool deleteExistingResources = false)
         {
-            using (var context = ResourceUpdateContext.Create(FilePath, deleteExistingResources))
-                update(context);
-
-            // Reset previously obtained handle because the data may have become out of date after changes
-            ResetHandle();
+            using var context = ResourceUpdateContext.Create(FilePath, deleteExistingResources);
+            update(context);
         }
 
         /// <summary>
@@ -203,8 +189,5 @@ namespace Ressy
         /// </summary>
         public void RemoveResource(ResourceIdentifier identifier) =>
             UpdateResources(ctx => ctx.Remove(identifier));
-
-        /// <inheritdoc />
-        public void Dispose() => ResetHandle();
     }
 }

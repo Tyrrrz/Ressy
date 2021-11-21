@@ -5,14 +5,18 @@ using Xunit;
 
 namespace Ressy.Tests
 {
-    public record ReadingSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
+    public class ReadingSpecs : IClassFixture<DummyFixture>
     {
+        private readonly DummyFixture _dummy;
+
+        public ReadingSpecs(DummyFixture dummy) => _dummy = dummy;
+
         [Fact]
         public void User_can_get_a_list_of_resource_identifiers()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
             var identifiers = portableExecutable.GetResourceIdentifiers();
@@ -145,8 +149,8 @@ namespace Ressy.Tests
         public void User_can_get_a_list_of_resource_identifiers_in_an_empty_image()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
             var identifiers = portableExecutable.GetResourceIdentifiers();
@@ -159,8 +163,8 @@ namespace Ressy.Tests
         public void User_can_get_a_specific_resource()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
             var resource = portableExecutable.GetResource(new ResourceIdentifier(
@@ -177,8 +181,8 @@ namespace Ressy.Tests
         public void User_can_try_to_get_a_non_existing_resource_and_receive_null_instead()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
             var resource = portableExecutable.TryGetResource(new ResourceIdentifier(

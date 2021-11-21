@@ -8,14 +8,18 @@ using Xunit;
 
 namespace Ressy.Tests
 {
-    public record IconsSpecs(DummyFixture DummyFixture) : IClassFixture<DummyFixture>
+    public class IconsSpecs : IClassFixture<DummyFixture>
     {
+        private readonly DummyFixture _dummy;
+
+        public IconsSpecs(DummyFixture dummy) => _dummy = dummy;
+
         [Fact]
         public void User_can_add_an_application_icon()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithoutResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
 
@@ -67,8 +71,8 @@ namespace Ressy.Tests
         public void User_can_remove_the_application_icon()
         {
             // Arrange
-            var imageFilePath = DummyFixture.CreatePortableExecutableWithResources();
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // Act
             portableExecutable.RemoveIcon();

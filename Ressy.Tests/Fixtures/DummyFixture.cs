@@ -1,37 +1,49 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
-using System.Threading;
+using System.Linq;
 using Ressy.Tests.Utils;
 
 namespace Ressy.Tests.Fixtures
 {
     public class DummyFixture : IDisposable
     {
-        private readonly int _id = Guid.NewGuid().GetHashCode();
-        private int _dummyCount;
-
-        private string SourceDirPath => Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData");
-
-        private string StorageDirPath => Path.Combine(DirectoryEx.ExecutingDirectoryPath, $"Dummies_{_id}");
+        private readonly ConcurrentBag<string> _filePaths = new();
 
         private string CreatePortableExecutable(string sourceFileName)
         {
-            var sourceFilePath = Path.Combine(SourceDirPath, sourceFileName);
+            var sourceFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", sourceFileName);
+            var destFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, $"Test-{Guid.NewGuid()}.tmp");
 
-            Directory.CreateDirectory(StorageDirPath);
+            File.Copy(sourceFilePath, destFilePath);
+            _filePaths.Add(destFilePath);
 
-            var fileIndex = Interlocked.Increment(ref _dummyCount);
-            var filePath = Path.Combine(StorageDirPath, $"PE-{fileIndex}.exe");
-
-            File.Copy(sourceFilePath, filePath);
-
-            return filePath;
+            return destFilePath;
         }
 
         public string CreatePortableExecutableWithoutResources() => CreatePortableExecutable("SmallPEpe.exe");
 
         public string CreatePortableExecutableWithResources() => CreatePortableExecutable("LargePEpe.exe");
 
-        public void Dispose() => DirectoryEx.DeleteIfExists(StorageDirPath);
+        public void Dispose()
+        {
+            var exceptions = new List<Exception>();
+
+            foreach (var filePath in _filePaths)
+            {
+                try
+                {
+                    File.Delete(filePath);
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+
+            if (exceptions.Any())
+                throw new AggregateException(exceptions);
+        }
     }
 }

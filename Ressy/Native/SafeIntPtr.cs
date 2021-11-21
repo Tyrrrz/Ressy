@@ -1,9 +1,8 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Ressy.Native
 {
-    internal partial class SafeIntPtr : IDisposable
+    internal readonly partial struct SafeIntPtr : IDisposable
     {
         private readonly IntPtr _raw;
         private readonly Action<IntPtr> _dispose;
@@ -14,13 +13,10 @@ namespace Ressy.Native
             _dispose = dispose;
         }
 
-        [ExcludeFromCodeCoverage]
-        ~SafeIntPtr() => Dispose();
-
         public void Dispose() => _dispose(_raw);
     }
 
-    internal partial class SafeIntPtr
+    internal partial struct SafeIntPtr
     {
         public static implicit operator IntPtr(SafeIntPtr safeIntPtr) => safeIntPtr._raw;
 

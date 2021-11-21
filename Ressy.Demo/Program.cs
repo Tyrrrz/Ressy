@@ -24,7 +24,7 @@ namespace Ressy.Demo
                     : ResourceName.FromString(nameString)
                 : null;
 
-            using var portableExecutable = new PortableExecutable(imageFilePath);
+            var portableExecutable = new PortableExecutable(imageFilePath);
 
             // List resources
             if (resourceType is null || resourceName is null)
