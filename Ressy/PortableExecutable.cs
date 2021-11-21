@@ -28,7 +28,7 @@ namespace Ressy
         {
             var handle = new SafeIntPtr(
                 NativeHelpers.ErrorCheck(() =>
-                    NativeMethods.LoadLibraryEx(FilePath, IntPtr.Zero, 0x00000002)
+                    NativeMethods.LoadLibraryEx(FilePath, IntPtr.Zero, 0x00000040)
                 ),
                 h => NativeMethods.FreeLibrary(h)
             );
