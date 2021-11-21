@@ -42,7 +42,7 @@ namespace Ressy
         /// </summary>
         public static ResourceName FromString(string name) => new StringResourceName(name);
 
-        internal static ResourceName FromHandle(IntPtr handle) => NativeHelpers.IsIntegerCode(handle)
+        internal static ResourceName FromHandle(IntPtr handle) => handle.ToInt64() < 0x10000
             ? FromCode(handle.ToInt32())
             : FromString(NativeHelpers.GetString(handle));
     }

@@ -52,66 +52,66 @@ namespace Ressy
             _handle = null;
         }
 
-        private IEnumerable<ResourceType> GetResourceTypes()
+        private IReadOnlyList<ResourceType> GetResourceTypes()
         {
-            var typeHandles = new List<IntPtr>();
+            var result = new List<ResourceType>();
 
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.EnumResourceTypesEx(
                     ResolveHandle(),
                     (_, typeHandle, _) =>
                     {
-                        typeHandles.Add(typeHandle);
+                        result.Add(ResourceType.FromHandle(typeHandle));
                         return true;
                     },
                     IntPtr.Zero, 0, 0
                 )
             );
 
-            return typeHandles.Select(ResourceType.FromHandle);
+            return result;
         }
 
-        private IEnumerable<ResourceName> GetResourceNames(ResourceType type)
+        private IReadOnlyList<ResourceName> GetResourceNames(ResourceType type)
         {
             using var typeHandle = type.ToPointer();
 
-            var nameHandles = new List<IntPtr>();
+            var result = new List<ResourceName>();
 
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.EnumResourceNamesEx(
                     ResolveHandle(), typeHandle,
                     (_, _, nameHandle, _) =>
                     {
-                        nameHandles.Add(nameHandle);
+                        result.Add(ResourceName.FromHandle(nameHandle));
                         return true;
                     },
                     IntPtr.Zero, 0, 0
                 )
             );
 
-            return nameHandles.Select(ResourceName.FromHandle);
+            return result;
         }
 
-        private IEnumerable<ResourceLanguage> GetResourceLanguages(ResourceType type, ResourceName name)
+        private IReadOnlyList<ResourceLanguage> GetResourceLanguages(ResourceType type, ResourceName name)
         {
             using var typeHandle = type.ToPointer();
             using var nameHandle = name.ToPointer();
 
-            var languageIds = new List<ushort>();
+            var result = new List<ResourceLanguage>();
 
             NativeHelpers.ErrorCheck(() =>
                 NativeMethods.EnumResourceLanguagesEx(
                     ResolveHandle(), typeHandle, nameHandle,
                     (_, _, _, languageId, _) =>
                     {
-                        languageIds.Add(languageId);
+                        result.Add(new ResourceLanguage(languageId));
                         return true;
                     },
                     IntPtr.Zero, 0, 0
                 )
             );
 
-            return languageIds.Select(i => new ResourceLanguage(i));
+            return result;
         }
 
         /// <summary>

@@ -6,9 +6,9 @@ namespace Ressy.Native
 {
     internal static class NativeHelpers
     {
-        public static bool IsIntegerCode(IntPtr handle) => unchecked((ulong) handle.ToInt64()) >> 16 == 0;
-
-        public static string GetString(IntPtr handle) => Marshal.PtrToStringAuto(handle) ?? "";
+        public static string GetString(IntPtr handle) =>
+            Marshal.PtrToStringAuto(handle) ??
+            throw new Win32Exception($"Pointer {handle} resolves to an empty string.");
 
         public static void ErrorCheck(Func<bool> invokeNativeMethod)
         {
