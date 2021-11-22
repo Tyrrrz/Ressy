@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- These properties affect contained resources -->
+  <PropertyGroup>
+    <!-- Icon and icon group resources -->
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    
+    <!-- Application manifest resource -->
+    <ApplicationManifest>Manifest.xml</ApplicationManifest>
+    
+    <!-- Version info resource -->
+    <AssemblyVersion>6.9.6.9</AssemblyVersion>
+    <FileVersion>1.2.3.4</FileVersion>
+    <InformationalVersion>5.6.7.8</InformationalVersion>
+    <Product>TestProduct</Product>
+    <AssemblyTitle>TestDescription</AssemblyTitle>
+    <Company>TestCompany</Company>
+    <Description>TestComments</Description>
+    <Copyright>TestCopyright</Copyright>
+  </PropertyGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using System.Text;
 using FluentAssertions;
 using Ressy.Tests.Fixtures;
 using Xunit;
@@ -15,8 +15,7 @@ namespace Ressy.Tests
         public void User_can_get_a_list_of_resource_identifiers()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
 
             // Act
             var identifiers = portableExecutable.GetResourceIdentifiers();
@@ -66,74 +65,17 @@ namespace Ressy.Tests
                     ResourceLanguage.Neutral
                 ),
 
-                // -- RT_ICON/7/Neutral
-                new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
-                    ResourceName.FromCode(7),
-                    ResourceLanguage.Neutral
-                ),
-
-                // -- RT_ICON/8/Neutral
-                new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
-                    ResourceName.FromCode(8),
-                    ResourceLanguage.Neutral
-                ),
-
-                // -- RT_ICON/9/Neutral
-                new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
-                    ResourceName.FromCode(9),
-                    ResourceLanguage.Neutral
-                ),
-
-                // -- RT_ICON/10/Neutral
-                new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
-                    ResourceName.FromCode(10),
-                    ResourceLanguage.Neutral
-                ),
-
-                // -- RT_ICON/11/Neutral
-                new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
-                    ResourceName.FromCode(11),
-                    ResourceLanguage.Neutral
-                ),
-
-                // -- RT_ICON/12/Neutral
-                new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
-                    ResourceName.FromCode(12),
-                    ResourceLanguage.Neutral
-                ),
-
-                // -- RT_STRING/7/Neutral
-                new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.String),
-                    ResourceName.FromCode(7),
-                    ResourceLanguage.Neutral
-                ),
-
-                // -- RT_STRING/7/Ukrainian (UA)
-                new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.String),
-                    ResourceName.FromCode(7),
-                    new ResourceLanguage(1058)
-                ),
-
-                // -- RT_GROUP_ICON/1/Neutral
+                // -- RT_GROUP_ICON/32512/Neutral
                 new ResourceIdentifier(
                     ResourceType.FromCode(StandardResourceTypeCode.GroupIcon),
-                    ResourceName.FromCode(1),
+                    ResourceName.FromCode(32512),
                     ResourceLanguage.Neutral
                 ),
 
-                // -- RT_VERSION/1/English (US)
+                // -- RT_VERSION/1/Neutral
                 new ResourceIdentifier(
                     ResourceType.FromCode(StandardResourceTypeCode.Version),
-                    ResourceName.FromCode(1),
-                    ResourceLanguage.FromCultureInfo(new CultureInfo("en-US"))
+                    ResourceName.FromCode(1)
                 ),
 
                 // -- RT_MANIFEST/1/Neutral
@@ -146,43 +88,26 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_get_a_list_of_resource_identifiers_in_an_empty_image()
-        {
-            // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
-
-            // Act
-            var identifiers = portableExecutable.GetResourceIdentifiers();
-
-            // Assert
-            identifiers.Should().BeEmpty();
-        }
-
-        [Fact]
         public void User_can_get_a_specific_resource()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
 
             // Act
             var resource = portableExecutable.GetResource(new ResourceIdentifier(
-                ResourceType.FromCode(StandardResourceTypeCode.String),
-                ResourceName.FromCode(7),
-                ResourceLanguage.FromCultureInfo(CultureInfo.GetCultureInfo("uk-UA"))
+                ResourceType.FromCode(StandardResourceTypeCode.Manifest),
+                ResourceName.FromCode(1)
             ));
 
             // Assert
-            resource.ReadAsString().Should().Contain("Привіт, світ");
+            resource.ReadAsString(Encoding.UTF8).Should().Contain("assemblyIdentity");
         }
 
         [Fact]
         public void User_can_try_to_get_a_non_existing_resource_and_receive_null_instead()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
 
             // Act
             var resource = portableExecutable.TryGetResource(new ResourceIdentifier(

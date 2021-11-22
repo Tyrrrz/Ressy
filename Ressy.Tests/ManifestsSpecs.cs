@@ -16,8 +16,7 @@ namespace Ressy.Tests
         public void User_can_get_the_application_manifest()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
 
             // Act
             var manifest = portableExecutable.GetManifest();
@@ -30,9 +29,6 @@ namespace Ressy.Tests
         public void User_can_add_an_application_manifest()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
-
             const string manifest = @"
                 <?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>
                 <assembly xmlns=""urn:schemas-microsoft-com:asm.v1"" manifestVersion=""1.0"">
@@ -42,6 +38,9 @@ namespace Ressy.Tests
                         version=""1.0.0.0""
                         type=""win32""/>
                 </assembly>";
+
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+            portableExecutable.ClearResources();
 
             // Act
             portableExecutable.SetManifest(manifest);
@@ -54,8 +53,7 @@ namespace Ressy.Tests
         public void User_can_remove_the_application_manifest()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
 
             // Act
             portableExecutable.RemoveManifest();

@@ -18,32 +18,33 @@ namespace Ressy.Tests
         public void User_can_get_the_application_version()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
 
             // Act
             var version = portableExecutable.GetVersionInfo();
 
             // Assert
-            version.FileVersion.Should().Be(new Version(1, 2, 3, 0));
-            version.ProductVersion.Should().Be(new Version(1, 2, 3, 0));
+            version.FileVersion.Should().Be(new Version(1, 2, 3, 4));
+            version.ProductVersion.Should().Be(new Version(5, 6, 7, 8));
             version.FileFlags.Should().Be(FileFlags.None);
-            version.FileOperatingSystem.Should().Be(FileOperatingSystem.NT | FileOperatingSystem.Windows32);
+            version.FileOperatingSystem.Should().Be(FileOperatingSystem.Windows32);
             version.FileType.Should().Be(FileType.App);
-            version.FileSubtype.Should().Be(FileSubType.Unknown);
+            version.FileSubType.Should().Be(FileSubType.Unknown);
             version.FileTimestamp.Should().Be(new DateTimeOffset(1601, 01, 01, 00, 00, 00, TimeSpan.Zero));
-            version.Attributes.Should().BeEquivalentTo(new Dictionary<string, string>(StringComparer.Ordinal)
+            version.Attributes.Should().Contain(new Dictionary<string, string>(StringComparer.Ordinal)
             {
-                ["CompanyName"] = "My Company",
-                ["FileDescription"] = "My Application",
-                ["FileVersion"] = "1.2.3",
-                ["LegalCopyright"] = "Copyright (C) 2021 My Company. All rights reserved.",
-                ["ProductName"] = "My Product",
-                ["ProductVersion"] = "1.2.3"
+                ["Assembly Version"] = "6.9.6.9",
+                ["FileVersion"] = "1.2.3.4",
+                ["ProductVersion"] = "5.6.7.8",
+                ["ProductName"] = "TestProduct",
+                ["FileDescription"] = "TestDescription",
+                ["CompanyName"] = "TestCompany",
+                ["Comments"] = "TestComments",
+                ["LegalCopyright"] = "TestCopyright"
             });
             version.Translations.Should().BeEquivalentTo(new[]
             {
-                new TranslationInfo(1033, 1252)
+                new TranslationInfo(0, 1200)
             });
         }
 
@@ -51,9 +52,6 @@ namespace Ressy.Tests
         public void User_can_add_an_application_version()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
-
             var version = new VersionInfo(
                 new Version(6, 7, 8, 9),
                 new Version(2, 3, 1, 9),
@@ -70,6 +68,9 @@ namespace Ressy.Tests
                 new[] { new TranslationInfo(0, 1252) }
             );
 
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+            portableExecutable.ClearResources();
+
             // Act
             portableExecutable.SetVersionInfo(version);
 
@@ -81,8 +82,7 @@ namespace Ressy.Tests
         public void User_can_remove_the_application_version()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
 
             // Act
             portableExecutable.RemoveVersionInfo();

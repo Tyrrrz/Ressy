@@ -11,9 +11,9 @@ namespace Ressy.Tests.Fixtures
     {
         private readonly ConcurrentBag<string> _filePaths = new();
 
-        private string CreatePortableExecutable(string sourceFileName)
+        public string CreatePortableExecutable()
         {
-            var sourceFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", sourceFileName);
+            var sourceFilePath = Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe");
             var destFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, $"Test-{Guid.NewGuid()}.tmp");
 
             File.Copy(sourceFilePath, destFilePath);
@@ -21,10 +21,6 @@ namespace Ressy.Tests.Fixtures
 
             return destFilePath;
         }
-
-        public string CreatePortableExecutableWithoutResources() => CreatePortableExecutable("SmallPEpe.exe");
-
-        public string CreatePortableExecutableWithResources() => CreatePortableExecutable("LargePEpe.exe");
 
         public void Dispose()
         {
@@ -35,6 +31,10 @@ namespace Ressy.Tests.Fixtures
                 try
                 {
                     File.Delete(filePath);
+                }
+                catch (FileNotFoundException)
+                {
+                    // Ignore
                 }
                 catch (Exception ex)
                 {

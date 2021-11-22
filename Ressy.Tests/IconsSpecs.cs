@@ -18,10 +18,10 @@ namespace Ressy.Tests
         public void User_can_add_an_application_icon()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithoutResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
-
             var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
+
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+            portableExecutable.ClearResources();
 
             // Act
             portableExecutable.SetIcon(iconFilePath);
@@ -71,8 +71,7 @@ namespace Ressy.Tests
         public void User_can_remove_the_application_icon()
         {
             // Arrange
-            var imageFilePath = _dummy.CreatePortableExecutableWithResources();
-            var portableExecutable = new PortableExecutable(imageFilePath);
+            var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
 
             // Act
             portableExecutable.RemoveIcon();

@@ -16,8 +16,13 @@ namespace Ressy.Utils.Extensions
         public static void SeekTo32BitBoundary(this Stream stream)
         {
             var remainder = stream.Position % 4;
-            if (remainder != 0)
-                stream.Seek(4 - remainder, SeekOrigin.Current);
+
+            // Already on the boundary
+            if (remainder == 0)
+                return;
+
+            var padding = Math.Min(4 - remainder, stream.Length - stream.Position);
+            stream.Seek(padding, SeekOrigin.Current);
         }
     }
 }

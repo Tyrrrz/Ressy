@@ -11,8 +11,6 @@
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="TestData/Icon.ico" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="TestData/SmallPEpe.exe" CopyToOutputDirectory="PreserveNewest" />
-    <None Update="TestData/LargePEpe.exe" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Ressy.Tests.Dummy\Ressy.Tests.Dummy.csproj" />
     <ProjectReference Include="..\Ressy\Ressy.csproj" />
   </ItemGroup>
 
