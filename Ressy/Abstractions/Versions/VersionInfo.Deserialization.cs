@@ -12,7 +12,7 @@ namespace Ressy.Abstractions.Versions
         private static IReadOnlyDictionary<string, string> DeserializeAttributes(BinaryReader reader)
         {
             // Padding
-            reader.BaseStream.SeekTo32BitBoundary();
+            reader.SkipPadding();
 
             // wLength
             var stringTableEndPosition = reader.BaseStream.Position + reader.ReadUInt16();
@@ -27,22 +27,24 @@ namespace Ressy.Abstractions.Versions
             var attributes = new Dictionary<string, string>(StringComparer.Ordinal);
             while (reader.BaseStream.Position < stringTableEndPosition)
             {
+                // -- String
+
                 // Padding
-                reader.BaseStream.SeekTo32BitBoundary();
+                reader.SkipPadding();
 
                 // wLength, wValueLength, wType
                 reader.BaseStream.Seek(6, SeekOrigin.Current);
 
                 // szKey
-                var attributeName = reader.ReadStringNullTerminated();
+                var name = reader.ReadStringNullTerminated();
 
                 // Padding
-                reader.BaseStream.SeekTo32BitBoundary();
+                reader.SkipPadding();
 
                 // Value
-                var attributeValue = reader.ReadStringNullTerminated();
+                var value = reader.ReadStringNullTerminated();
 
-                attributes[attributeName] = attributeValue;
+                attributes[name] = value;
             }
 
             return attributes;
@@ -51,7 +53,7 @@ namespace Ressy.Abstractions.Versions
         private static IReadOnlyList<TranslationInfo> DeserializeTranslations(BinaryReader reader)
         {
             // Padding
-            reader.BaseStream.SeekTo32BitBoundary();
+            reader.SkipPadding();
 
             // wLength
             var varFileInfoEndPosition = reader.BaseStream.Position + reader.ReadUInt16();
@@ -67,9 +69,12 @@ namespace Ressy.Abstractions.Versions
             var translations = new List<TranslationInfo>();
             while (reader.BaseStream.Position < varFileInfoEndPosition)
             {
-                // Padding
-                reader.BaseStream.SeekTo32BitBoundary();
+                // -- Var
 
+                // Padding
+                reader.SkipPadding();
+
+                // Value
                 var (codepage, languageId) = BitPack.Split(reader.ReadUInt32());
                 translations.Add(new TranslationInfo(languageId, codepage));
             }
@@ -92,7 +97,7 @@ namespace Ressy.Abstractions.Versions
                 throw new InvalidOperationException("Not a valid version resource: missing 'VS_VERSION_INFO'.");
 
             // Padding
-            reader.BaseStream.SeekTo32BitBoundary();
+            reader.SkipPadding();
 
             // -- VS_FIXEDFILEINFO
 
@@ -125,12 +130,11 @@ namespace Ressy.Abstractions.Versions
             var fileSubType = (FileSubType)reader.ReadUInt32();
 
             // dwFileDateMS, dwFileDateLS
-            var fileTimestamp =
-                new DateTimeOffset(1601, 01, 01, 00, 00, 00, TimeSpan.Zero) +
-                TimeSpan.FromSeconds(reader.ReadUInt64() / 10e7);
+            // TODO: verify
+            var fileTimestamp = DateTimeOffset.FromFileTime(reader.ReadInt64());
 
             // Padding
-            reader.BaseStream.SeekTo32BitBoundary();
+            reader.SkipPadding();
 
             // Optional StringFileInfo and VarInfo, in any order
             var attributes = default(IReadOnlyDictionary<string, string>);

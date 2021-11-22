@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Ressy.Abstractions.Versions
 {
@@ -11,6 +8,16 @@ namespace Ressy.Abstractions.Versions
     /// </summary>
     public static class VersionExtensions
     {
+        /// <summary>
+        /// Gets the version info resource and deserializes it.
+        /// Returns <c>null</c> if the resource doesn't exist.
+        /// </summary>
+        /// <remarks>
+        /// In case of multiple version info resources, this method retrieves
+        /// the one with the lowest ordinal resource name in the neutral language.
+        /// If there are no resources matching aforementioned criteria, this method
+        /// retrieves the first version info resource it encounters.
+        /// </remarks>
         public static VersionInfo? TryGetVersionInfo(this PortableExecutable portableExecutable)
         {
             var identifiers = portableExecutable.GetResourceIdentifiers()
@@ -37,32 +44,18 @@ namespace Ressy.Abstractions.Versions
             return VersionInfo.Deserialize(resource.Data);
         }
 
+        /// <summary>
+        /// Gets the version info resource and deserializes it.
+        /// </summary>
+        /// <remarks>
+        /// In case of multiple version info resources, this method retrieves
+        /// the one with the lowest ordinal resource name in the neutral language.
+        /// If there are no resources matching aforementioned criteria, this method
+        /// retrieves the first version info resource it encounters.
+        /// </remarks>
         public static VersionInfo GetVersionInfo(this PortableExecutable portableExecutable) =>
             portableExecutable.TryGetVersionInfo() ??
             throw new InvalidOperationException("Version info resource does not exist.");
-
-        private static FileType GetFileType(this PortableExecutable portableExecutable) =>
-            Path.GetExtension(portableExecutable.FilePath).ToLowerInvariant() switch
-            {
-                ".dll" => FileType.Dll,
-                ".exe" => FileType.App,
-                _ => FileType.Unknown
-            };
-
-        private static DateTimeOffset GetFileTimestamp(this PortableExecutable portableExecutable) =>
-            new(new FileInfo(portableExecutable.FilePath).CreationTimeUtc, TimeSpan.Zero);
-
-        private static VersionInfo CreateVersionInfo(this PortableExecutable portableExecutable) => new(
-            new Version(1, 0, 0, 0),
-            new Version(1, 0, 0, 0),
-            FileFlags.None,
-            FileOperatingSystem.NT | FileOperatingSystem.Windows32,
-            portableExecutable.GetFileType(),
-            FileSubType.Unknown,
-            portableExecutable.GetFileTimestamp(),
-            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
-            new[] { new TranslationInfo(0, Encoding.Unicode.CodePage) }
-        );
 
         /// <summary>
         /// Removes all existing version info resources.
@@ -81,10 +74,42 @@ namespace Ressy.Abstractions.Versions
             });
         }
 
-        public static void SetVersionInfo(this PortableExecutable portableExecutable, VersionInfo versionInfo) =>
+        /// <summary>
+        /// Adds or overwrites a version info resource with the specified data.
+        /// </summary>
+        /// <remarks>
+        /// Consider calling <see cref="RemoveVersionInfo"/> first to remove redundant
+        /// application manifest resources.
+        /// </remarks>
+        public static void SetVersionInfo(
+            this PortableExecutable portableExecutable,
+            VersionInfo versionInfo) =>
             portableExecutable.SetResource(new ResourceIdentifier(
                 ResourceType.FromCode(StandardResourceTypeCode.Version),
                 ResourceName.FromCode(1)
             ), versionInfo.Serialize());
+
+        /// <summary>
+        /// Adds or overwrites a version info resource based on the existing data.
+        /// If the version info resource doesn't exist, a default one is generated automatically.
+        /// </summary>
+        /// <remarks>
+        /// Consider calling <see cref="RemoveVersionInfo"/> first to remove redundant
+        /// application manifest resources.
+        /// </remarks>
+        public static void SetVersionInfo(
+            this PortableExecutable portableExecutable,
+            Action<VersionInfoBuilder> configure)
+        {
+            var versionInfoCurrent = portableExecutable.TryGetVersionInfo();
+
+            var builder = versionInfoCurrent is not null
+                ? new VersionInfoBuilder().CopyFrom(versionInfoCurrent)
+                : new VersionInfoBuilder();
+
+            configure(builder);
+
+            portableExecutable.SetVersionInfo(builder.Build());
+        }
     }
 }
