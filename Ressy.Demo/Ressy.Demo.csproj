@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Ressy\Ressy.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CliFx" Version="2.0.6" />
+  </ItemGroup>
+
 </Project>
