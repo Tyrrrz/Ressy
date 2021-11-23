@@ -9,7 +9,7 @@
 
 ✅ **Project status: active**.
 
-Ressy is a library for managing native resources stored in portable executable images (i.e. EXE and DLL files).
+Ressy is a library for reading and writing native resources stored in portable executable images (i.e. EXE and DLL files).
 It offers a high-level abstraction model for working with [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
 
 > ⚠️ This library relies on Windows API and, as such, works only on Windows.
@@ -22,4 +22,302 @@ It offers a high-level abstraction model for working with [resource functions](h
 
 ## Usage
 
--- TODO --
+Library's functionality is provided entirely through the `PortableExecutable` class.
+You can create an instance of this class from a string, specifying the path to the PE file:
+
+```csharp
+using Ressy;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+// ...
+```
+
+### Enumerating and reading resources
+
+To get the list of resources in a PE file, use the `GetResourceIdentifiers()` method:
+
+```csharp
+using Ressy;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+var identifiers = portableExecutable.GetResourceIdentifiers();
+
+// Returned list contains:
+// - { Type: 16 (RT_VERSION), Name: 1, Language: 1033 }
+// - { Type: 24 (RT_MANIFEST), Name: 1, Language: 1033 }
+// - { Type: 3 (RT_ICON), Name: 1, Language: 1033 }
+// - { Type: 3 (RT_ICON), Name: 2, Language: 1033 }
+// - { Type: 3 (RT_ICON), Name: 3, Language: 1033 }
+// - { Type: 14 (RT_GROUP_ICON), Name: 2, Language: 1033 }
+// - { Type: 4 (RT_MENU), Name: 1, Language: 1033 }
+// - { Type: 5 (RT_DIALOG), Name: 1, Language: 1033 }
+// - { Type: 5 (RT_DIALOG), Name: 2, Language: 1033 }
+// - { Type: 5 (RT_DIALOG), Name: 3, Language: 1033 }
+// - { Type: "EDPENLIGHTENEDAPPINFOID", Name: "MICROSOFTEDPENLIGHTENEDAPPINFO", Language: 1033 }
+// - { Type: "EDPPERMISSIVEAPPINFOID", Name: "MICROSOFTEDPPERMISSIVEAPPINFO", Language: 1033 }
+// - { Type: "MUI", Name: 1, Language: 1033 }
+// ... (truncated) ...
+```
+
+To resolve a specific resource, you can call the `GetResource(...)` method.
+This returns an instance of the `Resource` class, which contains the resource data:
+
+```csharp
+using Ressy;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+var resource = portableExecutable.GetResource(new ResourceIdentifier(
+    ResourceType.Manifest,
+    ResourceName.FromCode(1),
+    new ResourceLanguage(1033)
+));
+
+var resourceData = resource.Data; // byte[]
+var resourceString = resource.ReadAsString(Encoding.UTF8); // string
+```
+
+If you aren't sure if the requested resource exists in the PE file, you can also use the `TryGetResource(...)` method instead.
+It returns `null` in case the resource is missing:
+
+```csharp
+using Ressy;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+var resource = portableExecutable.TryGetResource(new ResourceIdentifier(
+    ResourceType.Manifest,
+    ResourceName.FromCode(100),
+    new ResourceLanguage(1033)
+)); // resource is null
+```
+
+### Modifying resources
+
+To add or overwrite a resource, call the `SetResource(...)` method:
+
+```csharp
+using Ressy;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+portableExecutable.SetResource(
+    new ResourceIdentifier(
+        ResourceType.Manifest,
+        ResourceName.FromCode(1),
+        new ResourceLanguage(1033)
+    ),
+    new byte{} { 0x01, 0x02, 0x03 }
+);
+```
+
+To remove a resource, call the `RemoveResource(...)` method:
+
+```csharp
+using Ressy;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+portableExecutable.RemoveResource(
+    new ResourceIdentifier(
+        ResourceType.Manifest,
+        ResourceName.FromCode(1),
+        new ResourceLanguage(1033)
+    )
+);
+```
+
+To remove all resources in a PE file, call the `ClearResources()` method:
+
+```csharp
+using Ressy;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+portableExecutable.ClearResources();
+```
+
+### High-level operations
+
+Ressy provides extensions for `PortableExecutable` that enable you to manage known resources types, such as icons, manifests, versions, etc., directly.
+
+#### Working with application manifest resources
+
+To read the application manifest as a text string, call the `GetManifest()` extension method:
+
+```csharp
+using Ressy;
+using Ressy.Abstractions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+var manifest = portableExecutable.GetManifest();
+
+// -or-
+// var manifest = portableExecutable.TryGetManifest();
+```
+
+> 💡 In case of multiple manifest resources, this method retrieves the one with the lowest ordinal resource name in the neutral language.
+If there are no resources matching aforementioned criteria, this method retrieves the first manifest resource it encounters.
+
+To remove all application manifest resources, call the `RemoveManifest()` extension method:
+
+```csharp
+using Ressy;
+using Ressy.Abstractions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+portableExecutable.RemoveManifest();
+```
+
+To add or overwrite an application manifest, call the `SetManifest(...)` extension method:
+
+```csharp
+using Ressy;
+using Ressy.Abstractions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+// Sets resource with ordinal type 24, ordinal name 1, and language 0
+portableExecutable.SetManifest("<assembly>...</assembly>"); 
+```
+
+> ⚠️ Calling this method does not remove existing manifest resources, except for those that are directly overwritten.
+If you want to clean out redundant manifest resources (e.g. those in other languages or with other resource names), call the `RemoveManifest()` method first.
+
+#### Working with icon resources
+
+To remove all icon and icon group resources, call the `RemoveIcon()` extension method:
+
+```csharp
+using Ressy;
+using Ressy.Abstractions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+portableExecutable.RemoveIcon();
+```
+
+To add or overwrite icon resources based on an ICO file, call the `SetIcon(...)` extension method:
+
+```csharp
+using Ressy;
+using Ressy.Abstractions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+portableExecutable.SetIcon("new_icon.ico");
+```
+
+> ⚠️ Calling this method does not remove existing icon resources, except for those that are directly overwritten.
+If you want to clean out redundant icon resources (e.g. those in other languages or with other resource names), call the `RemoveIcon()` method first.
+
+Additionally, you can also set the icon by passing a file stream:
+
+```csharp
+using Ressy;
+using Ressy.Abstractions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+using var iconFileStream = File.Open("new_icon.ico");
+portableExecutable.SetIcon(iconFileStream);
+```
+
+> ⚠️ Stream provided to this method must support seeking.
+
+#### Working with version resources
+
+To get the version info resource, call the `GetVersionInfo()` extension method.
+This returns a `VersionInfo` object that represents the binary data stored in the resource:
+
+```csharp
+using Ressy;
+using Ressy.Abstractions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+var versionInfo = portableExecutable.GetVersionInfo();
+
+// -or-
+// var versionInfo = portableExecutable.TryGetVersionInfo();
+
+// Returned object contains:
+// {
+//   FileVersion: 10.0.19041.1
+//   ProductVersion: 10.0.19041.1
+//   FileFlags: FileFlags.None
+//   FileOperatingSystem: FileOperatingSystem.Windows32
+//   FileType: FileType.App
+//   FileSubType: FileSubType.Unknown
+//   Attributes: [
+//     VersionAttributeName.FileVersion: "10.0.19041.1 (WinBuild.160101.0800)"
+//     VersionAttributeName.ProductVersion: "10.0.19041.1"
+//     VersionAttributeName.ProductName: "Microsoft® Windows® Operating System"
+//     VersionAttributeName.FileDescription: "Notepad"
+//     VersionAttributeName.CompanyName: "Microsoft Corporation"
+//     ...
+//   ]
+//   Translations: [
+//     { LanguageId: 0, Codepage: 1200 }
+//   ]
+// }
+```
+
+> 💡 In case of multiple version resources, this method retrieves the one with the lowest ordinal resource name in the neutral language.
+If there are no resources matching aforementioned criteria, this method retrieves the first version resource it encounters.
+
+To remove all version info resources, call the `RemoveVersionInfo()` extension method:
+
+```csharp
+using Ressy;
+using Ressy.Abstractions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+portableExecutable.RemoveVersionInfo();
+```
+
+To add or overwrite version info resource, call the `SetVersionInfo(...)` extension method.
+You can use the `VersionInfoBuilder` class to simplify the creation of a new `VersionInfo` instance:
+
+```csharp
+using Ressy;
+using Ressy.Abstractions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+var versionInfo = new VersionInfoBuilder()
+    .SetFileVersion(new Version(1, 2, 3, 4))
+    .SetProductVersion(new Version(1, 2, 3, 4))
+    .SetFileType(FileType.App)
+    .SetAttribute(VersionAttributeName.FileDescription, "My new description")
+    .SetAttribute(VersionAttributeName.CompanyName, "My new company")
+    .SetAttribute("Custom Attribute", "My new value")
+    .Build();
+
+portableExecutable.SetVersionInfo(versionInfo);
+```
+
+> ⚠️ Calling this method does not remove existing version info resources, except for those that are directly overwritten.
+If you want to clean out redundant version info resources (e.g. those in other languages or with other resource names), call the `RemoveVersionInfo()` method first.
+
+Alternatively, you can also overwrite the version info resource based on the existing data.
+With this approach, parameters that are not provided are inferred from the version info resource which is currently stored in the PE file:
+
+```csharp
+using Ressy;
+using Ressy.Abstractions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+portableExecutable.SetVersionInfo(v => v
+    .SetFileVersion(new Version(1, 2, 3, 4))
+    .SetAttribute("Custom Attribute", "My new value")
+);
+```
+
+> 💡 If there is no version info resource in the PE file, this method will implicitly generate one with default values.
