@@ -52,7 +52,7 @@ namespace Ressy.Abstractions.Versions
         private long WriteStringFileInfo(BinaryWriter writer)
         {
             // wLength (will overwrite later)
-            var lengthCheckpoint = writer.BaseStream.CreatePortal();
+            var lengthPortal = writer.BaseStream.CreatePortal();
             writer.Write((ushort)0);
 
             // wValueLength (always zero)
@@ -71,7 +71,7 @@ namespace Ressy.Abstractions.Versions
             if (Attributes.Any())
             {
                 // wLength (will overwrite later)
-                var tableLengthCheckpoint = writer.BaseStream.CreatePortal();
+                var tableLengthPortal = writer.BaseStream.CreatePortal();
                 writer.Write((ushort)0);
 
                 // wValueLength (always zero)
@@ -92,7 +92,7 @@ namespace Ressy.Abstractions.Versions
                     writer.SkipPadding();
 
                     // wLength (will overwrite later)
-                    var stringLengthCheckpoint = writer.BaseStream.CreatePortal();
+                    var stringLengthPortal = writer.BaseStream.CreatePortal();
                     writer.Write((ushort)0);
 
                     // wValueLength
@@ -111,20 +111,20 @@ namespace Ressy.Abstractions.Versions
                     writer.WriteStringNullTerminated(value);
 
                     // Update length
-                    var stringLength = writer.BaseStream.Position - stringLengthCheckpoint.Position;
-                    using (stringLengthCheckpoint.Jump())
+                    var stringLength = writer.BaseStream.Position - stringLengthPortal.Position;
+                    using (stringLengthPortal.Jump())
                         writer.Write((ushort)stringLength);
                 }
 
                 // Update length
-                var tableLength = writer.BaseStream.Position - tableLengthCheckpoint.Position;
-                using (tableLengthCheckpoint.Jump())
+                var tableLength = writer.BaseStream.Position - tableLengthPortal.Position;
+                using (tableLengthPortal.Jump())
                     writer.Write((ushort)tableLength);
             }
 
             // Update length
-            var length = writer.BaseStream.Position - lengthCheckpoint.Position;
-            using (lengthCheckpoint.Jump())
+            var length = writer.BaseStream.Position - lengthPortal.Position;
+            using (lengthPortal.Jump())
                 writer.Write((ushort)length);
 
             return length;
@@ -136,7 +136,7 @@ namespace Ressy.Abstractions.Versions
                 return 0;
 
             // wLength (will overwrite later)
-            var lengthCheckpoint = writer.BaseStream.CreatePortal();
+            var lengthPortal = writer.BaseStream.CreatePortal();
             writer.Write((ushort)0);
 
             // wValueLength (always zero)
@@ -184,8 +184,8 @@ namespace Ressy.Abstractions.Versions
                 writer.Write((ushort)varFileInfoLength);
 
             // Update length
-            var length = writer.BaseStream.Position - lengthCheckpoint.Position;
-            using (lengthCheckpoint.Jump())
+            var length = writer.BaseStream.Position - lengthPortal.Position;
+            using (lengthPortal.Jump())
                 writer.Write((ushort)length);
 
             return length;
@@ -199,11 +199,11 @@ namespace Ressy.Abstractions.Versions
             // -- VS_VERSIONINFO
 
             // wLength (will overwrite later)
-            var lengthCheckpoint = writer.BaseStream.CreatePortal();
+            var lengthPortal = writer.BaseStream.CreatePortal();
             writer.Write((ushort)0);
 
             // wValueLength (will overwrite later)
-            var fixedFileInfoLengthCheckpoint = writer.BaseStream.CreatePortal();
+            var fixedFileInfoLengthPortal = writer.BaseStream.CreatePortal();
             writer.Write((ushort)0);
 
             // wType
@@ -217,7 +217,7 @@ namespace Ressy.Abstractions.Versions
 
             // -- VS_FIXEDFILEINFO
             var fixedFileInfoLength = WriteFixedFileInfo(writer);
-            using (fixedFileInfoLengthCheckpoint.Jump())
+            using (fixedFileInfoLengthPortal.Jump())
                 writer.Write((ushort)fixedFileInfoLength);
 
             // Padding
@@ -230,8 +230,8 @@ namespace Ressy.Abstractions.Versions
             WriteVarFileInfo(writer);
 
             // Update length
-            var length = stream.Position - lengthCheckpoint.Position;
-            using (lengthCheckpoint.Jump())
+            var length = stream.Position - lengthPortal.Position;
+            using (lengthPortal.Jump())
                 writer.Write((ushort)length);
 
             return stream.ToArray();

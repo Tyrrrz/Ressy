@@ -25,7 +25,7 @@ namespace Ressy.Utils
         }
     }
 
-    internal static class StreamCheckpointExtensions
+    internal static class StreamPortalExtensions
     {
         public static StreamPortal CreatePortal(this Stream stream, long position) => new(stream, position);
 
