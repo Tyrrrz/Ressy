@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 
 namespace Ressy.Abstractions.Versions
@@ -8,6 +9,14 @@ namespace Ressy.Abstractions.Versions
     /// </summary>
     public static class VersionExtensions
     {
+        private static FileType GetFileType(this PortableExecutable portableExecutable) =>
+            Path.GetExtension(portableExecutable.FilePath).ToUpperInvariant() switch
+            {
+                ".EXE" => FileType.App,
+                ".DLL" => FileType.Dll,
+                _ => FileType.Unknown
+            };
+
         /// <summary>
         /// Gets the version info resource and deserializes it.
         /// Returns <c>null</c> if the resource doesn't exist.
@@ -79,7 +88,7 @@ namespace Ressy.Abstractions.Versions
         /// </summary>
         /// <remarks>
         /// Consider calling <see cref="RemoveVersionInfo"/> first to remove redundant
-        /// application manifest resources.
+        /// manifest resources.
         /// </remarks>
         public static void SetVersionInfo(
             this PortableExecutable portableExecutable,
@@ -95,17 +104,17 @@ namespace Ressy.Abstractions.Versions
         /// </summary>
         /// <remarks>
         /// Consider calling <see cref="RemoveVersionInfo"/> first to remove redundant
-        /// application manifest resources.
+        /// manifest resources.
         /// </remarks>
         public static void SetVersionInfo(
             this PortableExecutable portableExecutable,
             Action<VersionInfoBuilder> configure)
         {
-            var versionInfoCurrent = portableExecutable.TryGetVersionInfo();
+            var current = portableExecutable.TryGetVersionInfo();
 
-            var builder = versionInfoCurrent is not null
-                ? new VersionInfoBuilder().CopyFrom(versionInfoCurrent)
-                : new VersionInfoBuilder();
+            var builder = current is not null
+                ? new VersionInfoBuilder().CopyFrom(current)
+                : new VersionInfoBuilder().SetFileType(portableExecutable.GetFileType());
 
             configure(builder);
 

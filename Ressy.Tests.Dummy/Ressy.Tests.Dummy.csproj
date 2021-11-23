@@ -11,7 +11,7 @@
     <!-- Icon and icon group resources -->
     <ApplicationIcon>Icon.ico</ApplicationIcon>
 
-    <!-- Application manifest resource -->
+    <!-- Manifest resource -->
     <ApplicationManifest>Manifest.xml</ApplicationManifest>
 
     <!-- Version info resource -->

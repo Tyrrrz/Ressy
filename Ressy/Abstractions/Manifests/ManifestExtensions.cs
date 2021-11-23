@@ -5,23 +5,23 @@ using System.Text;
 namespace Ressy.Abstractions.Manifests
 {
     /// <summary>
-    /// Extensions for <see cref="PortableExecutable"/> for working with application manifest resources.
+    /// Extensions for <see cref="PortableExecutable"/> for working with manifest resources.
     /// </summary>
     public static class ManifestExtensions
     {
-        // Unlike most string resources, application manifests are encoded in UTF-8,
+        // Unlike most string resources, manifests are encoded in UTF-8,
         // because that's the default encoding for XML files.
         private static readonly Encoding DefaultManifestEncoding = Encoding.UTF8;
 
         /// <summary>
-        /// Gets the application manifest resource and reads its data as an XML text string.
+        /// Gets the manifest resource and reads its data as an XML text string.
         /// Returns <c>null</c> if the resource doesn't exist.
         /// </summary>
         /// <remarks>
-        /// In case of multiple application manifest resources, this method retrieves
+        /// In case of multiple manifest resources, this method retrieves
         /// the one with the lowest ordinal resource name in the neutral language.
         /// If there are no resources matching aforementioned criteria, this method
-        /// retrieves the first application manifest resource it encounters.
+        /// retrieves the first manifest resource it encounters.
         /// </remarks>
         public static string? TryGetManifest(this PortableExecutable portableExecutable, Encoding? encoding = null)
         {
@@ -46,20 +46,20 @@ namespace Ressy.Abstractions.Manifests
         }
 
         /// <summary>
-        /// Gets the application manifest resource and reads its data as an XML text string.
+        /// Gets the manifest resource and reads its data as an XML text string.
         /// </summary>
         /// <remarks>
-        /// In case of multiple application manifest resources, this method retrieves
+        /// In case of multiple manifest resources, this method retrieves
         /// the one with the lowest ordinal resource name in the neutral language.
         /// If there are no resources matching aforementioned criteria, this method
-        /// retrieves the first application manifest resource it encounters.
+        /// retrieves the first manifest resource it encounters.
         /// </remarks>
         public static string GetManifest(this PortableExecutable portableExecutable, Encoding? encoding = null) =>
             portableExecutable.TryGetManifest(encoding) ??
             throw new InvalidOperationException("Application manifest resource does not exist.");
 
         /// <summary>
-        /// Removes all existing application manifest resources.
+        /// Removes all existing manifest resources.
         /// </summary>
         public static void RemoveManifest(this PortableExecutable portableExecutable)
         {
@@ -76,11 +76,11 @@ namespace Ressy.Abstractions.Manifests
         }
 
         /// <summary>
-        /// Adds or overwrites an application manifest resource with the specified XML text string.
+        /// Adds or overwrites an manifest resource with the specified XML text string.
         /// </summary>
         /// <remarks>
         /// Consider calling <see cref="RemoveManifest"/> first to remove redundant
-        /// application manifest resources.
+        /// manifest resources.
         /// </remarks>
         public static void SetManifest(
             this PortableExecutable portableExecutable,
