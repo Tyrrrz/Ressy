@@ -77,8 +77,8 @@ namespace Ressy.Tests
             actualVersionInfo.ProductName.Should().Be(versionInfo.Attributes[VersionAttributeName.ProductName]);
             actualVersionInfo.FileDescription.Should().Be(versionInfo.Attributes[VersionAttributeName.FileDescription]);
             actualVersionInfo.CompanyName.Should().Be(versionInfo.Attributes[VersionAttributeName.CompanyName]);
-            actualVersionInfo.Comments.Should().BeNull();
-            actualVersionInfo.LegalCopyright.Should().BeNull();
+            actualVersionInfo.Comments.Should().BeNullOrEmpty();
+            actualVersionInfo.LegalCopyright.Should().BeNullOrEmpty();
         }
 
         [Fact]
@@ -146,13 +146,13 @@ namespace Ressy.Tests
             );
 
             var actualVersionInfo = FileVersionInfo.GetVersionInfo(portableExecutable.FilePath);
-            actualVersionInfo.FileVersion.Should().BeNull();
-            actualVersionInfo.ProductVersion.Should().BeNull();
-            actualVersionInfo.ProductName.Should().BeNull();
-            actualVersionInfo.FileDescription.Should().BeNull();
-            actualVersionInfo.CompanyName.Should().BeNull();
-            actualVersionInfo.Comments.Should().BeNull();
-            actualVersionInfo.LegalCopyright.Should().BeNull();
+            actualVersionInfo.FileVersion.Should().BeNullOrEmpty();
+            actualVersionInfo.ProductVersion.Should().BeNullOrEmpty();
+            actualVersionInfo.ProductName.Should().BeNullOrEmpty();
+            actualVersionInfo.FileDescription.Should().BeNullOrEmpty();
+            actualVersionInfo.CompanyName.Should().BeNullOrEmpty();
+            actualVersionInfo.Comments.Should().BeNullOrEmpty();
+            actualVersionInfo.LegalCopyright.Should().BeNullOrEmpty();
         }
     }
 }

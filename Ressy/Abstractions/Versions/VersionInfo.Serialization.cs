@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Text;
 using Ressy.Utils;
 using Ressy.Utils.Extensions;
@@ -15,6 +16,7 @@ namespace Ressy.Abstractions.Versions
             // -- VS_VERSIONINFO
 
             // wLength (will overwrite later)
+            var rootLengthPosition = stream.Position;
             writer.Write((ushort)0);
 
             // wValueLength (will overwrite later)
@@ -30,6 +32,8 @@ namespace Ressy.Abstractions.Versions
             writer.SkipPadding();
 
             // -- VS_FIXEDFILEINFO
+
+            var fixedFileInfoPosition = stream.Position;
 
             // dwSignature
             writer.Write(0xFEEF04BD);
@@ -63,13 +67,18 @@ namespace Ressy.Abstractions.Versions
             // dwFileDateMS, dwFileDateLS
             writer.Write(FileTimestamp.ToFileTime());
 
+            // Update root value length
+            var fixedFileInfoLength = stream.Position - fixedFileInfoPosition;
+            using (writer.BaseStream.JumpAndReturn(2))
+                writer.Write((ushort)fixedFileInfoLength);
+
             // Padding
             writer.SkipPadding();
 
             // -- StringFileInfo
 
             // wLength (will overwrite later)
-            var stringFileInfoLengthOffset = stream.Position;
+            var stringFileInfoLengthPosition = stream.Position;
             writer.Write((ushort)0);
 
             // wValueLength (always zero)
@@ -85,111 +94,126 @@ namespace Ressy.Abstractions.Versions
             writer.SkipPadding();
 
             // -- StringTable
-
-            // wLength (will overwrite later)
-            var stringTableLengthOffset = stream.Position;
-            writer.Write((ushort)0);
-
-            // wValueLength (always zero)
-            writer.Write((ushort)0);
-
-            // wType
-            writer.Write((ushort)1);
-
-            // szKey
-            writer.WriteStringNullTerminated("040904B0");
-
-            // Children
-            foreach (var (name, value) in Attributes)
+            if (Attributes.Any())
             {
-                // -- String
-
-                // Padding
-                writer.SkipPadding();
-
                 // wLength (will overwrite later)
+                var stringTableLengthPosition = stream.Position;
                 writer.Write((ushort)0);
 
-                // wValueLength
-                writer.Write((ushort)value.Length);
+                // wValueLength (always zero)
+                writer.Write((ushort)0);
 
                 // wType
                 writer.Write((ushort)1);
 
                 // szKey
-                writer.WriteStringNullTerminated(name);
+                writer.WriteStringNullTerminated("040904B0");
 
-                // Padding
-                writer.SkipPadding();
+                // Children
+                foreach (var (name, value) in Attributes)
+                {
+                    // -- String
 
-                // Value
-                writer.WriteStringNullTerminated(value);
+                    // Padding
+                    writer.SkipPadding();
+
+                    // wLength (will overwrite later)
+                    var stringLengthPosition = stream.Position;
+                    writer.Write((ushort)0);
+
+                    // wValueLength
+                    writer.Write((ushort)value.Length);
+
+                    // wType
+                    writer.Write((ushort)1);
+
+                    // szKey
+                    writer.WriteStringNullTerminated(name);
+
+                    // Padding
+                    writer.SkipPadding();
+
+                    // Value
+                    writer.WriteStringNullTerminated(value);
+
+                    // Update length
+                    var stringLength = stream.Position - stringLengthPosition;
+                    using (writer.BaseStream.JumpAndReturn(stringLengthPosition))
+                        writer.Write((ushort)stringLength);
+                }
+
+                // Update string table length
+                var stringTableLength = stream.Position - stringTableLengthPosition;
+                using (writer.BaseStream.JumpAndReturn(stringTableLengthPosition))
+                    writer.Write((ushort)stringTableLength);
+
+                // Update string file info length
+                var stringFileInfoLength = stream.Position - stringFileInfoLengthPosition;
+                using (writer.BaseStream.JumpAndReturn(stringFileInfoLengthPosition))
+                    writer.Write((ushort)stringFileInfoLength);
             }
-
-            // Update string table length
-            var stringTableLength = stream.Position - stringTableLengthOffset;
-            using (writer.BaseStream.JumpAndReturn(stringTableLengthOffset))
-                writer.Write((ushort)stringTableLength);
-
-            // Update string file info length
-            var stringFileInfoLength = stream.Position - stringFileInfoLengthOffset;
-            using (writer.BaseStream.JumpAndReturn(stringFileInfoLengthOffset))
-                writer.Write((ushort)stringFileInfoLength);
 
             // -- VarFileInfo
-
-            // wLength (will overwrite later)
-            var varFileInfoLengthOffset = stream.Position;
-            writer.Write((ushort)0);
-
-            // wValueLength (always zero)
-            writer.Write((ushort)0);
-
-            // wType
-            writer.Write((ushort)1);
-
-            // szKey
-            writer.WriteStringNullTerminated("VarFileInfo");
-
-            // Padding
-            writer.SkipPadding();
-
-            // -- Translation
-
-            // wLength (will overwrite later)
-            var translationLengthOffset = stream.Position;
-            writer.Write((ushort)0);
-
-            // wValueLength (always zero)
-            writer.Write((ushort)0);
-
-            // wType
-            writer.Write((ushort)1);
-
-            // szKey
-            writer.WriteStringNullTerminated("Translation");
-
-            // Children
-            foreach (var translation in Translations)
+            if (Translations.Any())
             {
-                // -- Var
+                // wLength (will overwrite later)
+                var varFileInfoLengthPosition = stream.Position;
+                writer.Write((ushort)0);
+
+                // wValueLength (always zero)
+                writer.Write((ushort)0);
+
+                // wType
+                writer.Write((ushort)1);
+
+                // szKey
+                writer.WriteStringNullTerminated("VarFileInfo");
 
                 // Padding
                 writer.SkipPadding();
 
-                // Value
-                writer.Write(BitPack.Merge((ushort)translation.Codepage, (ushort)translation.LanguageId));
+                // -- Translation
+
+                // wLength (will overwrite later)
+                var translationLengthPosition = stream.Position;
+                writer.Write((ushort)0);
+
+                // wValueLength (always zero)
+                writer.Write((ushort)0);
+
+                // wType
+                writer.Write((ushort)1);
+
+                // szKey
+                writer.WriteStringNullTerminated("Translation");
+
+                // Children
+                foreach (var translation in Translations)
+                {
+                    // -- Var
+
+                    // Padding
+                    writer.SkipPadding();
+
+                    // Value
+                    writer.Write(BitPack.Merge((ushort)translation.Codepage, (ushort)translation.LanguageId));
+                }
+
+                // Update translation length
+                var translationLength = stream.Position - translationLengthPosition;
+                using (writer.BaseStream.JumpAndReturn(translationLengthPosition))
+                    writer.Write((ushort)translationLength);
+
+                // Update var file info length
+                var varFileInfoLength = stream.Position - varFileInfoLengthPosition;
+                using (writer.BaseStream.JumpAndReturn(varFileInfoLengthPosition))
+                    writer.Write((ushort)varFileInfoLength);
             }
 
-            // Update translation length
-            var translationLength = stream.Position - translationLengthOffset;
-            using (writer.BaseStream.JumpAndReturn(translationLengthOffset))
-                writer.Write((ushort)translationLength);
-
-            // Update var file info length
-            var varFileInfoLength = stream.Position - varFileInfoLengthOffset;
-            using (writer.BaseStream.JumpAndReturn(varFileInfoLengthOffset))
-                writer.Write((ushort)varFileInfoLength);
+            // Update root length
+            var rootLength = stream.Position - rootLengthPosition;
+            using (writer.BaseStream.JumpAndReturn(rootLengthPosition))
+                writer.Write((ushort)rootLength);
 
             return stream.ToArray();
         }
