@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using FluentAssertions;
 using Ressy.Abstractions.Versions;
 using Ressy.Tests.Fixtures;
@@ -31,16 +31,16 @@ namespace Ressy.Tests
             versionInfo.FileType.Should().Be(FileType.App);
             versionInfo.FileSubType.Should().Be(FileSubType.Unknown);
             versionInfo.FileTimestamp.Should().Be(new DateTimeOffset(1601, 01, 01, 00, 00, 00, TimeSpan.Zero));
-            versionInfo.Attributes.Should().Contain(new Dictionary<string, string>(StringComparer.Ordinal)
+            versionInfo.Attributes.Should().Contain(new Dictionary<VersionAttributeName, string>
             {
                 ["Assembly Version"] = "6.9.6.9",
-                ["FileVersion"] = "1.2.3.4",
-                ["ProductVersion"] = "5.6.7.8",
-                ["ProductName"] = "TestProduct",
-                ["FileDescription"] = "TestDescription",
-                ["CompanyName"] = "TestCompany",
-                ["Comments"] = "TestComments",
-                ["LegalCopyright"] = "TestCopyright"
+                [VersionAttributeName.FileVersion] = "1.2.3.4",
+                [VersionAttributeName.ProductVersion] = "5.6.7.8",
+                [VersionAttributeName.ProductName] = "TestProduct",
+                [VersionAttributeName.FileDescription] = "TestDescription",
+                [VersionAttributeName.CompanyName] = "TestCompany",
+                [VersionAttributeName.Comments] = "TestComments",
+                [VersionAttributeName.LegalCopyright] = "TestCopyright"
             });
             versionInfo.Translations.Should().BeEquivalentTo(new[]
             {
@@ -52,30 +52,33 @@ namespace Ressy.Tests
         public void User_can_add_an_application_version()
         {
             // Arrange
-            var versionInfo = new VersionInfo(
-                new Version(6, 7, 8, 9),
-                new Version(2, 3, 1, 9),
-                FileFlags.None,
-                FileOperatingSystem.NT | FileOperatingSystem.Windows32,
-                FileType.App,
-                FileSubType.Unknown,
-                new DateTimeOffset(2021, 11, 17, 00, 00, 00, TimeSpan.Zero),
-                new Dictionary<string, string>(StringComparer.Ordinal)
-                {
-                    ["Foo"] = "Bar",
-                    ["Baz"] = "Boom"
-                },
-                new[] { new TranslationInfo(0, 1252) }
-            );
+            var versionInfo = new VersionInfoBuilder()
+                .SetFileVersion(new Version(6, 7, 8, 9))
+                .SetProductVersion(new Version(2, 3, 1, 9))
+                .SetFileOperatingSystem(FileOperatingSystem.Windows32 | FileOperatingSystem.NT)
+                .SetAttribute(VersionAttributeName.ProductName, "Foo")
+                .SetAttribute(VersionAttributeName.FileDescription, "Bar")
+                .SetAttribute(VersionAttributeName.CompanyName, "Baz")
+                .SetAttribute("Custom", "Value")
+                .Build();
 
             var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
-            portableExecutable.ClearResources();
+            portableExecutable.RemoveVersionInfo();
 
             // Act
             portableExecutable.SetVersionInfo(versionInfo);
 
             // Assert
             portableExecutable.GetVersionInfo().Should().BeEquivalentTo(versionInfo);
+
+            var actualVersionInfo = FileVersionInfo.GetVersionInfo(portableExecutable.FilePath);
+            actualVersionInfo.FileVersion.Should().Be(versionInfo.FileVersion.ToString(4));
+            actualVersionInfo.ProductVersion.Should().Be(versionInfo.ProductVersion.ToString(4));
+            actualVersionInfo.ProductName.Should().Be(versionInfo.Attributes[VersionAttributeName.ProductName]);
+            actualVersionInfo.FileDescription.Should().Be(versionInfo.Attributes[VersionAttributeName.FileDescription]);
+            actualVersionInfo.CompanyName.Should().Be(versionInfo.Attributes[VersionAttributeName.CompanyName]);
+            actualVersionInfo.Comments.Should().BeNull();
+            actualVersionInfo.LegalCopyright.Should().BeNull();
         }
 
         [Fact]
@@ -88,8 +91,8 @@ namespace Ressy.Tests
             portableExecutable.SetVersionInfo(v => v
                 .SetFileVersion(new Version(4, 3, 2, 1))
                 .SetFileOperatingSystem(FileOperatingSystem.Windows32 | FileOperatingSystem.NT)
-                .SetAttribute(StandardVersionAttributeName.ProductName, "ProductTest")
-                .SetAttribute(StandardVersionAttributeName.CompanyName, "CompanyTest")
+                .SetAttribute(VersionAttributeName.ProductName, "ProductTest")
+                .SetAttribute(VersionAttributeName.CompanyName, "CompanyTest")
             );
 
             // Assert
@@ -102,21 +105,30 @@ namespace Ressy.Tests
             versionInfo.FileType.Should().Be(FileType.App);
             versionInfo.FileSubType.Should().Be(FileSubType.Unknown);
             versionInfo.FileTimestamp.Should().Be(new DateTimeOffset(1601, 01, 01, 00, 00, 00, TimeSpan.Zero));
-            versionInfo.Attributes.Should().Contain(new Dictionary<string, string>(StringComparer.Ordinal)
+            versionInfo.Attributes.Should().Contain(new Dictionary<VersionAttributeName, string>
             {
                 ["Assembly Version"] = "6.9.6.9",
-                ["FileVersion"] = "4.3.2.1",
-                ["ProductVersion"] = "5.6.7.8",
-                ["ProductName"] = "ProductTest",
-                ["FileDescription"] = "TestDescription",
-                ["CompanyName"] = "CompanyTest",
-                ["Comments"] = "TestComments",
-                ["LegalCopyright"] = "TestCopyright"
+                [VersionAttributeName.FileVersion] = "4.3.2.1",
+                [VersionAttributeName.ProductVersion] = "5.6.7.8",
+                [VersionAttributeName.ProductName] = "ProductTest",
+                [VersionAttributeName.FileDescription] = "TestDescription",
+                [VersionAttributeName.CompanyName] = "CompanyTest",
+                [VersionAttributeName.Comments] = "TestComments",
+                [VersionAttributeName.LegalCopyright] = "TestCopyright"
             });
             versionInfo.Translations.Should().BeEquivalentTo(new[]
             {
                 new TranslationInfo(0, 1200)
             });
+
+            var actualVersionInfo = FileVersionInfo.GetVersionInfo(portableExecutable.FilePath);
+            actualVersionInfo.FileVersion.Should().Be(versionInfo.FileVersion.ToString(4));
+            actualVersionInfo.ProductVersion.Should().Be(versionInfo.ProductVersion.ToString(4));
+            actualVersionInfo.ProductName.Should().Be(versionInfo.Attributes[VersionAttributeName.ProductName]);
+            actualVersionInfo.FileDescription.Should().Be(versionInfo.Attributes[VersionAttributeName.FileDescription]);
+            actualVersionInfo.CompanyName.Should().Be(versionInfo.Attributes[VersionAttributeName.CompanyName]);
+            actualVersionInfo.Comments.Should().Be(versionInfo.Attributes[VersionAttributeName.Comments]);
+            actualVersionInfo.LegalCopyright.Should().Be(versionInfo.Attributes[VersionAttributeName.LegalCopyright]);
         }
 
         [Fact]
@@ -129,11 +141,18 @@ namespace Ressy.Tests
             portableExecutable.RemoveVersionInfo();
 
             // Assert
-            portableExecutable
-                .GetResourceIdentifiers()
-                .Where(r => r.Type.Code == (int)StandardResourceTypeCode.Version)
-                .Should()
-                .BeEmpty();
+            portableExecutable.GetResourceIdentifiers().Should().NotContain(
+                r => r.Type.Code == ResourceType.Version.Code
+            );
+
+            var actualVersionInfo = FileVersionInfo.GetVersionInfo(portableExecutable.FilePath);
+            actualVersionInfo.FileVersion.Should().BeNull();
+            actualVersionInfo.ProductVersion.Should().BeNull();
+            actualVersionInfo.ProductName.Should().BeNull();
+            actualVersionInfo.FileDescription.Should().BeNull();
+            actualVersionInfo.CompanyName.Should().BeNull();
+            actualVersionInfo.Comments.Should().BeNull();
+            actualVersionInfo.LegalCopyright.Should().BeNull();
         }
     }
 }

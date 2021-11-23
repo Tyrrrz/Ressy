@@ -1,4 +1,3 @@
-using System.Linq;
 using FluentAssertions;
 using Ressy.Abstractions.Manifests;
 using Ressy.Tests.Fixtures;
@@ -40,7 +39,7 @@ namespace Ressy.Tests
                 </assembly>";
 
             var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
-            portableExecutable.ClearResources();
+            portableExecutable.RemoveManifest();
 
             // Act
             portableExecutable.SetManifest(manifest);
@@ -59,11 +58,9 @@ namespace Ressy.Tests
             portableExecutable.RemoveManifest();
 
             // Assert
-            portableExecutable
-                .GetResourceIdentifiers()
-                .Where(r => r.Type.Code == (int)StandardResourceTypeCode.Manifest)
-                .Should()
-                .BeEmpty();
+            portableExecutable.GetResourceIdentifiers().Should().NotContain(
+                r => r.Type.Code == ResourceType.Manifest.Code
+            );
         }
     }
 }

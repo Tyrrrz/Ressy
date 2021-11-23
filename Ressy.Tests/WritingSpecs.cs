@@ -179,7 +179,7 @@ namespace Ressy.Tests
         {
             // Arrange
             var identifier = new ResourceIdentifier(
-                ResourceType.FromCode(StandardResourceTypeCode.Manifest),
+                ResourceType.Manifest,
                 ResourceName.FromCode(1)
             );
 
@@ -205,7 +205,7 @@ namespace Ressy.Tests
         {
             // Arrange
             var identifier = new ResourceIdentifier(
-                ResourceType.FromCode(StandardResourceTypeCode.Manifest),
+                ResourceType.Manifest,
                 ResourceName.FromCode(1)
             );
 

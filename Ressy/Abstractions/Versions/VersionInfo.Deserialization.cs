@@ -9,7 +9,7 @@ namespace Ressy.Abstractions.Versions
 {
     public partial class VersionInfo
     {
-        private static IReadOnlyDictionary<string, string> DeserializeAttributes(BinaryReader reader)
+        private static IReadOnlyDictionary<VersionAttributeName, string> DeserializeAttributes(BinaryReader reader)
         {
             // Padding
             reader.SkipPadding();
@@ -24,7 +24,7 @@ namespace Ressy.Abstractions.Versions
             _ = reader.ReadStringNullTerminated();
 
             // Children
-            var attributes = new Dictionary<string, string>(StringComparer.Ordinal);
+            var attributes = new Dictionary<VersionAttributeName, string>();
             while (reader.BaseStream.Position < stringTableEndPosition)
             {
                 // -- String
@@ -137,7 +137,7 @@ namespace Ressy.Abstractions.Versions
             reader.SkipPadding();
 
             // Optional StringFileInfo and VarInfo, in any order
-            var attributes = default(IReadOnlyDictionary<string, string>);
+            var attributes = default(IReadOnlyDictionary<VersionAttributeName, string>);
             var translations = default(IReadOnlyList<TranslationInfo>);
             while (reader.BaseStream.Position < reader.BaseStream.Length)
             {
@@ -171,7 +171,7 @@ namespace Ressy.Abstractions.Versions
                 fileType,
                 fileSubType,
                 fileTimestamp,
-                attributes ?? new Dictionary<string, string>(),
+                attributes ?? new Dictionary<VersionAttributeName, string>(),
                 translations ?? Array.Empty<TranslationInfo>()
             );
         }

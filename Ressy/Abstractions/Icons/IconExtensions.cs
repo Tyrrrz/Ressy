@@ -19,9 +19,8 @@ namespace Ressy.Abstractions.Icons
             {
                 foreach (var identifier in identifiers)
                 {
-                    if (identifier.Type.Code is
-                        (int)StandardResourceTypeCode.Icon or
-                        (int)StandardResourceTypeCode.GroupIcon)
+                    if (identifier.Type.Code == ResourceType.Icon.Code ||
+                        identifier.Type.Code == ResourceType.IconGroup.Code)
                     {
                         ctx.Remove(identifier);
                     }
@@ -47,7 +46,7 @@ namespace Ressy.Abstractions.Icons
                 foreach (var (icon, index) in iconGroup.Icons.Indexed())
                 {
                     ctx.Set(new ResourceIdentifier(
-                        ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                        ResourceType.Icon,
                         ResourceName.FromCode(index + 1)
                     ), icon.Data);
                 }
@@ -76,7 +75,7 @@ namespace Ressy.Abstractions.Icons
                     }
 
                     ctx.Set(new ResourceIdentifier(
-                        ResourceType.FromCode(StandardResourceTypeCode.GroupIcon),
+                        ResourceType.IconGroup,
                         ResourceName.FromCode(1)
                     ), buffer.ToArray());
                 }

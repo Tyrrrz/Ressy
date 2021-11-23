@@ -1,9 +1,10 @@
+using System.Drawing;
 using System.IO;
-using System.Linq;
 using FluentAssertions;
 using Ressy.Abstractions.Icons;
 using Ressy.Tests.Fixtures;
 using Ressy.Tests.Utils;
+using Ressy.Tests.Utils.Extensions;
 using Xunit;
 
 namespace Ressy.Tests
@@ -21,50 +22,55 @@ namespace Ressy.Tests
             var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
 
             var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
-            portableExecutable.ClearResources();
+            portableExecutable.RemoveIcon();
 
             // Act
             portableExecutable.SetIcon(iconFilePath);
 
             // Assert
-            portableExecutable.GetResourceIdentifiers().Should().BeEquivalentTo(new[]
+            portableExecutable.GetResourceIdentifiers().Should().Contain(new[]
             {
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.GroupIcon),
+                    ResourceType.IconGroup,
                     ResourceName.FromCode(1),
                     ResourceLanguage.Neutral
                 ),
 
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(1),
                     ResourceLanguage.Neutral
                 ),
 
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(2),
                     ResourceLanguage.Neutral
                 ),
 
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(3),
                     ResourceLanguage.Neutral
                 ),
 
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(4),
                     ResourceLanguage.Neutral
                 ),
 
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(5),
                     ResourceLanguage.Neutral
                 )
             });
+
+            using var sourceIcon = new Icon(iconFilePath);
+            using var actualIcon = Icon.ExtractAssociatedIcon(portableExecutable.FilePath);
+            actualIcon.Should().NotBeNull();
+            actualIcon?.ToBitmap().GetData().Should().Equal(sourceIcon.ToBitmap().GetData());
         }
 
         [Fact]
@@ -77,14 +83,10 @@ namespace Ressy.Tests
             portableExecutable.RemoveIcon();
 
             // Assert
-            portableExecutable
-                .GetResourceIdentifiers()
-                .Where(r => r.Type.Code is
-                    (int)StandardResourceTypeCode.GroupIcon or
-                    (int)StandardResourceTypeCode.Icon
-                )
-                .Should()
-                .BeEmpty();
+            portableExecutable.GetResourceIdentifiers().Should().NotContain(r =>
+                r.Type.Code == ResourceType.IconGroup.Code ||
+                r.Type.Code == ResourceType.Icon.Code
+            );
         }
     }
 }

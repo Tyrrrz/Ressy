@@ -21,7 +21,7 @@ namespace Ressy.Abstractions.Versions
         public static VersionInfo? TryGetVersionInfo(this PortableExecutable portableExecutable)
         {
             var identifiers = portableExecutable.GetResourceIdentifiers()
-                .Where(r => r.Type.Code == (int)StandardResourceTypeCode.Version)
+                .Where(r => r.Type.Code == ResourceType.Version.Code)
                 .ToArray();
 
             var identifier =
@@ -68,7 +68,7 @@ namespace Ressy.Abstractions.Versions
             {
                 foreach (var identifier in identifiers)
                 {
-                    if (identifier.Type.Code == (int)StandardResourceTypeCode.Version)
+                    if (identifier.Type.Code == ResourceType.Version.Code)
                         ctx.Remove(identifier);
                 }
             });
@@ -85,7 +85,7 @@ namespace Ressy.Abstractions.Versions
             this PortableExecutable portableExecutable,
             VersionInfo versionInfo) =>
             portableExecutable.SetResource(new ResourceIdentifier(
-                ResourceType.FromCode(StandardResourceTypeCode.Version),
+                ResourceType.Version,
                 ResourceName.FromCode(1)
             ), versionInfo.Serialize());
 

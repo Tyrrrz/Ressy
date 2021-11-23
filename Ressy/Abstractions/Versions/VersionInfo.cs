@@ -47,7 +47,7 @@ namespace Ressy.Abstractions.Versions
         /// <summary>
         /// Version attributes (contained within the StringFileInfo structure).
         /// </summary>
-        public IReadOnlyDictionary<string, string> Attributes { get; }
+        public IReadOnlyDictionary<VersionAttributeName, string> Attributes { get; }
 
         /// <summary>
         /// File translations (contained within the VarFileInfo structure).
@@ -65,7 +65,7 @@ namespace Ressy.Abstractions.Versions
             FileType fileType,
             FileSubType fileSubType,
             DateTimeOffset fileTimestamp,
-            IReadOnlyDictionary<string, string> attributes,
+            IReadOnlyDictionary<VersionAttributeName, string> attributes,
             IReadOnlyList<TranslationInfo> translations)
         {
             FileVersion = fileVersion;

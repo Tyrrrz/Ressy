@@ -1,5 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using Ressy.Utils;
 
 namespace Ressy
 {
@@ -9,7 +11,7 @@ namespace Ressy
     public readonly partial struct ResourceLanguage
     {
         /// <summary>
-        /// Language ID (LCID).
+        /// Language ID.
         /// </summary>
         public int Id { get; }
 
@@ -34,6 +36,22 @@ namespace Ressy
         /// Creates a language identifier from a culture descriptor.
         /// </summary>
         // https://docs.microsoft.com/en-us/windows/win32/intl/locale-identifiers?redirectedfrom=MSDN
-        public static ResourceLanguage FromCultureInfo(CultureInfo cultureInfo) => new(cultureInfo.LCID & 0xffff);
+        public static ResourceLanguage FromCultureInfo(CultureInfo cultureInfo)
+        {
+            var (_, languageId) = BitPack.Split(cultureInfo.LCID);
+            return new ResourceLanguage(languageId);
+        }
+    }
+
+    public partial struct ResourceLanguage : IEquatable<ResourceLanguage>
+    {
+        /// <inheritdoc />
+        public bool Equals(ResourceLanguage other) => Id == other.Id;
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj) => obj is ResourceLanguage other && Equals(other);
+
+        /// <inheritdoc />
+        public override int GetHashCode() => Id;
     }
 }

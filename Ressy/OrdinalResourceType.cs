@@ -1,9 +1,10 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using Ressy.Native;
 
 namespace Ressy
 {
-    internal class OrdinalResourceType : ResourceType
+    internal partial class OrdinalResourceType : ResourceType
     {
         private readonly int _code;
 
@@ -15,34 +16,34 @@ namespace Ressy
             {
                 var codePortion = '#' + _code.ToString(CultureInfo.InvariantCulture);
 
-                var standardTypePortion = (StandardResourceTypeCode)_code switch
+                var standardTypePortion = _code switch
                 {
-                    StandardResourceTypeCode.Cursor => "CURSOR",
-                    StandardResourceTypeCode.Bitmap => "BITMAP",
-                    StandardResourceTypeCode.Icon => "ICON",
-                    StandardResourceTypeCode.Menu => "MENU",
-                    StandardResourceTypeCode.Dialog => "DIALOG",
-                    StandardResourceTypeCode.String => "STRING",
-                    StandardResourceTypeCode.FontDir => "FONTDIR",
-                    StandardResourceTypeCode.Font => "FONT",
-                    StandardResourceTypeCode.Accelerator => "ACCELERATOR",
-                    StandardResourceTypeCode.RawData => "RCDATA",
-                    StandardResourceTypeCode.MessageTable => "MESSAGETABLE",
-                    StandardResourceTypeCode.GroupCursor => "GROUP_CURSOR",
-                    StandardResourceTypeCode.GroupIcon => "GROUP_ICON",
-                    StandardResourceTypeCode.Version => "VERSION",
-                    StandardResourceTypeCode.DlgInclude => "DLGINCLUDE",
-                    StandardResourceTypeCode.PlugAndPlay => "PLUGPLAY",
-                    StandardResourceTypeCode.Vxd => "VXD",
-                    StandardResourceTypeCode.AnimatedCursor => "ANICURSOR",
-                    StandardResourceTypeCode.AnimatedIcon => "ANIICON",
-                    StandardResourceTypeCode.Html => "HTML",
-                    StandardResourceTypeCode.Manifest => "MANIFEST",
+                    1 => "CURSOR",
+                    2 => "BITMAP",
+                    3 => "ICON",
+                    4 => "MENU",
+                    5 => "DIALOG",
+                    6 => "STRING",
+                    7 => "FONTDIR",
+                    8 => "FONT",
+                    9 => "ACCELERATOR",
+                    10 => "RCDATA",
+                    11 => "MESSAGETABLE",
+                    12 => "GROUP_CURSOR",
+                    14 => "GROUP_ICON",
+                    16 => "VERSION",
+                    17 => "DLGINCLUDE",
+                    19 => "PLUGPLAY",
+                    20 => "VXD",
+                    21 => "ANICURSOR",
+                    22 => "ANIICON",
+                    23 => "HTML",
+                    24 => "MANIFEST",
                     _ => null
                 };
 
                 return !string.IsNullOrWhiteSpace(standardTypePortion)
-                    ? codePortion + " (" + standardTypePortion + ")"
+                    ? codePortion + ' ' + '(' + standardTypePortion + ')'
                     : codePortion;
             }
         }
@@ -50,5 +51,27 @@ namespace Ressy
         public OrdinalResourceType(int code) => _code = code;
 
         internal override SafeIntPtr ToPointer() => SafeIntPtr.FromValue(_code);
+    }
+
+    internal partial class OrdinalResourceType : IEquatable<OrdinalResourceType>
+    {
+        public bool Equals(OrdinalResourceType? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            return _code == other._code;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+
+            return Equals((OrdinalResourceType)obj);
+        }
+
+        public override int GetHashCode() => _code;
     }
 }

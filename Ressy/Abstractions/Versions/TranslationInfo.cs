@@ -6,7 +6,7 @@ namespace Ressy.Abstractions.Versions
     public class TranslationInfo
     {
         /// <summary>
-        /// Language ID (LCID).
+        /// Language ID.
         /// </summary>
         public int LanguageId { get; }
 

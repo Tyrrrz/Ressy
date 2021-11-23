@@ -26,7 +26,7 @@ namespace Ressy.Abstractions.Manifests
         public static string? TryGetManifest(this PortableExecutable portableExecutable, Encoding? encoding = null)
         {
             var identifiers = portableExecutable.GetResourceIdentifiers()
-                .Where(r => r.Type.Code == (int)StandardResourceTypeCode.Manifest)
+                .Where(r => r.Type.Code == ResourceType.Manifest.Code)
                 .ToArray();
 
             var identifier =
@@ -69,7 +69,7 @@ namespace Ressy.Abstractions.Manifests
             {
                 foreach (var identifier in identifiers)
                 {
-                    if (identifier.Type.Code == (int)StandardResourceTypeCode.Manifest)
+                    if (identifier.Type.Code == ResourceType.Manifest.Code)
                         ctx.Remove(identifier);
                 }
             });
@@ -88,7 +88,7 @@ namespace Ressy.Abstractions.Manifests
             Encoding? encoding = null)
         {
             portableExecutable.SetResource(new ResourceIdentifier(
-                ResourceType.FromCode(StandardResourceTypeCode.Manifest),
+                ResourceType.Manifest,
                 ResourceName.FromCode(1)
             ), (encoding ?? DefaultManifestEncoding).GetBytes(manifest));
         }

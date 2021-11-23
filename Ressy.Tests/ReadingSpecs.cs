@@ -25,62 +25,62 @@ namespace Ressy.Tests
             {
                 // -- RT_ICON/1/Neutral
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(1),
                     ResourceLanguage.Neutral
                 ),
 
                 // -- RT_ICON/2/Neutral
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(2),
                     ResourceLanguage.Neutral
                 ),
 
                 // -- RT_ICON/3/Neutral
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(3),
                     ResourceLanguage.Neutral
                 ),
 
                 // -- RT_ICON/4/Neutral
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(4),
                     ResourceLanguage.Neutral
                 ),
 
                 // -- RT_ICON/5/Neutral
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(5),
                     ResourceLanguage.Neutral
                 ),
 
                 // -- RT_ICON/6/Neutral
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Icon),
+                    ResourceType.Icon,
                     ResourceName.FromCode(6),
                     ResourceLanguage.Neutral
                 ),
 
                 // -- RT_GROUP_ICON/32512/Neutral
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.GroupIcon),
+                    ResourceType.IconGroup,
                     ResourceName.FromCode(32512),
                     ResourceLanguage.Neutral
                 ),
 
                 // -- RT_VERSION/1/Neutral
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Version),
+                    ResourceType.Version,
                     ResourceName.FromCode(1)
                 ),
 
                 // -- RT_MANIFEST/1/Neutral
                 new ResourceIdentifier(
-                    ResourceType.FromCode(StandardResourceTypeCode.Manifest),
+                    ResourceType.Manifest,
                     ResourceName.FromCode(1),
                     ResourceLanguage.Neutral
                 )
@@ -95,7 +95,7 @@ namespace Ressy.Tests
 
             // Act
             var resource = portableExecutable.GetResource(new ResourceIdentifier(
-                ResourceType.FromCode(StandardResourceTypeCode.Manifest),
+                ResourceType.Manifest,
                 ResourceName.FromCode(1)
             ));
 

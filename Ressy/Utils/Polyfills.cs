@@ -11,4 +11,22 @@ internal static class PolyfillExtensions
         value = pair.Value;
     }
 }
+
+namespace System
+{
+    internal static class HashCode
+    {
+        public static int Combine<T1, T2, T3>(T1 value1, T2 value2, T3 value3)
+        {
+            var hc1 = value1?.GetHashCode() ?? 0;
+            var hc2 = value2?.GetHashCode() ?? 0;
+            var hc3 = value3?.GetHashCode() ?? 0;
+
+            unchecked
+            {
+                return (((hc1 * 397) ^ hc2) * 397) ^ hc3;
+            }
+        }
+    }
+}
 #endif

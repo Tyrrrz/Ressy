@@ -15,7 +15,7 @@ namespace Ressy.Abstractions.Versions
         private FileType _fileType = FileType.App;
         private FileSubType _fileSubType = FileSubType.Unknown;
         private DateTimeOffset _fileTimestamp = DateTimeOffset.Now;
-        private readonly Dictionary<string, string> _attributes = new(StringComparer.Ordinal);
+        private readonly Dictionary<VersionAttributeName, string> _attributes = new();
         private readonly List<TranslationInfo> _translations = new();
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Ressy.Abstractions.Versions
         public VersionInfoBuilder SetFileVersion(Version fileVersion)
         {
             _fileVersion = fileVersion;
-            _attributes[StandardVersionAttributeName.FileVersion.ToString()] = fileVersion.ToString(4);
+            _attributes[VersionAttributeName.FileVersion] = fileVersion.ToString(4);
             return this;
         }
 
@@ -34,7 +34,7 @@ namespace Ressy.Abstractions.Versions
         public VersionInfoBuilder SetProductVersion(Version productVersion)
         {
             _productVersion = productVersion;
-            _attributes[StandardVersionAttributeName.ProductVersion.ToString()] = productVersion.ToString(4);
+            _attributes[VersionAttributeName.ProductVersion] = productVersion.ToString(4);
             return this;
         }
 
@@ -95,17 +95,11 @@ namespace Ressy.Abstractions.Versions
         /// <summary>
         /// Sets version attribute.
         /// </summary>
-        public VersionInfoBuilder SetAttribute(string name, string value)
+        public VersionInfoBuilder SetAttribute(VersionAttributeName name, string value)
         {
             _attributes[name] = value;
             return this;
         }
-
-        /// <summary>
-        /// Sets version attribute.
-        /// </summary>
-        public VersionInfoBuilder SetAttribute(StandardVersionAttributeName name, string value) =>
-            SetAttribute(name.ToString(), value);
 
         /// <summary>
         /// Removes all translations.

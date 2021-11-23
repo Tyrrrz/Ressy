@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -10,10 +10,10 @@
   <PropertyGroup>
     <!-- Icon and icon group resources -->
     <ApplicationIcon>Icon.ico</ApplicationIcon>
-    
+
     <!-- Application manifest resource -->
     <ApplicationManifest>Manifest.xml</ApplicationManifest>
-    
+
     <!-- Version info resource -->
     <AssemblyVersion>6.9.6.9</AssemblyVersion>
     <FileVersion>1.2.3.4</FileVersion>
