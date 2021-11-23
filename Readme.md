@@ -109,7 +109,7 @@ portableExecutable.SetResource(
         ResourceName.FromCode(1),
         new ResourceLanguage(1033)
     ),
-    new byte{} { 0x01, 0x02, 0x03 }
+    new byte[] { 0x01, 0x02, 0x03 }
 );
 ```
 
@@ -154,7 +154,6 @@ using Ressy.Abstractions;
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 var manifest = portableExecutable.GetManifest();
-
 // -or-
 // var manifest = portableExecutable.TryGetManifest();
 ```
@@ -209,6 +208,8 @@ using Ressy.Abstractions;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
+// - Sets resource with ordinal type 14, ordinal name 1, and language 0
+// - Sets multiple resources with ordinal type 3, ordinal names 1-N, and language 0
 portableExecutable.SetIcon("new_icon.ico");
 ```
 
@@ -232,7 +233,7 @@ portableExecutable.SetIcon(iconFileStream);
 #### Working with version resources
 
 To get the version info resource, call the `GetVersionInfo()` extension method.
-This returns a `VersionInfo` object that represents the binary data stored in the resource:
+This returns a `VersionInfo` object that represents the deserialized binary data stored in the resource:
 
 ```csharp
 using Ressy;
@@ -241,7 +242,6 @@ using Ressy.Abstractions;
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 var versionInfo = portableExecutable.GetVersionInfo();
-
 // -or-
 // var versionInfo = portableExecutable.TryGetVersionInfo();
 
@@ -281,7 +281,7 @@ var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe
 portableExecutable.RemoveVersionInfo();
 ```
 
-To add or overwrite version info resource, call the `SetVersionInfo(...)` extension method.
+To add or overwrite a version info resource, call the `SetVersionInfo(...)` extension method.
 You can use the `VersionInfoBuilder` class to simplify the creation of a new `VersionInfo` instance:
 
 ```csharp
@@ -305,8 +305,7 @@ portableExecutable.SetVersionInfo(versionInfo);
 > ⚠️ Calling this method does not remove existing version info resources, except for those that are directly overwritten.
 If you want to clean out redundant version info resources (e.g. those in other languages or with other resource names), call the `RemoveVersionInfo()` method first.
 
-Alternatively, you can also overwrite the version info resource based on the existing data.
-With this approach, parameters that are not provided are inferred from the version info resource which is currently stored in the PE file:
+Alternatively, you can also use this method to modify specific properties of the version info resource which is currently stored in the PE file:
 
 ```csharp
 using Ressy;
@@ -320,4 +319,5 @@ portableExecutable.SetVersionInfo(v => v
 );
 ```
 
-> 💡 If there is no version info resource in the PE file, this method will implicitly generate one with default values.
+> 💡 When using this overload of `SetVersionInfo(...)`, properties that were not provided are inferred from the existing version info resource.
+If there is no version info resource in the PE file, this method will implicitly generate one with default values.
