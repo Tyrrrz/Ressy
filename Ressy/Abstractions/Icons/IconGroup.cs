@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Ressy.Utils.Extensions;
+using Ressy.Utils;
 
 namespace Ressy.Abstractions.Icons
 {
@@ -36,7 +36,7 @@ namespace Ressy.Abstractions.Icons
                 var dataLength = reader.ReadUInt32();
                 var dataOffset = reader.ReadUInt32();
 
-                using (stream.JumpAndReturn(dataOffset))
+                using (stream.CreatePortal(dataOffset).Jump())
                 {
                     var data = reader.ReadBytes((int)dataLength);
 

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Ressy.Utils;
@@ -9,7 +8,57 @@ namespace Ressy.Abstractions.Versions
 {
     public partial class VersionInfo
     {
-        private static IReadOnlyDictionary<VersionAttributeName, string> DeserializeAttributes(BinaryReader reader)
+        private static void ReadFixedFileInfo(BinaryReader reader, VersionInfoBuilder builder)
+        {
+            // dwSignature
+            if (reader.ReadUInt32() != 0xFEEF04BD)
+                throw new InvalidOperationException("Not a valid version resource: missing 'VS_FIXEDFILEINFO'.");
+
+            // dwStrucVersion
+            _ = reader.ReadUInt32();
+
+            // dwFileVersionMS, dwFileVersionLS
+            var (fileVersionMajor, fileVersionMinor) = BitPack.Split(reader.ReadUInt32());
+            var (fileVersionBuild, fileVersionRevision) = BitPack.Split(reader.ReadUInt32());
+
+            builder.SetFileVersion(new Version(
+                fileVersionMajor,
+                fileVersionMinor,
+                fileVersionBuild,
+                fileVersionRevision
+            ), false);
+
+            // dwProductVersionMS, dwProductVersionLS
+            var (productVersionMajor, productVersionMinor) = BitPack.Split(reader.ReadUInt32());
+            var (productVersionBuild, productVersionRevision) = BitPack.Split(reader.ReadUInt32());
+
+            builder.SetProductVersion(new Version(
+                productVersionMajor,
+                productVersionMinor,
+                productVersionBuild,
+                productVersionRevision
+            ), false);
+
+            // dwFileFlagsMask
+            _ = reader.ReadUInt32();
+
+            // dwFileFlags
+            builder.SetFileFlags((FileFlags)reader.ReadUInt32());
+
+            // dwFileOS
+            builder.SetFileOperatingSystem((FileOperatingSystem)reader.ReadUInt32());
+
+            // dwFileType
+            builder.SetFileType((FileType)reader.ReadUInt32());
+
+            // dwFileSubtype
+            builder.SetFileSubType((FileSubType)reader.ReadUInt32());
+
+            // dwFileDateMS, dwFileDateLS
+            builder.SetFileTimestamp(DateTimeOffset.FromFileTime(reader.ReadInt64()));
+        }
+
+        private static void ReadStringFileInfo(BinaryReader reader, VersionInfoBuilder builder)
         {
             // Padding
             reader.SkipPadding();
@@ -17,14 +66,16 @@ namespace Ressy.Abstractions.Versions
             // wLength
             var stringTableEndPosition = reader.BaseStream.Position + reader.ReadUInt16();
 
-            // wValueLength, wType
-            reader.BaseStream.Seek(4, SeekOrigin.Current);
+            // wValueLength
+            _ = reader.ReadUInt16();
+
+            // wType
+            _ = reader.ReadUInt16();
 
             // szKey (contains language & code page; do we need it?)
             _ = reader.ReadStringNullTerminated();
 
             // Children
-            var attributes = new Dictionary<VersionAttributeName, string>();
             while (reader.BaseStream.Position < stringTableEndPosition)
             {
                 // -- String
@@ -32,8 +83,14 @@ namespace Ressy.Abstractions.Versions
                 // Padding
                 reader.SkipPadding();
 
-                // wLength, wValueLength, wType
-                reader.BaseStream.Seek(6, SeekOrigin.Current);
+                // wLength
+                _ = reader.ReadUInt16();
+
+                // wValueLength
+                _ = reader.ReadUInt16();
+
+                // wType
+                _ = reader.ReadUInt16();
 
                 // szKey
                 var name = reader.ReadStringNullTerminated();
@@ -44,13 +101,11 @@ namespace Ressy.Abstractions.Versions
                 // Value
                 var value = reader.ReadStringNullTerminated();
 
-                attributes[name] = value;
+                builder.SetAttribute(name, value);
             }
-
-            return attributes;
         }
 
-        private static IReadOnlyList<TranslationInfo> DeserializeTranslations(BinaryReader reader)
+        private static void ReadVarFileInfo(BinaryReader reader, VersionInfoBuilder builder)
         {
             // Padding
             reader.SkipPadding();
@@ -58,15 +113,17 @@ namespace Ressy.Abstractions.Versions
             // wLength
             var varFileInfoEndPosition = reader.BaseStream.Position + reader.ReadUInt16();
 
-            // wValueLength, wType
-            reader.BaseStream.Seek(4, SeekOrigin.Current);
+            // wValueLength
+            _ = reader.ReadUInt16();
+
+            // wType
+            _ = reader.ReadUInt16();
 
             // szKey
             if (!string.Equals(reader.ReadStringNullTerminated(), "Translation", StringComparison.Ordinal))
                 throw new InvalidOperationException("Not a valid version resource: missing 'Translation'.");
 
             // Children
-            var translations = new List<TranslationInfo>();
             while (reader.BaseStream.Position < varFileInfoEndPosition)
             {
                 // -- Var
@@ -76,10 +133,8 @@ namespace Ressy.Abstractions.Versions
 
                 // Value
                 var (codepage, languageId) = BitPack.Split(reader.ReadUInt32());
-                translations.Add(new TranslationInfo(languageId, codepage));
+                builder.AddTranslation(languageId, codepage);
             }
-
-            return translations;
         }
 
         internal static VersionInfo Deserialize(byte[] data)
@@ -87,10 +142,18 @@ namespace Ressy.Abstractions.Versions
             using var stream = new MemoryStream(data);
             using var reader = new BinaryReader(stream, Encoding.Unicode);
 
+            var builder = new VersionInfoBuilder();
+
             // -- VS_VERSIONINFO
 
-            // wLength, wValueLength, wType
-            reader.BaseStream.Seek(6, SeekOrigin.Begin);
+            // wLength
+            _ = reader.ReadUInt16();
+
+            // wValueLength
+            _ = reader.ReadUInt16();
+
+            // wType
+            _ = reader.ReadUInt16();
 
             // szKey
             if (!string.Equals(reader.ReadStringNullTerminated(), "VS_VERSION_INFO", StringComparison.Ordinal))
@@ -100,49 +163,22 @@ namespace Ressy.Abstractions.Versions
             reader.SkipPadding();
 
             // -- VS_FIXEDFILEINFO
-
-            // dwSignature
-            if (reader.ReadUInt32() != 0xFEEF04BD)
-                throw new InvalidOperationException("Not a valid version resource: missing 'VS_FIXEDFILEINFO'.");
-
-            // dwStrucVersion
-            reader.BaseStream.Seek(4, SeekOrigin.Current);
-
-            // dwFileVersionMS, dwFileVersionLS
-            var fileVersion = reader.ReadVersion();
-
-            // dwProductVersionMS, dwProductVersionLS
-            var productVersion = reader.ReadVersion();
-
-            // dwFileFlagsMask
-            reader.BaseStream.Seek(4, SeekOrigin.Current);
-
-            // dwFileFlags
-            var fileFlags = (FileFlags)reader.ReadUInt32();
-
-            // dwFileOS
-            var fileOperatingSystem = (FileOperatingSystem)reader.ReadUInt32();
-
-            // dwFileType
-            var fileType = (FileType)reader.ReadUInt32();
-
-            // dwFileSubtype
-            var fileSubType = (FileSubType)reader.ReadUInt32();
-
-            // dwFileDateMS, dwFileDateLS
-            // TODO: verify
-            var fileTimestamp = DateTimeOffset.FromFileTime(reader.ReadInt64());
+            ReadFixedFileInfo(reader, builder);
 
             // Padding
             reader.SkipPadding();
 
             // Optional StringFileInfo and VarInfo, in any order
-            var attributes = default(IReadOnlyDictionary<VersionAttributeName, string>);
-            var translations = default(IReadOnlyList<TranslationInfo>);
-            while (reader.BaseStream.Position < reader.BaseStream.Length)
+            while (!reader.IsEndOfStream())
             {
-                // wLength, wValueLength, wType
-                reader.BaseStream.Seek(6, SeekOrigin.Current);
+                // wLength
+                _ = reader.ReadUInt16();
+
+                // wValueLength
+                _ = reader.ReadUInt16();
+
+                // wType
+                _ = reader.ReadUInt16();
 
                 // szKey
                 var key = reader.ReadStringNullTerminated();
@@ -150,12 +186,12 @@ namespace Ressy.Abstractions.Versions
                 // -- StringFileInfo
                 if (string.Equals(key, "StringFileInfo", StringComparison.Ordinal))
                 {
-                    attributes = DeserializeAttributes(reader);
+                    ReadStringFileInfo(reader, builder);
                 }
                 // -- VarFileInfo
                 else if (string.Equals(key, "VarFileInfo", StringComparison.Ordinal))
                 {
-                    translations = DeserializeTranslations(reader);
+                    ReadVarFileInfo(reader, builder);
                 }
                 else
                 {
@@ -163,17 +199,7 @@ namespace Ressy.Abstractions.Versions
                 }
             }
 
-            return new VersionInfo(
-                fileVersion,
-                productVersion,
-                fileFlags,
-                fileOperatingSystem,
-                fileType,
-                fileSubType,
-                fileTimestamp,
-                attributes ?? new Dictionary<VersionAttributeName, string>(),
-                translations ?? Array.Empty<TranslationInfo>()
-            );
+            return builder.Build();
         }
     }
 }

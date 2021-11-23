@@ -6,6 +6,9 @@ namespace Ressy.Utils.Extensions
 {
     internal static class BinaryReaderExtensions
     {
+        public static bool IsEndOfStream(this BinaryReader reader) =>
+            reader.BaseStream.Position >= reader.BaseStream.Length;
+
         public static void SkipPadding(this BinaryReader reader, int bytes = 4)
         {
             var remainder = reader.BaseStream.Position % bytes;
@@ -32,14 +35,6 @@ namespace Ressy.Utils.Extensions
             }
 
             return buffer.ToString();
-        }
-
-        public static Version ReadVersion(this BinaryReader reader)
-        {
-            var (major, minor) = BitPack.Split(reader.ReadUInt32());
-            var (build, revision) = BitPack.Split(reader.ReadUInt32());
-
-            return new Version(major, minor, build, revision);
         }
     }
 }

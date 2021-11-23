@@ -21,20 +21,26 @@ namespace Ressy.Abstractions.Versions
         /// <summary>
         /// Sets file version.
         /// </summary>
-        public VersionInfoBuilder SetFileVersion(Version fileVersion)
+        public VersionInfoBuilder SetFileVersion(Version fileVersion, bool updateCorrespondingAttribute = true)
         {
             _fileVersion = fileVersion;
-            _attributes[VersionAttributeName.FileVersion] = fileVersion.ToString(4);
+
+            if (updateCorrespondingAttribute)
+                _attributes[VersionAttributeName.FileVersion] = fileVersion.ToString(4);
+
             return this;
         }
 
         /// <summary>
         /// Sets product version.
         /// </summary>
-        public VersionInfoBuilder SetProductVersion(Version productVersion)
+        public VersionInfoBuilder SetProductVersion(Version productVersion, bool updateCorrespondingAttribute = true)
         {
             _productVersion = productVersion;
-            _attributes[VersionAttributeName.ProductVersion] = productVersion.ToString(4);
+
+            if (updateCorrespondingAttribute)
+                _attributes[VersionAttributeName.ProductVersion] = productVersion.ToString(4);
+
             return this;
         }
 
@@ -139,12 +145,13 @@ namespace Ressy.Abstractions.Versions
             SetFileTimestamp(versionInfo.FileTimestamp);
 
             ClearAttributes();
+            ClearTranslations();
+
             foreach (var (name, value) in versionInfo.Attributes)
             {
                 SetAttribute(name, value);
             }
 
-            ClearTranslations();
             foreach (var translationInfo in versionInfo.Translations)
             {
                 AddTranslation(translationInfo);

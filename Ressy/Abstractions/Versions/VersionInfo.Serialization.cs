@@ -8,32 +8,9 @@ namespace Ressy.Abstractions.Versions
 {
     public partial class VersionInfo
     {
-        internal byte[] Serialize()
+        private long WriteFixedFileInfo(BinaryWriter writer)
         {
-            using var stream = new MemoryStream();
-            using var writer = new BinaryWriter(stream, Encoding.Unicode);
-
-            // -- VS_VERSIONINFO
-
-            // wLength (will overwrite later)
-            var rootLengthPosition = stream.Position;
-            writer.Write((ushort)0);
-
-            // wValueLength (will overwrite later)
-            writer.Write((ushort)0);
-
-            // wType
-            writer.Write((ushort)0);
-
-            // szKey
-            writer.WriteStringNullTerminated("VS_VERSION_INFO");
-
-            // Padding
-            writer.SkipPadding();
-
-            // -- VS_FIXEDFILEINFO
-
-            var fixedFileInfoPosition = stream.Position;
+            var startPosition = writer.BaseStream.Position;
 
             // dwSignature
             writer.Write(0xFEEF04BD);
@@ -42,12 +19,14 @@ namespace Ressy.Abstractions.Versions
             writer.Write(0x00010000);
 
             // dwFileVersionMS, dwFileVersionLS
-            writer.Write(BitPack.Merge((ushort)FileVersion.Major, (ushort)FileVersion.Minor));
-            writer.Write(BitPack.Merge((ushort)FileVersion.Build, (ushort)FileVersion.Revision));
+            var fileVersionClamped = FileVersion.ClampComponentsAboveZero();
+            writer.Write(BitPack.Merge((ushort)fileVersionClamped.Major, (ushort)fileVersionClamped.Minor));
+            writer.Write(BitPack.Merge((ushort)fileVersionClamped.Build, (ushort)fileVersionClamped.Revision));
 
             // dwProductVersionMS, dwProductVersionLS
-            writer.Write(BitPack.Merge((ushort)ProductVersion.Major, (ushort)ProductVersion.Minor));
-            writer.Write(BitPack.Merge((ushort)ProductVersion.Build, (ushort)ProductVersion.Revision));
+            var productVersionClamped = ProductVersion.ClampComponentsAboveZero();
+            writer.Write(BitPack.Merge((ushort)productVersionClamped.Major, (ushort)productVersionClamped.Minor));
+            writer.Write(BitPack.Merge((ushort)productVersionClamped.Build, (ushort)productVersionClamped.Revision));
 
             // dwFileFlagsMask
             writer.Write(0x3F);
@@ -67,18 +46,13 @@ namespace Ressy.Abstractions.Versions
             // dwFileDateMS, dwFileDateLS
             writer.Write(FileTimestamp.ToFileTime());
 
-            // Update root value length
-            var fixedFileInfoLength = stream.Position - fixedFileInfoPosition;
-            using (writer.BaseStream.JumpAndReturn(2))
-                writer.Write((ushort)fixedFileInfoLength);
+            return writer.BaseStream.Position - startPosition;
+        }
 
-            // Padding
-            writer.SkipPadding();
-
-            // -- StringFileInfo
-
+        private long WriteStringFileInfo(BinaryWriter writer)
+        {
             // wLength (will overwrite later)
-            var stringFileInfoLengthPosition = stream.Position;
+            var lengthCheckpoint = writer.BaseStream.CreatePortal();
             writer.Write((ushort)0);
 
             // wValueLength (always zero)
@@ -97,7 +71,7 @@ namespace Ressy.Abstractions.Versions
             if (Attributes.Any())
             {
                 // wLength (will overwrite later)
-                var stringTableLengthPosition = stream.Position;
+                var tableLengthCheckpoint = writer.BaseStream.CreatePortal();
                 writer.Write((ushort)0);
 
                 // wValueLength (always zero)
@@ -118,7 +92,7 @@ namespace Ressy.Abstractions.Versions
                     writer.SkipPadding();
 
                     // wLength (will overwrite later)
-                    var stringLengthPosition = stream.Position;
+                    var stringLengthCheckpoint = writer.BaseStream.CreatePortal();
                     writer.Write((ushort)0);
 
                     // wValueLength
@@ -137,83 +111,128 @@ namespace Ressy.Abstractions.Versions
                     writer.WriteStringNullTerminated(value);
 
                     // Update length
-                    var stringLength = stream.Position - stringLengthPosition;
-                    using (writer.BaseStream.JumpAndReturn(stringLengthPosition))
+                    var stringLength = writer.BaseStream.Position - stringLengthCheckpoint.Position;
+                    using (stringLengthCheckpoint.Jump())
                         writer.Write((ushort)stringLength);
                 }
 
-                // Update string table length
-                var stringTableLength = stream.Position - stringTableLengthPosition;
-                using (writer.BaseStream.JumpAndReturn(stringTableLengthPosition))
-                    writer.Write((ushort)stringTableLength);
-
-                // Update string file info length
-                var stringFileInfoLength = stream.Position - stringFileInfoLengthPosition;
-                using (writer.BaseStream.JumpAndReturn(stringFileInfoLengthPosition))
-                    writer.Write((ushort)stringFileInfoLength);
+                // Update length
+                var tableLength = writer.BaseStream.Position - tableLengthCheckpoint.Position;
+                using (tableLengthCheckpoint.Jump())
+                    writer.Write((ushort)tableLength);
             }
 
-            // -- VarFileInfo
-            if (Translations.Any())
+            // Update length
+            var length = writer.BaseStream.Position - lengthCheckpoint.Position;
+            using (lengthCheckpoint.Jump())
+                writer.Write((ushort)length);
+
+            return length;
+        }
+
+        private long WriteVarFileInfo(BinaryWriter writer)
+        {
+            if (!Translations.Any())
+                return 0;
+
+            // wLength (will overwrite later)
+            var lengthCheckpoint = writer.BaseStream.CreatePortal();
+            writer.Write((ushort)0);
+
+            // wValueLength (always zero)
+            writer.Write((ushort)0);
+
+            // wType
+            writer.Write((ushort)1);
+
+            // szKey
+            writer.WriteStringNullTerminated("VarFileInfo");
+
+            // Padding
+            writer.SkipPadding();
+
+            // -- Translation
+
+            // wLength (will overwrite later)
+            var translationLength = writer.BaseStream.CreatePortal();
+            writer.Write((ushort)0);
+
+            // wValueLength (always zero)
+            writer.Write((ushort)0);
+
+            // wType
+            writer.Write((ushort)1);
+
+            // szKey
+            writer.WriteStringNullTerminated("Translation");
+
+            // Children
+            foreach (var translation in Translations)
             {
-                // wLength (will overwrite later)
-                var varFileInfoLengthPosition = stream.Position;
-                writer.Write((ushort)0);
-
-                // wValueLength (always zero)
-                writer.Write((ushort)0);
-
-                // wType
-                writer.Write((ushort)1);
-
-                // szKey
-                writer.WriteStringNullTerminated("VarFileInfo");
+                // -- Var
 
                 // Padding
                 writer.SkipPadding();
 
-                // -- Translation
-
-                // wLength (will overwrite later)
-                var translationLengthPosition = stream.Position;
-                writer.Write((ushort)0);
-
-                // wValueLength (always zero)
-                writer.Write((ushort)0);
-
-                // wType
-                writer.Write((ushort)1);
-
-                // szKey
-                writer.WriteStringNullTerminated("Translation");
-
-                // Children
-                foreach (var translation in Translations)
-                {
-                    // -- Var
-
-                    // Padding
-                    writer.SkipPadding();
-
-                    // Value
-                    writer.Write(BitPack.Merge((ushort)translation.Codepage, (ushort)translation.LanguageId));
-                }
-
-                // Update translation length
-                var translationLength = stream.Position - translationLengthPosition;
-                using (writer.BaseStream.JumpAndReturn(translationLengthPosition))
-                    writer.Write((ushort)translationLength);
-
-                // Update var file info length
-                var varFileInfoLength = stream.Position - varFileInfoLengthPosition;
-                using (writer.BaseStream.JumpAndReturn(varFileInfoLengthPosition))
-                    writer.Write((ushort)varFileInfoLength);
+                // Value
+                writer.Write(BitPack.Merge((ushort)translation.Codepage, (ushort)translation.LanguageId));
             }
 
-            // Update root length
-            var rootLength = stream.Position - rootLengthPosition;
-            using (writer.BaseStream.JumpAndReturn(rootLengthPosition))
-                writer.Write((ushort)rootLength);
+            // Update length
+            var varFileInfoLength = writer.BaseStream.Position - translationLength.Position;
+            using (translationLength.Jump())
+                writer.Write((ushort)varFileInfoLength);
+
+            // Update length
+            var length = writer.BaseStream.Position - lengthCheckpoint.Position;
+            using (lengthCheckpoint.Jump())
+                writer.Write((ushort)length);
+
+            return length;
+        }
+
+        internal byte[] Serialize()
+        {
+            using var stream = new MemoryStream();
+            using var writer = new BinaryWriter(stream, Encoding.Unicode);
+
+            // -- VS_VERSIONINFO
+
+            // wLength (will overwrite later)
+            var lengthCheckpoint = writer.BaseStream.CreatePortal();
+            writer.Write((ushort)0);
+
+            // wValueLength (will overwrite later)
+            var fixedFileInfoLengthCheckpoint = writer.BaseStream.CreatePortal();
+            writer.Write((ushort)0);
+
+            // wType
+            writer.Write((ushort)0);
+
+            // szKey
+            writer.WriteStringNullTerminated("VS_VERSION_INFO");
+
+            // Padding
+            writer.SkipPadding();
+
+            // -- VS_FIXEDFILEINFO
+            var fixedFileInfoLength = WriteFixedFileInfo(writer);
+            using (fixedFileInfoLengthCheckpoint.Jump())
+                writer.Write((ushort)fixedFileInfoLength);
+
+            // Padding
+            writer.SkipPadding();
+
+            // -- StringFileInfo
+            WriteStringFileInfo(writer);
+
+            // -- VarFileInfo
+            WriteVarFileInfo(writer);
+
+            // Update length
+            var length = stream.Position - lengthCheckpoint.Position;
+            using (lengthCheckpoint.Jump())
+                writer.Write((ushort)length);
 
             return stream.ToArray();
         }
