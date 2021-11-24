@@ -285,7 +285,7 @@ var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe
 var versionInfo = new VersionInfoBuilder()
     .SetFileVersion(new Version(1, 2, 3, 4))
     .SetProductVersion(new Version(1, 2, 3, 4))
-    .SetFileType(FileType.App)
+    .SetFileType(FileType.Application)
     .SetAttribute(VersionAttributeName.FileDescription, "My new description")
     .SetAttribute(VersionAttributeName.CompanyName, "My new company")
     .SetAttribute("Custom Attribute", "My new value")

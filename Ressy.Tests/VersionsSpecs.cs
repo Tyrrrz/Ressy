@@ -28,7 +28,7 @@ namespace Ressy.Tests
             versionInfo.ProductVersion.Should().Be(new Version(5, 6, 7, 8));
             versionInfo.FileFlags.Should().Be(FileFlags.None);
             versionInfo.FileOperatingSystem.Should().Be(FileOperatingSystem.Windows32);
-            versionInfo.FileType.Should().Be(FileType.App);
+            versionInfo.FileType.Should().Be(FileType.Application);
             versionInfo.FileSubType.Should().Be(FileSubType.Unknown);
             versionInfo.Attributes.Should().Contain(new Dictionary<VersionAttributeName, string>
             {
@@ -54,7 +54,7 @@ namespace Ressy.Tests
             var versionInfo = new VersionInfoBuilder()
                 .SetFileVersion(new Version(6, 7, 8, 9))
                 .SetProductVersion(new Version(2, 3, 1, 9))
-                .SetFileOperatingSystem(FileOperatingSystem.Windows32 | FileOperatingSystem.NT)
+                .SetFileOperatingSystem(FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT)
                 .SetAttribute(VersionAttributeName.ProductName, "Foo")
                 .SetAttribute(VersionAttributeName.FileDescription, "Bar")
                 .SetAttribute(VersionAttributeName.CompanyName, "Baz")
@@ -89,7 +89,7 @@ namespace Ressy.Tests
             // Act
             portableExecutable.SetVersionInfo(v => v
                 .SetFileVersion(new Version(4, 3, 2, 1))
-                .SetFileOperatingSystem(FileOperatingSystem.Windows32 | FileOperatingSystem.NT)
+                .SetFileOperatingSystem(FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT)
                 .SetAttribute(VersionAttributeName.ProductName, "ProductTest")
                 .SetAttribute(VersionAttributeName.CompanyName, "CompanyTest")
             );
@@ -100,8 +100,8 @@ namespace Ressy.Tests
             versionInfo.FileVersion.Should().Be(new Version(4, 3, 2, 1));
             versionInfo.ProductVersion.Should().Be(new Version(5, 6, 7, 8));
             versionInfo.FileFlags.Should().Be(FileFlags.None);
-            versionInfo.FileOperatingSystem.Should().Be(FileOperatingSystem.Windows32 | FileOperatingSystem.NT);
-            versionInfo.FileType.Should().Be(FileType.App);
+            versionInfo.FileOperatingSystem.Should().Be(FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT);
+            versionInfo.FileType.Should().Be(FileType.Application);
             versionInfo.FileSubType.Should().Be(FileSubType.Unknown);
             versionInfo.Attributes.Should().Contain(new Dictionary<VersionAttributeName, string>
             {

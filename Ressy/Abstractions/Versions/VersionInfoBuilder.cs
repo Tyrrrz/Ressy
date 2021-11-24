@@ -12,7 +12,7 @@ namespace Ressy.Abstractions.Versions
         private Version _productVersion = new(1, 0, 0, 0);
         private FileFlags _fileFlags = FileFlags.None;
         private FileOperatingSystem _fileOperatingSystem = FileOperatingSystem.Windows32;
-        private FileType _fileType = FileType.App;
+        private FileType _fileType = FileType.Application;
         private FileSubType _fileSubType = FileSubType.Unknown;
         private readonly Dictionary<VersionAttributeName, string> _attributes = new();
         private readonly List<TranslationInfo> _translations = new();

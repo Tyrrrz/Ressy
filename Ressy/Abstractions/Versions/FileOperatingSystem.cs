@@ -23,7 +23,7 @@ namespace Ressy.Abstractions.Versions
         /// <summary>
         /// File was designed for Windows NT.
         /// </summary>
-        NT = 0x00040000,
+        WindowsNT = 0x00040000,
 
         /// <summary>
         /// File was designed for 16-bit Windows.

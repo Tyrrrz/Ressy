@@ -12,8 +12,8 @@ namespace Ressy.Abstractions.Versions
         private static FileType GetFileType(this PortableExecutable portableExecutable) =>
             Path.GetExtension(portableExecutable.FilePath).ToUpperInvariant() switch
             {
-                ".EXE" => FileType.App,
-                ".DLL" => FileType.Dll,
+                ".EXE" => FileType.Application,
+                ".DLL" => FileType.DynamicallyLinkedLibrary,
                 _ => FileType.Unknown
             };
 

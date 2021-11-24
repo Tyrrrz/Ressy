@@ -13,17 +13,17 @@ namespace Ressy.Abstractions.Versions
         /// <summary>
         /// File contains an application.
         /// </summary>
-        App = 0x00000001,
+        Application = 0x00000001,
 
         /// <summary>
         /// File contains a DLL.
         /// </summary>
-        Dll = 0x00000002,
+        DynamicallyLinkedLibrary = 0x00000002,
 
         /// <summary>
         /// File contains a device driver.
         /// </summary>
-        Drv = 0x00000003,
+        Driver = 0x00000003,
 
         /// <summary>
         /// File contains a font.
@@ -33,11 +33,11 @@ namespace Ressy.Abstractions.Versions
         /// <summary>
         /// File contains a static-link library.
         /// </summary>
-        StaticLib = 0x00000007,
+        StaticallyLinkedLibrary = 0x00000007,
 
         /// <summary>
         /// File contains a virtual device.
         /// </summary>
-        Vxd = 0x00000005
+        VirtualDevice = 0x00000005
     }
 }
