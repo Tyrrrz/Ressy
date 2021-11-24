@@ -1,4 +1,3 @@
-using System.IO;
 using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
@@ -12,22 +11,18 @@ namespace Ressy.Demo
         [CommandOption("file", 'f', IsRequired = true, Description = "PE file to list resources from.")]
         public string FilePath { get; init; } = default!;
 
-        public string FileName => Path.GetFileName(FilePath);
-
         public ValueTask ExecuteAsync(IConsole console)
         {
             var portableExecutable = new PortableExecutable(FilePath);
 
-            console.Output.WriteLine($"Resources in '{FileName}':");
-
             foreach (var identifier in portableExecutable.GetResourceIdentifiers())
             {
                 console.Output.WriteLine(
-                    "  - [ " +
+                    "{{ " +
                     $"Type: {identifier.Type}, " +
                     $"Name: {identifier.Name}, " +
                     $"Language: {identifier.Language}" +
-                    " ]"
+                    "}}"
                 );
             }
 
