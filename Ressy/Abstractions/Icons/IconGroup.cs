@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Ressy.Utils;
 
 namespace Ressy.Abstractions.Icons
 {
@@ -24,7 +23,10 @@ namespace Ressy.Abstractions.Icons
 
             var iconCount = reader.ReadUInt16();
             var icons = new Icon[iconCount];
+            var iconDataOffsets = new uint[iconCount];
+            var iconDataSets = new byte[iconCount][];
 
+            // Icon directory
             for (var i = 0; i < iconCount; i++)
             {
                 var width = reader.ReadByte();
@@ -36,19 +38,25 @@ namespace Ressy.Abstractions.Icons
                 var dataLength = reader.ReadUInt32();
                 var dataOffset = reader.ReadUInt32();
 
-                using (stream.CreatePortal(dataOffset).Jump())
-                {
-                    var data = reader.ReadBytes((int)dataLength);
+                // Will fill this out at a later stage, just need a reference for now
+                var data = iconDataSets[i] = new byte[dataLength];
+                iconDataOffsets[i] = dataOffset;
 
-                    icons[i] = new Icon(
-                        width,
-                        height,
-                        colorCount,
-                        colorPlanes,
-                        bitsPerPixel,
-                        data
-                    );
-                }
+                icons[i] = new Icon(
+                    width,
+                    height,
+                    colorCount,
+                    colorPlanes,
+                    bitsPerPixel,
+                    data
+                );
+            }
+
+            // Icon data
+            for (var i = 0; i < iconCount; i++)
+            {
+                reader.BaseStream.Seek(iconDataOffsets[i], SeekOrigin.Begin);
+                reader.BaseStream.Read(iconDataSets[i], 0, iconDataSets[i].Length);
             }
 
             return new IconGroup(icons);

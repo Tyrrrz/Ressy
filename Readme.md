@@ -22,8 +22,8 @@ It offers a high-level abstraction model for working with [resource functions](h
 
 ## Usage
 
-Library's functionality is provided entirely through the `PortableExecutable` class.
-You can create an instance of this class from a string, specifying the path to the PE file:
+Ressy's functionality is provided entirely through the `PortableExecutable` class.
+You can create an instance of this class by passing a string that specifies the path to a PE file:
 
 ```csharp
 using Ressy;
@@ -141,11 +141,11 @@ portableExecutable.ClearResources();
 
 ### High-level operations
 
-Ressy provides extensions for `PortableExecutable` that enable you to manage known resources types, such as icons, manifests, versions, etc., directly.
+Ressy provides extensions for `PortableExecutable` that enable you to directly read and manipulate known resources types, such as icons, manifests, versions, etc.
 
-#### Working with application manifest resources
+#### Manifest resources
 
-To read the application manifest as a text string, call the `GetManifest()` extension method:
+To read the manifest resource as a text string, call the `GetManifest()` extension method:
 
 ```csharp
 using Ressy;
@@ -161,7 +161,7 @@ var manifest = portableExecutable.GetManifest();
 > 💡 In case of multiple manifest resources, this method retrieves the one with the lowest ordinal resource name in the neutral language.
 If there are no resources matching aforementioned criteria, this method retrieves the first manifest resource it encounters.
 
-To remove all application manifest resources, call the `RemoveManifest()` extension method:
+To remove all manifest resources, call the `RemoveManifest()` extension method:
 
 ```csharp
 using Ressy;
@@ -172,7 +172,7 @@ var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe
 portableExecutable.RemoveManifest();
 ```
 
-To add or overwrite an application manifest, call the `SetManifest(...)` extension method:
+To add or overwrite a manifest resource, call the `SetManifest(...)` extension method:
 
 ```csharp
 using Ressy;
@@ -180,14 +180,10 @@ using Ressy.Abstractions;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
-// Sets resource with ordinal type 24, ordinal name 1, and language 0
 portableExecutable.SetManifest("<assembly>...</assembly>"); 
 ```
 
-> ⚠️ Calling this method does not remove existing manifest resources, except for those that are directly overwritten.
-If you want to clean out redundant manifest resources (e.g. those in other languages or with other resource names), call the `RemoveManifest()` method first.
-
-#### Working with icon resources
+#### Icon resources
 
 To remove all icon and icon group resources, call the `RemoveIcon()` extension method:
 
@@ -208,15 +204,13 @@ using Ressy.Abstractions;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
-// - Sets resource with ordinal type 14, ordinal name 1, and language 0
-// - Sets multiple resources with ordinal type 3, ordinal names 1-N, and language 0
 portableExecutable.SetIcon("new_icon.ico");
 ```
 
-> ⚠️ Calling this method does not remove existing icon resources, except for those that are directly overwritten.
-If you want to clean out redundant icon resources (e.g. those in other languages or with other resource names), call the `RemoveIcon()` method first.
+> ⚠️ Calling this method does not remove existing icon resources, except for those that are overwritten directly.
+If you want to clean out redundant icon resources (e.g. if the previous icon group contained more icons), call the `RemoveIcon()` method first.
 
-Additionally, you can also set the icon by passing a file stream:
+Additionally, you can also set the icon by passing a stream that contains ICO-formatted data:
 
 ```csharp
 using Ressy;
@@ -228,9 +222,7 @@ using var iconFileStream = File.Open("new_icon.ico");
 portableExecutable.SetIcon(iconFileStream);
 ```
 
-> ⚠️ Stream provided to this method must support seeking.
-
-#### Working with version resources
+#### Version info resources
 
 To get the version info resource, call the `GetVersionInfo()` extension method.
 This returns a `VersionInfo` object that represents the deserialized binary data stored in the resource:
@@ -267,8 +259,8 @@ var versionInfo = portableExecutable.GetVersionInfo();
 // }
 ```
 
-> 💡 In case of multiple version resources, this method retrieves the one with the lowest ordinal resource name in the neutral language.
-If there are no resources matching aforementioned criteria, this method retrieves the first version resource it encounters.
+> 💡 In case of multiple version info resources, this method retrieves the one with the lowest ordinal resource name in the neutral language.
+If there are no resources matching aforementioned criteria, this method retrieves the first version info resource it encounters.
 
 To remove all version info resources, call the `RemoveVersionInfo()` extension method:
 
@@ -302,10 +294,7 @@ var versionInfo = new VersionInfoBuilder()
 portableExecutable.SetVersionInfo(versionInfo);
 ```
 
-> ⚠️ Calling this method does not remove existing version info resources, except for those that are directly overwritten.
-If you want to clean out redundant version info resources (e.g. those in other languages or with other resource names), call the `RemoveVersionInfo()` method first.
-
-Alternatively, you can also use this method to modify specific properties of the version info resource which is currently stored in the PE file:
+Alternatively, you can also use this method to modify specific properties in a currently stored version info resource, leaving the rest intact:
 
 ```csharp
 using Ressy;
@@ -319,5 +308,5 @@ portableExecutable.SetVersionInfo(v => v
 );
 ```
 
-> 💡 When using this overload of `SetVersionInfo(...)`, properties that were not provided are inferred from the existing version info resource.
-If there is no version info resource in the PE file, this method will implicitly generate one with default values.
+> 💡 When using this overload of `SetVersionInfo(...)`, properties that were not provided are taken from the existing version info resource.
+If there is no version info resource in the PE file, this method will resort to default values instead.

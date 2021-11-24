@@ -29,6 +29,6 @@ namespace Ressy.Utils
     {
         public static StreamPortal CreatePortal(this Stream stream, long position) => new(stream, position);
 
-        public static StreamPortal CreatePortal(this Stream stream) => new(stream, stream.Position);
+        public static StreamPortal CreatePortal(this Stream stream) => stream.CreatePortal(stream.Position);
     }
 }

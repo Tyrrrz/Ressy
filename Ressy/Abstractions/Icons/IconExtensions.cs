@@ -30,7 +30,6 @@ namespace Ressy.Abstractions.Icons
 
         /// <summary>
         /// Adds or overwrites icon and icon group resources based on the specified ICO file stream.
-        /// Input stream must support seeking.
         /// </summary>
         /// <remarks>
         /// Consider calling <see cref="RemoveIcon"/> first to remove redundant

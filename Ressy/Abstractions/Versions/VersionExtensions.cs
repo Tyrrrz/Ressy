@@ -17,6 +17,33 @@ namespace Ressy.Abstractions.Versions
                 _ => FileType.Unknown
             };
 
+        private static ResourceIdentifier? TryGetVersionInfoResourceIdentifier(
+            this PortableExecutable portableExecutable)
+        {
+            var identifiers = portableExecutable.GetResourceIdentifiers()
+                .Where(r => r.Type.Code == ResourceType.Version.Code)
+                .ToArray();
+
+            return
+                // Among neutral language resources, find one with the lowest ordinal name (ID)
+                identifiers
+                    .Where(r => r.Language.Id == ResourceLanguage.Neutral.Id)
+                    .Where(r => r.Name.Code is not null)
+                    .OrderBy(r => r.Name.Code)
+                    .FirstOrDefault() ??
+                // If there are no such resources, pick whichever
+                identifiers.FirstOrDefault();
+        }
+
+        private static Resource? TryGetVersionInfoResource(this PortableExecutable portableExecutable)
+        {
+            var identifier = portableExecutable.TryGetVersionInfoResourceIdentifier();
+            if (identifier is null)
+                return null;
+
+            return portableExecutable.TryGetResource(identifier);
+        }
+
         /// <summary>
         /// Gets the version info resource and deserializes it.
         /// Returns <c>null</c> if the resource doesn't exist.
@@ -29,24 +56,7 @@ namespace Ressy.Abstractions.Versions
         /// </remarks>
         public static VersionInfo? TryGetVersionInfo(this PortableExecutable portableExecutable)
         {
-            var identifiers = portableExecutable.GetResourceIdentifiers()
-                .Where(r => r.Type.Code == ResourceType.Version.Code)
-                .ToArray();
-
-            var identifier =
-                // Among neutral language resources, find one with the lowest ordinal name (ID)
-                identifiers
-                    .Where(r => r.Language.Id == ResourceLanguage.Neutral.Id)
-                    .Where(r => r.Name.Code is not null)
-                    .OrderBy(r => r.Name.Code)
-                    .FirstOrDefault() ??
-                // If there are no such resources, pick whichever
-                identifiers.FirstOrDefault();
-
-            if (identifier is null)
-                return null;
-
-            var resource = portableExecutable.TryGetResource(identifier);
+            var resource = portableExecutable.TryGetVersionInfoResource();
             if (resource is null)
                 return null;
 
@@ -86,39 +96,51 @@ namespace Ressy.Abstractions.Versions
         /// <summary>
         /// Adds or overwrites a version info resource with the specified data.
         /// </summary>
-        /// <remarks>
-        /// Consider calling <see cref="RemoveVersionInfo"/> first to remove redundant
-        /// manifest resources.
-        /// </remarks>
         public static void SetVersionInfo(
             this PortableExecutable portableExecutable,
-            VersionInfo versionInfo) =>
-            portableExecutable.SetResource(new ResourceIdentifier(
-                ResourceType.Version,
-                ResourceName.FromCode(1)
-            ), versionInfo.Serialize());
+            VersionInfo versionInfo)
+        {
+            var existingResourceIdentifier = portableExecutable.TryGetVersionInfoResourceIdentifier();
+
+            // If the manifest resource already exists, reuse the same identifier
+            var identifier =
+                existingResourceIdentifier ??
+                new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1));
+
+            portableExecutable.SetResource(identifier, versionInfo.Serialize());
+        }
 
         /// <summary>
-        /// Adds or overwrites a version info resource based on the existing data.
-        /// If the version info resource doesn't exist, a default one is generated automatically.
+        /// Modifies the currently stored version info resource.
+        /// If the version info resource doesn't exist, default values will be used as the base instead.
         /// </summary>
-        /// <remarks>
-        /// Consider calling <see cref="RemoveVersionInfo"/> first to remove redundant
-        /// manifest resources.
-        /// </remarks>
         public static void SetVersionInfo(
             this PortableExecutable portableExecutable,
-            Action<VersionInfoBuilder> configure)
+            Action<VersionInfoBuilder> modify)
         {
-            var current = portableExecutable.TryGetVersionInfo();
+            var builder = new VersionInfoBuilder();
 
-            var builder = current is not null
-                ? new VersionInfoBuilder().CopyFrom(current)
-                : new VersionInfoBuilder().SetFileType(portableExecutable.GetFileType());
+            var existingResource = portableExecutable.TryGetVersionInfoResource();
 
-            configure(builder);
+            // If the manifest resource already exists, reuse the same identifier
+            var identifier =
+                existingResource?.Identifier ??
+                new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1));
 
-            portableExecutable.SetVersionInfo(builder.Build());
+            // If the manifest resource already exists, reuse the same data as base
+            if (existingResource is not null)
+            {
+                builder.SetAll(VersionInfo.Deserialize(existingResource.Data));
+            }
+            else
+            {
+                // Infer reasonable defaults
+                builder.SetFileType(portableExecutable.GetFileType());
+            }
+
+            modify(builder);
+
+            portableExecutable.SetResource(identifier, builder.Build().Serialize());
         }
     }
 }
