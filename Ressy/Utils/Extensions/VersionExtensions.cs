@@ -7,7 +7,7 @@ namespace Ressy.Utils.Extensions
         // .NET versions can have components set to -1 which indicates that they are not used.
         // E.g. new Version(1, 2) creates a version with components 1, 2, -1, -1.
         // Sane version representations are not supposed to do that, so we need a way to correct such cases.
-        public static Version ClampComponentsAboveZero(this Version version)
+        public static Version ClampComponents(this Version version)
         {
             var major = Math.Max(0, version.Major);
             var minor = Math.Max(0, version.Minor);

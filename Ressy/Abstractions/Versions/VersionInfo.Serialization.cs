@@ -19,12 +19,12 @@ namespace Ressy.Abstractions.Versions
             writer.Write(0x00010000);
 
             // dwFileVersionMS, dwFileVersionLS
-            var fileVersionClamped = FileVersion.ClampComponentsAboveZero();
+            var fileVersionClamped = FileVersion.ClampComponents();
             writer.Write(BitPack.Merge((ushort)fileVersionClamped.Major, (ushort)fileVersionClamped.Minor));
             writer.Write(BitPack.Merge((ushort)fileVersionClamped.Build, (ushort)fileVersionClamped.Revision));
 
             // dwProductVersionMS, dwProductVersionLS
-            var productVersionClamped = ProductVersion.ClampComponentsAboveZero();
+            var productVersionClamped = ProductVersion.ClampComponents();
             writer.Write(BitPack.Merge((ushort)productVersionClamped.Major, (ushort)productVersionClamped.Minor));
             writer.Write(BitPack.Merge((ushort)productVersionClamped.Build, (ushort)productVersionClamped.Revision));
 
@@ -221,6 +221,9 @@ namespace Ressy.Abstractions.Versions
 
             // -- StringFileInfo
             WriteStringFileInfo(writer);
+
+            // Padding
+            writer.SkipPadding();
 
             // -- VarFileInfo
             WriteVarFileInfo(writer);

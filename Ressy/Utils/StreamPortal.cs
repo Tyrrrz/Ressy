@@ -19,9 +19,9 @@ namespace Ressy.Utils
         public IDisposable Jump()
         {
             var oldPosition = _stream.Position;
-            _stream.Position = Position;
+            _stream.Seek(Position, SeekOrigin.Begin);
 
-            return Disposable.Create(() => _stream.Position = oldPosition);
+            return Disposable.Create(() => _stream.Seek(oldPosition, SeekOrigin.Begin));
         }
     }
 

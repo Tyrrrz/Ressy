@@ -56,7 +56,7 @@ namespace Ressy.Abstractions.Icons
             for (var i = 0; i < iconCount; i++)
             {
                 reader.BaseStream.Seek(iconDataOffsets[i], SeekOrigin.Begin);
-                reader.BaseStream.Read(iconDataSets[i], 0, iconDataSets[i].Length);
+                reader.Read(iconDataSets[i], 0, iconDataSets[i].Length);
             }
 
             return new IconGroup(icons);

@@ -12,7 +12,7 @@ namespace Ressy.Tests
         public ManifestsSpecs(DummyFixture dummy) => _dummy = dummy;
 
         [Fact]
-        public void User_can_get_the_application_manifest()
+        public void User_can_get_the_manifest()
         {
             // Arrange
             var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
@@ -25,7 +25,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_add_an_application_manifest()
+        public void User_can_add_a_manifest()
         {
             // Arrange
             const string manifest = @"
@@ -49,7 +49,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_remove_the_application_manifest()
+        public void User_can_remove_the_manifest()
         {
             // Arrange
             var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());

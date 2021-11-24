@@ -15,7 +15,7 @@ namespace Ressy.Tests
         public VersionsSpecs(DummyFixture dummy) => _dummy = dummy;
 
         [Fact]
-        public void User_can_get_the_application_version()
+        public void User_can_get_version_info()
         {
             // Arrange
             var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
@@ -48,7 +48,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_add_an_application_version()
+        public void User_can_add_version_info()
         {
             // Arrange
             var versionInfo = new VersionInfoBuilder()
@@ -81,7 +81,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_modify_the_application_version()
+        public void User_can_modify_version_info()
         {
             // Arrange
             var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
@@ -130,7 +130,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_remove_the_application_version()
+        public void User_can_remove_version_info()
         {
             // Arrange
             var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());

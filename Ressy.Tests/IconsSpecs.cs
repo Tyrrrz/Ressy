@@ -16,7 +16,7 @@ namespace Ressy.Tests
         public IconsSpecs(DummyFixture dummy) => _dummy = dummy;
 
         [Fact]
-        public void User_can_add_an_application_icon()
+        public void User_can_add_an_icon()
         {
             // Arrange
             var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
@@ -74,7 +74,7 @@ namespace Ressy.Tests
         }
 
         [Fact]
-        public void User_can_remove_the_application_icon()
+        public void User_can_remove_the_icon()
         {
             // Arrange
             var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());

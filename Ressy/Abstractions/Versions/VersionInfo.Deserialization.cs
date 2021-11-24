@@ -100,6 +100,11 @@ namespace Ressy.Abstractions.Versions
                 var value = reader.ReadStringNullTerminated();
 
                 builder.SetAttribute(name, value);
+
+                // There is some padding between the strings, but it doesn't seem to be defined in the spec
+                // and every resource compiler appears to choose it arbitrarily.
+                // So in order to work around it, we'll just skip all zero bytes we encounter.
+                reader.SkipZeroes(stringTableEndPosition - reader.BaseStream.Position);
             }
         }
 
@@ -161,12 +166,12 @@ namespace Ressy.Abstractions.Versions
             // -- VS_FIXEDFILEINFO
             ReadFixedFileInfo(reader, builder);
 
-            // Padding
-            reader.SkipPadding();
-
             // Optional StringFileInfo and VarInfo, in any order
             while (!reader.IsEndOfStream())
             {
+                // Padding
+                reader.SkipPadding();
+
                 // wLength
                 _ = reader.ReadUInt16();
 

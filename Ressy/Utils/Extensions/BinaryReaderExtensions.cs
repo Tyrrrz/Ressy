@@ -21,6 +21,23 @@ namespace Ressy.Utils.Extensions
             reader.BaseStream.Seek(padding, SeekOrigin.Current);
         }
 
+        public static void SkipZeroes(this BinaryReader reader, long? maxSkipLength = null)
+        {
+            var endPosition = maxSkipLength is not null
+                ? reader.BaseStream.Position + maxSkipLength
+                : reader.BaseStream.Length;
+
+            while (reader.BaseStream.Position < endPosition)
+            {
+                if (reader.ReadByte() != 0)
+                {
+                    // Go back to non-zero byte
+                    reader.BaseStream.Seek(-1, SeekOrigin.Current);
+                    return;
+                }
+            }
+        }
+
         public static string ReadStringNullTerminated(this BinaryReader reader)
         {
             var buffer = new StringBuilder();
