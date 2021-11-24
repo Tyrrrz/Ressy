@@ -43,8 +43,8 @@ namespace Ressy.Abstractions.Versions
             // dwFileSubtype
             writer.Write((uint)FileSubType);
 
-            // dwFileDateMS, dwFileDateLS
-            writer.Write(FileTimestamp.ToFileTime());
+            // dwFileDateMS, dwFileDateLS (never actually used by Win32)
+            writer.Write((ulong)0L);
 
             return writer.BaseStream.Position - startPosition;
         }
@@ -83,11 +83,9 @@ namespace Ressy.Abstractions.Versions
                 // szKey
                 writer.WriteStringNullTerminated("040904B0");
 
-                // Children
+                // -- String
                 foreach (var (name, value) in Attributes)
                 {
-                    // -- String
-
                     // Padding
                     writer.SkipPadding();
 
@@ -166,11 +164,9 @@ namespace Ressy.Abstractions.Versions
             // szKey
             writer.WriteStringNullTerminated("Translation");
 
-            // Children
+            // -- Var
             foreach (var translation in Translations)
             {
-                // -- Var
-
                 // Padding
                 writer.SkipPadding();
 

@@ -14,18 +14,17 @@ namespace Ressy.Abstractions.Versions
         private FileOperatingSystem _fileOperatingSystem = FileOperatingSystem.Windows32;
         private FileType _fileType = FileType.App;
         private FileSubType _fileSubType = FileSubType.Unknown;
-        private DateTimeOffset _fileTimestamp = DateTimeOffset.Now;
         private readonly Dictionary<VersionAttributeName, string> _attributes = new();
         private readonly List<TranslationInfo> _translations = new();
 
         /// <summary>
         /// Sets file version.
         /// </summary>
-        public VersionInfoBuilder SetFileVersion(Version fileVersion, bool updateCorrespondingAttribute = true)
+        public VersionInfoBuilder SetFileVersion(Version fileVersion, bool updateAttribute = true)
         {
             _fileVersion = fileVersion;
 
-            if (updateCorrespondingAttribute)
+            if (updateAttribute)
                 _attributes[VersionAttributeName.FileVersion] = fileVersion.ToString(4);
 
             return this;
@@ -34,11 +33,11 @@ namespace Ressy.Abstractions.Versions
         /// <summary>
         /// Sets product version.
         /// </summary>
-        public VersionInfoBuilder SetProductVersion(Version productVersion, bool updateCorrespondingAttribute = true)
+        public VersionInfoBuilder SetProductVersion(Version productVersion, bool updateAttribute = true)
         {
             _productVersion = productVersion;
 
-            if (updateCorrespondingAttribute)
+            if (updateAttribute)
                 _attributes[VersionAttributeName.ProductVersion] = productVersion.ToString(4);
 
             return this;
@@ -77,15 +76,6 @@ namespace Ressy.Abstractions.Versions
         public VersionInfoBuilder SetFileSubType(FileSubType fileSubType)
         {
             _fileSubType = fileSubType;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets file timestamp.
-        /// </summary>
-        public VersionInfoBuilder SetFileTimestamp(DateTimeOffset fileTimestamp)
-        {
-            _fileTimestamp = fileTimestamp;
             return this;
         }
 
@@ -134,7 +124,7 @@ namespace Ressy.Abstractions.Versions
         /// <summary>
         /// Copies all data from an existing <see cref="VersionInfo"/> instance.
         /// </summary>
-        public VersionInfoBuilder CopyFrom(VersionInfo versionInfo)
+        public VersionInfoBuilder SetAll(VersionInfo versionInfo)
         {
             SetFileVersion(versionInfo.FileVersion);
             SetProductVersion(versionInfo.ProductVersion);
@@ -142,7 +132,6 @@ namespace Ressy.Abstractions.Versions
             SetFileOperatingSystem(versionInfo.FileOperatingSystem);
             SetFileType(versionInfo.FileType);
             SetFileSubType(versionInfo.FileSubType);
-            SetFileTimestamp(versionInfo.FileTimestamp);
 
             ClearAttributes();
             ClearTranslations();
@@ -170,7 +159,6 @@ namespace Ressy.Abstractions.Versions
             _fileOperatingSystem,
             _fileType,
             _fileSubType,
-            _fileTimestamp,
             _attributes,
             _translations
         );

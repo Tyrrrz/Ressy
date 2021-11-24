@@ -54,8 +54,8 @@ namespace Ressy.Abstractions.Versions
             // dwFileSubtype
             builder.SetFileSubType((FileSubType)reader.ReadUInt32());
 
-            // dwFileDateMS, dwFileDateLS
-            builder.SetFileTimestamp(DateTimeOffset.FromFileTime(reader.ReadInt64()));
+            // dwFileDateMS, dwFileDateLS (never actually used by Win32)
+            _ = reader.ReadUInt64();
         }
 
         private static void ReadStringFileInfo(BinaryReader reader, VersionInfoBuilder builder)
@@ -75,11 +75,9 @@ namespace Ressy.Abstractions.Versions
             // szKey (contains language & code page; do we need it?)
             _ = reader.ReadStringNullTerminated();
 
-            // Children
+            // -- String
             while (reader.BaseStream.Position < stringTableEndPosition)
             {
-                // -- String
-
                 // Padding
                 reader.SkipPadding();
 
@@ -123,11 +121,9 @@ namespace Ressy.Abstractions.Versions
             if (!string.Equals(reader.ReadStringNullTerminated(), "Translation", StringComparison.Ordinal))
                 throw new InvalidOperationException("Not a valid version resource: missing 'Translation'.");
 
-            // Children
+            // -- Var
             while (reader.BaseStream.Position < varFileInfoEndPosition)
             {
-                // -- Var
-
                 // Padding
                 reader.SkipPadding();
 

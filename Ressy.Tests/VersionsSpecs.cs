@@ -30,7 +30,6 @@ namespace Ressy.Tests
             versionInfo.FileOperatingSystem.Should().Be(FileOperatingSystem.Windows32);
             versionInfo.FileType.Should().Be(FileType.App);
             versionInfo.FileSubType.Should().Be(FileSubType.Unknown);
-            versionInfo.FileTimestamp.Should().Be(new DateTimeOffset(1601, 01, 01, 00, 00, 00, TimeSpan.Zero));
             versionInfo.Attributes.Should().Contain(new Dictionary<VersionAttributeName, string>
             {
                 ["Assembly Version"] = "6.9.6.9",
@@ -104,7 +103,6 @@ namespace Ressy.Tests
             versionInfo.FileOperatingSystem.Should().Be(FileOperatingSystem.Windows32 | FileOperatingSystem.NT);
             versionInfo.FileType.Should().Be(FileType.App);
             versionInfo.FileSubType.Should().Be(FileSubType.Unknown);
-            versionInfo.FileTimestamp.Should().Be(new DateTimeOffset(1601, 01, 01, 00, 00, 00, TimeSpan.Zero));
             versionInfo.Attributes.Should().Contain(new Dictionary<VersionAttributeName, string>
             {
                 ["Assembly Version"] = "6.9.6.9",

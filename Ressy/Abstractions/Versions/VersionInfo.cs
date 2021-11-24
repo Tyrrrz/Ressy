@@ -40,11 +40,6 @@ namespace Ressy.Abstractions.Versions
         public FileSubType FileSubType { get; }
 
         /// <summary>
-        /// File timestamp.
-        /// </summary>
-        public DateTimeOffset FileTimestamp { get; }
-
-        /// <summary>
         /// Version attributes (contained within the StringFileInfo structure).
         /// </summary>
         public IReadOnlyDictionary<VersionAttributeName, string> Attributes { get; }
@@ -64,7 +59,6 @@ namespace Ressy.Abstractions.Versions
             FileOperatingSystem fileOperatingSystem,
             FileType fileType,
             FileSubType fileSubType,
-            DateTimeOffset fileTimestamp,
             IReadOnlyDictionary<VersionAttributeName, string> attributes,
             IReadOnlyList<TranslationInfo> translations)
         {
@@ -74,7 +68,6 @@ namespace Ressy.Abstractions.Versions
             FileOperatingSystem = fileOperatingSystem;
             FileType = fileType;
             FileSubType = fileSubType;
-            FileTimestamp = fileTimestamp;
             Attributes = attributes;
             Translations = translations;
         }
