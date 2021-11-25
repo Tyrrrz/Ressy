@@ -8,7 +8,6 @@
     <PackageProjectUrl>https://github.com/Tyrrrz/Ressy</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/Tyrrrz/Ressy/blob/master/Changelog.md</PackageReleaseNotes>
     <PackageReadmeFile>Readme.md</PackageReadmeFile>
-    <PackageIcon>favicon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -16,6 +15,10 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <DebugType>embedded</DebugType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../Readme.md" Pack="true" PackagePath="" Visible="false" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
