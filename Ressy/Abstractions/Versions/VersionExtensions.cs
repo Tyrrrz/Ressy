@@ -9,6 +9,13 @@ namespace Ressy.Abstractions.Versions
     /// </summary>
     public static class VersionExtensions
     {
+        /// <summary>
+        /// Reads the specified resource as as a version info resource and
+        /// deserializes its data to the corresponding structural representation.
+        /// </summary>
+        public static VersionInfo ReadAsVersionInfo(this Resource resource) =>
+            VersionInfo.Deserialize(resource.Data);
+
         private static FileType GetFileType(this PortableExecutable portableExecutable) =>
             Path.GetExtension(portableExecutable.FilePath).ToUpperInvariant() switch
             {
@@ -18,22 +25,12 @@ namespace Ressy.Abstractions.Versions
             };
 
         private static ResourceIdentifier? TryGetVersionInfoResourceIdentifier(
-            this PortableExecutable portableExecutable)
-        {
-            var identifiers = portableExecutable.GetResourceIdentifiers()
+            this PortableExecutable portableExecutable) =>
+            portableExecutable.GetResourceIdentifiers()
                 .Where(r => r.Type.Code == ResourceType.Version.Code)
-                .ToArray();
-
-            return
-                // Among neutral language resources, find one with the lowest ordinal name (ID)
-                identifiers
-                    .Where(r => r.Language.Id == ResourceLanguage.Neutral.Id)
-                    .Where(r => r.Name.Code is not null)
-                    .OrderBy(r => r.Name.Code)
-                    .FirstOrDefault() ??
-                // If there are no such resources, pick whichever
-                identifiers.FirstOrDefault();
-        }
+                .OrderBy(r => r.Language.Id == Language.Neutral.Id)
+                .ThenBy(r => r.Name.Code ?? int.MaxValue)
+                .FirstOrDefault();
 
         private static Resource? TryGetVersionInfoResource(this PortableExecutable portableExecutable)
         {
@@ -49,19 +46,14 @@ namespace Ressy.Abstractions.Versions
         /// Returns <c>null</c> if the resource doesn't exist.
         /// </summary>
         /// <remarks>
-        /// In case of multiple version info resources, this method retrieves
-        /// the one with the lowest ordinal resource name in the neutral language.
-        /// If there are no resources matching aforementioned criteria, this method
-        /// retrieves the first version info resource it encounters.
+        /// If there are multiple version info resources, this method retrieves the one
+        /// with the lowest ordinal name (ID), while giving preference to resources
+        /// in the neutral language.
+        /// If there are no matching resources, this method retrieves the first
+        /// version info resource it finds.
         /// </remarks>
-        public static VersionInfo? TryGetVersionInfo(this PortableExecutable portableExecutable)
-        {
-            var resource = portableExecutable.TryGetVersionInfoResource();
-            if (resource is null)
-                return null;
-
-            return VersionInfo.Deserialize(resource.Data);
-        }
+        public static VersionInfo? TryGetVersionInfo(this PortableExecutable portableExecutable) =>
+            portableExecutable.TryGetVersionInfoResource()?.ReadAsVersionInfo();
 
         /// <summary>
         /// Gets the version info resource and deserializes it.
@@ -102,7 +94,7 @@ namespace Ressy.Abstractions.Versions
         {
             var existingResourceIdentifier = portableExecutable.TryGetVersionInfoResourceIdentifier();
 
-            // If the manifest resource already exists, reuse the same identifier
+            // If the resource already exists, reuse the same identifier
             var identifier =
                 existingResourceIdentifier ??
                 new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1));
@@ -122,15 +114,15 @@ namespace Ressy.Abstractions.Versions
 
             var existingResource = portableExecutable.TryGetVersionInfoResource();
 
-            // If the manifest resource already exists, reuse the same identifier
+            // If the resource already exists, reuse the same identifier
             var identifier =
                 existingResource?.Identifier ??
                 new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1));
 
-            // If the manifest resource already exists, reuse the same data as base
+            // If the resource already exists, reuse the same data as base
             if (existingResource is not null)
             {
-                builder.SetAll(VersionInfo.Deserialize(existingResource.Data));
+                builder.SetAll(existingResource.ReadAsVersionInfo());
             }
             else
             {

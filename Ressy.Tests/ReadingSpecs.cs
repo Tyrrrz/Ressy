@@ -27,49 +27,49 @@ namespace Ressy.Tests
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(1),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 // -- RT_ICON/2/Neutral
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(2),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 // -- RT_ICON/3/Neutral
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(3),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 // -- RT_ICON/4/Neutral
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(4),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 // -- RT_ICON/5/Neutral
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(5),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 // -- RT_ICON/6/Neutral
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(6),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 // -- RT_GROUP_ICON/32512/Neutral
                 new ResourceIdentifier(
                     ResourceType.IconGroup,
                     ResourceName.FromCode(32512),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 // -- RT_VERSION/1/Neutral
@@ -82,7 +82,7 @@ namespace Ressy.Tests
                 new ResourceIdentifier(
                     ResourceType.Manifest,
                     ResourceName.FromCode(1),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 )
             });
         }
@@ -113,7 +113,7 @@ namespace Ressy.Tests
             var resource = portableExecutable.TryGetResource(new ResourceIdentifier(
                 ResourceType.FromCode(1),
                 ResourceName.FromCode(1),
-                ResourceLanguage.Neutral
+                Language.Neutral
             ));
 
             // Assert

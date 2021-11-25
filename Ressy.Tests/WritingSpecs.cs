@@ -153,7 +153,7 @@ namespace Ressy.Tests
             var identifier = new ResourceIdentifier(
                 ResourceType.FromCode(6),
                 ResourceName.FromCode(7),
-                ResourceLanguage.FromCultureInfo(CultureInfo.GetCultureInfo("uk-UA"))
+                Language.FromCultureInfo(CultureInfo.GetCultureInfo("uk-UA"))
             );
 
             var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());

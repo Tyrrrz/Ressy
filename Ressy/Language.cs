@@ -6,9 +6,9 @@ using Ressy.Utils;
 namespace Ressy
 {
     /// <summary>
-    /// Language of a resource stored in a portable executable image.
+    /// Language identifier that specifies the locale of a resource or the text contained within it.
     /// </summary>
-    public readonly partial struct ResourceLanguage
+    public readonly partial struct Language
     {
         /// <summary>
         /// Language ID.
@@ -16,40 +16,40 @@ namespace Ressy
         public int Id { get; }
 
         /// <summary>
-        /// Initializes an instance of <see cref="ResourceLanguage"/>.
+        /// Initializes an instance of <see cref="Language"/>.
         /// </summary>
-        public ResourceLanguage(int id) => Id = id;
+        public Language(int id) => Id = id;
 
         /// <inheritdoc />
         [ExcludeFromCodeCoverage]
         public override string ToString() => Id.ToString(CultureInfo.InvariantCulture);
     }
 
-    public partial struct ResourceLanguage
+    public partial struct Language
     {
         /// <summary>
-        /// Neutral language, used for locale-invariant resources.
+        /// Neutral language.
         /// </summary>
-        public static ResourceLanguage Neutral { get; } = new(0);
+        public static Language Neutral { get; } = new(0);
 
         /// <summary>
         /// Creates a language identifier from a culture descriptor.
         /// </summary>
         // https://docs.microsoft.com/en-us/windows/win32/intl/locale-identifiers?redirectedfrom=MSDN
-        public static ResourceLanguage FromCultureInfo(CultureInfo cultureInfo)
+        public static Language FromCultureInfo(CultureInfo cultureInfo)
         {
             var (_, languageId) = BitPack.Split(cultureInfo.LCID);
-            return new ResourceLanguage(languageId);
+            return new Language(languageId);
         }
     }
 
-    public partial struct ResourceLanguage : IEquatable<ResourceLanguage>
+    public partial struct Language : IEquatable<Language>
     {
         /// <inheritdoc />
-        public bool Equals(ResourceLanguage other) => Id == other.Id;
+        public bool Equals(Language other) => Id == other.Id;
 
         /// <inheritdoc />
-        public override bool Equals(object? obj) => obj is ResourceLanguage other && Equals(other);
+        public override bool Equals(object? obj) => obj is Language other && Equals(other);
 
         /// <inheritdoc />
         public override int GetHashCode() => Id;

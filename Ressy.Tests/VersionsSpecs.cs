@@ -24,27 +24,34 @@ namespace Ressy.Tests
             var versionInfo = portableExecutable.GetVersionInfo();
 
             // Assert
-            versionInfo.FileVersion.Should().Be(new Version(1, 2, 3, 4));
-            versionInfo.ProductVersion.Should().Be(new Version(5, 6, 7, 8));
-            versionInfo.FileFlags.Should().Be(FileFlags.None);
-            versionInfo.FileOperatingSystem.Should().Be(FileOperatingSystem.Windows32);
-            versionInfo.FileType.Should().Be(FileType.Application);
-            versionInfo.FileSubType.Should().Be(FileSubType.Unknown);
-            versionInfo.Attributes.Should().Contain(new Dictionary<VersionAttributeName, string>
-            {
-                ["Assembly Version"] = "6.9.6.9",
-                [VersionAttributeName.FileVersion] = "1.2.3.4",
-                [VersionAttributeName.ProductVersion] = "5.6.7.8",
-                [VersionAttributeName.ProductName] = "TestProduct",
-                [VersionAttributeName.FileDescription] = "TestDescription",
-                [VersionAttributeName.CompanyName] = "TestCompany",
-                [VersionAttributeName.Comments] = "TestComments",
-                [VersionAttributeName.LegalCopyright] = "TestCopyright"
-            });
-            versionInfo.Translations.Should().BeEquivalentTo(new[]
-            {
-                new TranslationInfo(0, 1200)
-            });
+            versionInfo.Should().BeEquivalentTo(new VersionInfo(
+                new Version(1, 2, 3, 4),
+                new Version(5, 6, 7, 8),
+                FileFlags.None,
+                FileOperatingSystem.Windows32,
+                FileType.Application,
+                FileSubType.Unknown,
+                new[]
+                {
+                    new VersionAttributeTable(
+                        Language.Neutral,
+                        CodePage.Unicode,
+                        new Dictionary<VersionAttributeName, string>
+                        {
+                            ["Assembly Version"] = "6.9.6.9",
+                            [VersionAttributeName.FileVersion] = "1.2.3.4",
+                            [VersionAttributeName.ProductVersion] = "5.6.7.8",
+                            [VersionAttributeName.ProductName] = "TestProduct",
+                            [VersionAttributeName.FileDescription] = "TestDescription",
+                            [VersionAttributeName.CompanyName] = "TestCompany",
+                            [VersionAttributeName.Comments] = "TestComments",
+                            [VersionAttributeName.LegalCopyright] = "TestCopyright",
+                            [VersionAttributeName.InternalName] = "Ressy.Tests.Dummy.dll",
+                            [VersionAttributeName.OriginalFilename] = "Ressy.Tests.Dummy.dll"
+                        }
+                    )
+                }
+            ));
         }
 
         [Fact]
@@ -70,14 +77,16 @@ namespace Ressy.Tests
             // Assert
             portableExecutable.GetVersionInfo().Should().BeEquivalentTo(versionInfo);
 
-            var actualVersionInfo = FileVersionInfo.GetVersionInfo(portableExecutable.FilePath);
-            actualVersionInfo.FileVersion.Should().Be(versionInfo.FileVersion.ToString(4));
-            actualVersionInfo.ProductVersion.Should().Be(versionInfo.ProductVersion.ToString(4));
-            actualVersionInfo.ProductName.Should().Be(versionInfo.Attributes[VersionAttributeName.ProductName]);
-            actualVersionInfo.FileDescription.Should().Be(versionInfo.Attributes[VersionAttributeName.FileDescription]);
-            actualVersionInfo.CompanyName.Should().Be(versionInfo.Attributes[VersionAttributeName.CompanyName]);
-            actualVersionInfo.Comments.Should().BeNullOrEmpty();
-            actualVersionInfo.LegalCopyright.Should().BeNullOrEmpty();
+            FileVersionInfo.GetVersionInfo(portableExecutable.FilePath).Should().BeEquivalentTo(new
+            {
+                FileVersion = versionInfo.FileVersion.ToString(4),
+                ProductVersion = versionInfo.ProductVersion.ToString(4),
+                ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
+                FileDescription = versionInfo.GetAttribute(VersionAttributeName.FileDescription),
+                CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
+                Comments = "",
+                LegalCopyright = ""
+            });
         }
 
         [Fact]
@@ -97,36 +106,45 @@ namespace Ressy.Tests
             // Assert
             var versionInfo = portableExecutable.GetVersionInfo();
 
-            versionInfo.FileVersion.Should().Be(new Version(4, 3, 2, 1));
-            versionInfo.ProductVersion.Should().Be(new Version(5, 6, 7, 8));
-            versionInfo.FileFlags.Should().Be(FileFlags.None);
-            versionInfo.FileOperatingSystem.Should().Be(FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT);
-            versionInfo.FileType.Should().Be(FileType.Application);
-            versionInfo.FileSubType.Should().Be(FileSubType.Unknown);
-            versionInfo.Attributes.Should().Contain(new Dictionary<VersionAttributeName, string>
-            {
-                ["Assembly Version"] = "6.9.6.9",
-                [VersionAttributeName.FileVersion] = "4.3.2.1",
-                [VersionAttributeName.ProductVersion] = "5.6.7.8",
-                [VersionAttributeName.ProductName] = "ProductTest",
-                [VersionAttributeName.FileDescription] = "TestDescription",
-                [VersionAttributeName.CompanyName] = "CompanyTest",
-                [VersionAttributeName.Comments] = "TestComments",
-                [VersionAttributeName.LegalCopyright] = "TestCopyright"
-            });
-            versionInfo.Translations.Should().BeEquivalentTo(new[]
-            {
-                new TranslationInfo(0, 1200)
-            });
+            versionInfo.Should().BeEquivalentTo(new VersionInfo(
+                new Version(4, 3, 2, 1),
+                new Version(5, 6, 7, 8),
+                FileFlags.None,
+                FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT,
+                FileType.Application,
+                FileSubType.Unknown,
+                new[]
+                {
+                    new VersionAttributeTable(
+                        Language.Neutral,
+                        CodePage.Unicode,
+                        new Dictionary<VersionAttributeName, string>
+                        {
+                            ["Assembly Version"] = "6.9.6.9",
+                            [VersionAttributeName.FileVersion] = "4.3.2.1",
+                            [VersionAttributeName.ProductVersion] = "5.6.7.8",
+                            [VersionAttributeName.ProductName] = "ProductTest",
+                            [VersionAttributeName.FileDescription] = "TestDescription",
+                            [VersionAttributeName.CompanyName] = "CompanyTest",
+                            [VersionAttributeName.Comments] = "TestComments",
+                            [VersionAttributeName.LegalCopyright] = "TestCopyright",
+                            [VersionAttributeName.InternalName] = "Ressy.Tests.Dummy.dll",
+                            [VersionAttributeName.OriginalFilename] = "Ressy.Tests.Dummy.dll"
+                        }
+                    )
+                }
+            ));
 
-            var actualVersionInfo = FileVersionInfo.GetVersionInfo(portableExecutable.FilePath);
-            actualVersionInfo.FileVersion.Should().Be(versionInfo.FileVersion.ToString(4));
-            actualVersionInfo.ProductVersion.Should().Be(versionInfo.ProductVersion.ToString(4));
-            actualVersionInfo.ProductName.Should().Be(versionInfo.Attributes[VersionAttributeName.ProductName]);
-            actualVersionInfo.FileDescription.Should().Be(versionInfo.Attributes[VersionAttributeName.FileDescription]);
-            actualVersionInfo.CompanyName.Should().Be(versionInfo.Attributes[VersionAttributeName.CompanyName]);
-            actualVersionInfo.Comments.Should().Be(versionInfo.Attributes[VersionAttributeName.Comments]);
-            actualVersionInfo.LegalCopyright.Should().Be(versionInfo.Attributes[VersionAttributeName.LegalCopyright]);
+            FileVersionInfo.GetVersionInfo(portableExecutable.FilePath).Should().BeEquivalentTo(new
+            {
+                FileVersion = versionInfo.FileVersion.ToString(4),
+                ProductVersion = versionInfo.ProductVersion.ToString(4),
+                ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
+                FileDescription = versionInfo.GetAttribute(VersionAttributeName.FileDescription),
+                CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
+                Comments = versionInfo.GetAttribute(VersionAttributeName.Comments),
+                LegalCopyright = versionInfo.GetAttribute(VersionAttributeName.LegalCopyright)
+            });
         }
 
         [Fact]
@@ -143,14 +161,16 @@ namespace Ressy.Tests
                 r => r.Type.Code == ResourceType.Version.Code
             );
 
-            var actualVersionInfo = FileVersionInfo.GetVersionInfo(portableExecutable.FilePath);
-            actualVersionInfo.FileVersion.Should().BeNullOrEmpty();
-            actualVersionInfo.ProductVersion.Should().BeNullOrEmpty();
-            actualVersionInfo.ProductName.Should().BeNullOrEmpty();
-            actualVersionInfo.FileDescription.Should().BeNullOrEmpty();
-            actualVersionInfo.CompanyName.Should().BeNullOrEmpty();
-            actualVersionInfo.Comments.Should().BeNullOrEmpty();
-            actualVersionInfo.LegalCopyright.Should().BeNullOrEmpty();
+            FileVersionInfo.GetVersionInfo(portableExecutable.FilePath).Should().BeEquivalentTo(new
+            {
+                FileVersion = default(string),
+                ProductVersion = default(string),
+                ProductName = default(string),
+                FileDescription = default(string),
+                CompanyName = default(string),
+                Comments = default(string),
+                LegalCopyright = default(string)
+            });
         }
     }
 }

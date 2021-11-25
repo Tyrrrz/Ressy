@@ -13,23 +13,20 @@ namespace Ressy.Abstractions.Manifests
         // because that's the default encoding for XML files.
         private static readonly Encoding DefaultManifestEncoding = Encoding.UTF8;
 
-        private static ResourceIdentifier? TryGetManifestResourceIdentifier(
-            this PortableExecutable portableExecutable)
-        {
-            var identifiers = portableExecutable.GetResourceIdentifiers()
-                .Where(r => r.Type.Code == ResourceType.Manifest.Code)
-                .ToArray();
+        /// <summary>
+        /// Reads the specified resource as as a manifest resource and
+        /// decodes its data to an XML text string.
+        /// </summary>
+        public static string ReadAsManifest(this Resource resource, Encoding? encoding = null) =>
+            resource.ReadAsString(encoding ?? DefaultManifestEncoding);
 
-            return
-                // Among neutral language resources, find the one with the lowest ordinal name (ID)
-                identifiers
-                    .Where(r => r.Language.Id == ResourceLanguage.Neutral.Id)
-                    .Where(r => r.Name.Code is not null)
-                    .OrderBy(r => r.Name.Code)
-                    .FirstOrDefault() ??
-                // If there are no such resources, pick whichever
-                identifiers.FirstOrDefault();
-        }
+        private static ResourceIdentifier? TryGetManifestResourceIdentifier(
+            this PortableExecutable portableExecutable) =>
+            portableExecutable.GetResourceIdentifiers()
+                .Where(r => r.Type.Code == ResourceType.Manifest.Code)
+                .OrderBy(r => r.Language.Id == Language.Neutral.Id)
+                .ThenBy(r => r.Name.Code ?? int.MaxValue)
+                .FirstOrDefault();
 
         private static Resource? TryGetManifestResource(this PortableExecutable portableExecutable)
         {
@@ -45,22 +42,24 @@ namespace Ressy.Abstractions.Manifests
         /// Returns <c>null</c> if the resource doesn't exist.
         /// </summary>
         /// <remarks>
-        /// In case of multiple manifest resources, this method retrieves
-        /// the one with the lowest ordinal resource name in the neutral language.
-        /// If there are no resources matching aforementioned criteria, this method
-        /// retrieves the first manifest resource it encounters.
+        /// If there are multiple manifest resources, this method retrieves the one
+        /// with the lowest ordinal name (ID), while giving preference to resources
+        /// in the neutral language.
+        /// If there are no matching resources, this method retrieves the first
+        /// manifest resource it finds.
         /// </remarks>
         public static string? TryGetManifest(this PortableExecutable portableExecutable, Encoding? encoding = null) =>
-            portableExecutable.TryGetManifestResource()?.ReadAsString(encoding ?? DefaultManifestEncoding);
+            portableExecutable.TryGetManifestResource()?.ReadAsManifest(encoding);
 
         /// <summary>
         /// Gets the manifest resource and reads its data as an XML text string.
         /// </summary>
         /// <remarks>
-        /// In case of multiple manifest resources, this method retrieves
-        /// the one with the lowest ordinal resource name in the neutral language.
-        /// If there are no resources matching aforementioned criteria, this method
-        /// retrieves the first manifest resource it encounters.
+        /// If there are multiple manifest resources, this method retrieves the one
+        /// with the lowest ordinal name (ID), while giving preference to resources
+        /// in the neutral language.
+        /// If there are no matching resources, this method retrieves the first
+        /// manifest resource it finds.
         /// </remarks>
         public static string GetManifest(this PortableExecutable portableExecutable, Encoding? encoding = null) =>
             portableExecutable.TryGetManifest(encoding) ??
@@ -93,7 +92,7 @@ namespace Ressy.Abstractions.Manifests
         {
             var existingResourceIdentifier = portableExecutable.TryGetManifestResourceIdentifier();
 
-            // If the manifest resource already exists, reuse the same identifier
+            // If the resource already exists, reuse the same identifier
             var identifier =
                 existingResourceIdentifier ??
                 new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));

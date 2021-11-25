@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Text;
 
@@ -9,16 +8,14 @@ namespace Ressy.Utils.Extensions
         public static bool IsEndOfStream(this BinaryReader reader) =>
             reader.BaseStream.Position >= reader.BaseStream.Length;
 
-        public static void SkipPadding(this BinaryReader reader, int bytes = 4)
+        public static void SkipPadding(this BinaryReader reader, int boundaryBits = 32)
         {
-            var remainder = reader.BaseStream.Position % bytes;
-
-            // Already on the boundary
-            if (remainder == 0)
-                return;
-
-            var padding = Math.Min(bytes - remainder, reader.BaseStream.Length - reader.BaseStream.Position);
-            reader.BaseStream.Seek(padding, SeekOrigin.Current);
+            while (!reader.IsEndOfStream() && reader.BaseStream.Position * 8 % boundaryBits != 0)
+            {
+                // Read a character so that it takes up either 1 or 2 bytes,
+                // depending on the encoding of the stream.
+                _ = reader.ReadChar();
+            }
         }
 
         public static void SkipZeroes(this BinaryReader reader, long? maxSkipLength = null)
@@ -38,7 +35,7 @@ namespace Ressy.Utils.Extensions
             }
         }
 
-        public static string ReadStringNullTerminated(this BinaryReader reader)
+        public static string ReadNullTerminatedString(this BinaryReader reader)
         {
             var buffer = new StringBuilder();
 

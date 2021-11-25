@@ -1,6 +1,5 @@
+using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Ressy.Utils;
 using Ressy.Utils.Extensions;
 
@@ -8,10 +7,8 @@ namespace Ressy.Abstractions.Versions
 {
     public partial class VersionInfo
     {
-        private long WriteFixedFileInfo(BinaryWriter writer)
+        private void WriteFixedFileInfo(BinaryWriter writer)
         {
-            var startPosition = writer.BaseStream.Position;
-
             // dwSignature
             writer.Write(0xFEEF04BD);
 
@@ -20,13 +17,37 @@ namespace Ressy.Abstractions.Versions
 
             // dwFileVersionMS, dwFileVersionLS
             var fileVersionClamped = FileVersion.ClampComponents();
-            writer.Write(BitPack.Merge((ushort)fileVersionClamped.Major, (ushort)fileVersionClamped.Minor));
-            writer.Write(BitPack.Merge((ushort)fileVersionClamped.Build, (ushort)fileVersionClamped.Revision));
+
+            writer.Write(
+                BitPack.Merge(
+                    (ushort)fileVersionClamped.Major,
+                    (ushort)fileVersionClamped.Minor
+                )
+            );
+
+            writer.Write(
+                BitPack.Merge(
+                    (ushort)fileVersionClamped.Build,
+                    (ushort)fileVersionClamped.Revision
+                )
+            );
 
             // dwProductVersionMS, dwProductVersionLS
             var productVersionClamped = ProductVersion.ClampComponents();
-            writer.Write(BitPack.Merge((ushort)productVersionClamped.Major, (ushort)productVersionClamped.Minor));
-            writer.Write(BitPack.Merge((ushort)productVersionClamped.Build, (ushort)productVersionClamped.Revision));
+
+            writer.Write(
+                BitPack.Merge(
+                    (ushort)productVersionClamped.Major,
+                    (ushort)productVersionClamped.Minor
+                )
+            );
+
+            writer.Write(
+                BitPack.Merge(
+                    (ushort)productVersionClamped.Build,
+                    (ushort)productVersionClamped.Revision
+                )
+            );
 
             // dwFileFlagsMask
             writer.Write(0x3F);
@@ -45,11 +66,9 @@ namespace Ressy.Abstractions.Versions
 
             // dwFileDateMS, dwFileDateLS (never actually used by Win32)
             writer.Write((ulong)0L);
-
-            return writer.BaseStream.Position - startPosition;
         }
 
-        private long WriteStringFileInfo(BinaryWriter writer)
+        private void WriteStringFileInfo(BinaryWriter writer)
         {
             // wLength (will overwrite later)
             var lengthPortal = writer.BaseStream.CreatePortal();
@@ -58,17 +77,18 @@ namespace Ressy.Abstractions.Versions
             // wValueLength (always zero)
             writer.Write((ushort)0);
 
-            // wType
-            writer.Write((ushort)1);
+            // wType (always zero)
+            writer.Write((ushort)0);
 
             // szKey
-            writer.WriteStringNullTerminated("StringFileInfo");
+            writer.WriteNullTerminatedString("StringFileInfo");
 
             // Padding
             writer.SkipPadding();
 
             // -- StringTable
-            if (Attributes.Any())
+
+            foreach (var attributeTable in AttributeTables)
             {
                 // wLength (will overwrite later)
                 var tableLengthPortal = writer.BaseStream.CreatePortal();
@@ -77,14 +97,17 @@ namespace Ressy.Abstractions.Versions
                 // wValueLength (always zero)
                 writer.Write((ushort)0);
 
-                // wType
-                writer.Write((ushort)1);
+                // wType (always zero)
+                writer.Write((ushort)0);
 
                 // szKey
-                writer.WriteStringNullTerminated("040904B0");
+                writer.WriteNullTerminatedString(
+                    attributeTable.Language.Id.ToString("X4", CultureInfo.InvariantCulture) +
+                    attributeTable.CodePage.Id.ToString("X4", CultureInfo.InvariantCulture)
+                );
 
                 // -- String
-                foreach (var (name, value) in Attributes)
+                foreach (var (name, value) in attributeTable.Attributes)
                 {
                     // Padding
                     writer.SkipPadding();
@@ -93,20 +116,20 @@ namespace Ressy.Abstractions.Versions
                     var stringLengthPortal = writer.BaseStream.CreatePortal();
                     writer.Write((ushort)0);
 
-                    // wValueLength
-                    writer.Write((ushort)value.Length);
+                    // wValueLength (includes null terminator)
+                    writer.Write((ushort)Encoding.GetByteCount(value + '\0'));
 
-                    // wType
+                    // wType (always one)
                     writer.Write((ushort)1);
 
                     // szKey
-                    writer.WriteStringNullTerminated(name);
+                    writer.WriteNullTerminatedString(name);
 
                     // Padding
                     writer.SkipPadding();
 
                     // Value
-                    writer.WriteStringNullTerminated(value);
+                    writer.WriteNullTerminatedString(value);
 
                     // Update length
                     var stringLength = writer.BaseStream.Position - stringLengthPortal.Position;
@@ -124,15 +147,10 @@ namespace Ressy.Abstractions.Versions
             var length = writer.BaseStream.Position - lengthPortal.Position;
             using (lengthPortal.Jump())
                 writer.Write((ushort)length);
-
-            return length;
         }
 
-        private long WriteVarFileInfo(BinaryWriter writer)
+        private void WriteVarFileInfo(BinaryWriter writer)
         {
-            if (!Translations.Any())
-                return 0;
-
             // wLength (will overwrite later)
             var lengthPortal = writer.BaseStream.CreatePortal();
             writer.Write((ushort)0);
@@ -140,11 +158,11 @@ namespace Ressy.Abstractions.Versions
             // wValueLength (always zero)
             writer.Write((ushort)0);
 
-            // wType
-            writer.Write((ushort)1);
+            // wType (always zero)
+            writer.Write((ushort)0);
 
             // szKey
-            writer.WriteStringNullTerminated("VarFileInfo");
+            writer.WriteNullTerminatedString("VarFileInfo");
 
             // Padding
             writer.SkipPadding();
@@ -152,45 +170,47 @@ namespace Ressy.Abstractions.Versions
             // -- Translation
 
             // wLength (will overwrite later)
-            var translationLength = writer.BaseStream.CreatePortal();
+            var translationLengthPortal = writer.BaseStream.CreatePortal();
             writer.Write((ushort)0);
 
-            // wValueLength (always zero)
-            writer.Write((ushort)0);
+            // wValueLength (4 bytes per codepage*languageId pair)
+            writer.Write((ushort)(AttributeTables.Count * 4));
 
-            // wType
-            writer.Write((ushort)1);
+            // wType (always zero)
+            writer.Write((ushort)0);
 
             // szKey
-            writer.WriteStringNullTerminated("Translation");
+            writer.WriteNullTerminatedString("Translation");
+
+            // Padding
+            writer.SkipPadding();
 
             // -- Var
-            foreach (var translation in Translations)
+            foreach (var attributeTable in AttributeTables)
             {
-                // Padding
-                writer.SkipPadding();
-
-                // Value
-                writer.Write(BitPack.Merge((ushort)translation.Codepage, (ushort)translation.LanguageId));
+                writer.Write(
+                    BitPack.Merge(
+                        (ushort)attributeTable.CodePage.Id,
+                        (ushort)attributeTable.Language.Id
+                    )
+                );
             }
 
             // Update length
-            var varFileInfoLength = writer.BaseStream.Position - translationLength.Position;
-            using (translationLength.Jump())
+            var varFileInfoLength = writer.BaseStream.Position - translationLengthPortal.Position;
+            using (translationLengthPortal.Jump())
                 writer.Write((ushort)varFileInfoLength);
 
             // Update length
             var length = writer.BaseStream.Position - lengthPortal.Position;
             using (lengthPortal.Jump())
                 writer.Write((ushort)length);
-
-            return length;
         }
 
         internal byte[] Serialize()
         {
             using var stream = new MemoryStream();
-            using var writer = new BinaryWriter(stream, Encoding.Unicode);
+            using var writer = new BinaryWriter(stream, Encoding);
 
             // -- VS_VERSIONINFO
 
@@ -198,23 +218,20 @@ namespace Ressy.Abstractions.Versions
             var lengthPortal = writer.BaseStream.CreatePortal();
             writer.Write((ushort)0);
 
-            // wValueLength (will overwrite later)
-            var fixedFileInfoLengthPortal = writer.BaseStream.CreatePortal();
-            writer.Write((ushort)0);
+            // wValueLength (always 52)
+            writer.Write((ushort)52);
 
-            // wType
+            // wType (always zero)
             writer.Write((ushort)0);
 
             // szKey
-            writer.WriteStringNullTerminated("VS_VERSION_INFO");
+            writer.WriteNullTerminatedString("VS_VERSION_INFO");
 
             // Padding
             writer.SkipPadding();
 
             // -- VS_FIXEDFILEINFO
-            var fixedFileInfoLength = WriteFixedFileInfo(writer);
-            using (fixedFileInfoLengthPortal.Jump())
-                writer.Write((ushort)fixedFileInfoLength);
+            WriteFixedFileInfo(writer);
 
             // Padding
             writer.SkipPadding();

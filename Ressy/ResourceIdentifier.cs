@@ -21,12 +21,12 @@ namespace Ressy
         /// <summary>
         /// Resource language.
         /// </summary>
-        public ResourceLanguage Language { get; }
+        public Language Language { get; }
 
         /// <summary>
         /// Initializes an instance of <see cref="ResourceIdentifier"/>.
         /// </summary>
-        public ResourceIdentifier(ResourceType type, ResourceName name, ResourceLanguage language = default)
+        public ResourceIdentifier(ResourceType type, ResourceName name, Language language = default)
         {
             Type = type;
             Name = name;

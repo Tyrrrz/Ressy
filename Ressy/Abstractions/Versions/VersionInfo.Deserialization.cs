@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Text;
 using Ressy.Utils;
 using Ressy.Utils.Extensions;
 
@@ -58,11 +57,8 @@ namespace Ressy.Abstractions.Versions
             _ = reader.ReadUInt64();
         }
 
-        private static void ReadStringFileInfo(BinaryReader reader, VersionInfoBuilder builder)
+        private static void ReadStringTable(BinaryReader reader, VersionInfoBuilder builder)
         {
-            // Padding
-            reader.SkipPadding();
-
             // wLength
             var stringTableEndPosition = reader.BaseStream.Position + reader.ReadUInt16();
 
@@ -72,8 +68,13 @@ namespace Ressy.Abstractions.Versions
             // wType
             _ = reader.ReadUInt16();
 
-            // szKey (contains language & code page; do we need it?)
-            _ = reader.ReadStringNullTerminated();
+            // szKey
+            var (languageId, codePageId) = BitPack.Split(
+                Convert.ToUInt32(reader.ReadNullTerminatedString(), 16)
+            );
+
+            var language = new Language(languageId);
+            var codePage = new CodePage(codePageId);
 
             // -- String
             while (reader.BaseStream.Position < stringTableEndPosition)
@@ -91,15 +92,15 @@ namespace Ressy.Abstractions.Versions
                 _ = reader.ReadUInt16();
 
                 // szKey
-                var name = reader.ReadStringNullTerminated();
+                var name = reader.ReadNullTerminatedString();
 
                 // Padding
                 reader.SkipPadding();
 
                 // Value
-                var value = reader.ReadStringNullTerminated();
+                var value = reader.ReadNullTerminatedString();
 
-                builder.SetAttribute(name, value);
+                builder.SetAttribute(name, value, language, codePage);
 
                 // There is some padding between the strings, but it doesn't seem to be defined in the spec
                 // and every resource compiler appears to choose it arbitrarily.
@@ -108,40 +109,10 @@ namespace Ressy.Abstractions.Versions
             }
         }
 
-        private static void ReadVarFileInfo(BinaryReader reader, VersionInfoBuilder builder)
-        {
-            // Padding
-            reader.SkipPadding();
-
-            // wLength
-            var varFileInfoEndPosition = reader.BaseStream.Position + reader.ReadUInt16();
-
-            // wValueLength
-            _ = reader.ReadUInt16();
-
-            // wType
-            _ = reader.ReadUInt16();
-
-            // szKey
-            if (!string.Equals(reader.ReadStringNullTerminated(), "Translation", StringComparison.Ordinal))
-                throw new InvalidOperationException("Not a valid version resource: missing 'Translation'.");
-
-            // -- Var
-            while (reader.BaseStream.Position < varFileInfoEndPosition)
-            {
-                // Padding
-                reader.SkipPadding();
-
-                // Value
-                var (codepage, languageId) = BitPack.Split(reader.ReadUInt32());
-                builder.AddTranslation(languageId, codepage);
-            }
-        }
-
         internal static VersionInfo Deserialize(byte[] data)
         {
             using var stream = new MemoryStream(data);
-            using var reader = new BinaryReader(stream, Encoding.Unicode);
+            using var reader = new BinaryReader(stream, Encoding);
 
             var builder = new VersionInfoBuilder();
 
@@ -157,7 +128,7 @@ namespace Ressy.Abstractions.Versions
             _ = reader.ReadUInt16();
 
             // szKey
-            if (!string.Equals(reader.ReadStringNullTerminated(), "VS_VERSION_INFO", StringComparison.Ordinal))
+            if (!string.Equals(reader.ReadNullTerminatedString(), "VS_VERSION_INFO", StringComparison.Ordinal))
                 throw new InvalidOperationException("Not a valid version resource: missing 'VS_VERSION_INFO'.");
 
             // Padding
@@ -173,7 +144,7 @@ namespace Ressy.Abstractions.Versions
                 reader.SkipPadding();
 
                 // wLength
-                _ = reader.ReadUInt16();
+                var childEndPosition = reader.BaseStream.Position + reader.ReadUInt16();
 
                 // wValueLength
                 _ = reader.ReadUInt16();
@@ -182,17 +153,24 @@ namespace Ressy.Abstractions.Versions
                 _ = reader.ReadUInt16();
 
                 // szKey
-                var key = reader.ReadStringNullTerminated();
+                var key = reader.ReadNullTerminatedString();
+
+                // Padding
+                reader.SkipPadding();
 
                 // -- StringFileInfo
                 if (string.Equals(key, "StringFileInfo", StringComparison.Ordinal))
                 {
-                    ReadStringFileInfo(reader, builder);
+                    // Can contain 1 or more string tables
+                    while (reader.BaseStream.Position < childEndPosition)
+                        ReadStringTable(reader, builder);
                 }
                 // -- VarFileInfo
                 else if (string.Equals(key, "VarFileInfo", StringComparison.Ordinal))
                 {
-                    ReadVarFileInfo(reader, builder);
+                    // There is nothing useful here, since all of the required information can be extracted
+                    // from StringFileInfo anyway. So we can just skip it.
+                    reader.BaseStream.Seek(childEndPosition, SeekOrigin.Begin);
                 }
                 else
                 {

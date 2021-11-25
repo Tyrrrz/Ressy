@@ -33,7 +33,7 @@ namespace Ressy.Demo
                 ? ResourceName.FromCode(nameCode)
                 : ResourceName.FromString(Name);
 
-            var language = new ResourceLanguage(Language);
+            var language = new Language(Language);
 
             var resource = portableExecutable.GetResource(new ResourceIdentifier(type, name, language));
             console.Output.BaseStream.Write(resource.Data);

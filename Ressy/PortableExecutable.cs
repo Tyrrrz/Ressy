@@ -83,19 +83,19 @@ namespace Ressy
                 return result;
             }
 
-            IReadOnlyList<ResourceLanguage> GetResourceLanguages(ResourceType type, ResourceName name)
+            IReadOnlyList<Language> GetResourceLanguages(ResourceType type, ResourceName name)
             {
                 using var typeHandle = type.ToPointer();
                 using var nameHandle = name.ToPointer();
 
-                var result = new List<ResourceLanguage>();
+                var result = new List<Language>();
 
                 NativeHelpers.ErrorCheck(() =>
                     NativeMethods.EnumResourceLanguagesEx(
                         imageHandle, typeHandle, nameHandle,
                         (_, _, _, languageId, _) =>
                         {
-                            result.Add(new ResourceLanguage(languageId));
+                            result.Add(new Language(languageId));
                             return true;
                         },
                         IntPtr.Zero, 0, 0

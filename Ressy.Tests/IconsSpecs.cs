@@ -33,37 +33,37 @@ namespace Ressy.Tests
                 new ResourceIdentifier(
                     ResourceType.IconGroup,
                     ResourceName.FromCode(1),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(1),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(2),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(3),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(4),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 ),
 
                 new ResourceIdentifier(
                     ResourceType.Icon,
                     ResourceName.FromCode(5),
-                    ResourceLanguage.Neutral
+                    Language.Neutral
                 )
             });
 
