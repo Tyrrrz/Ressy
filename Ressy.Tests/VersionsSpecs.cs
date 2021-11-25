@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using FluentAssertions;
 using Ressy.Abstractions.Versions;
 using Ressy.Tests.Fixtures;
@@ -52,6 +53,50 @@ namespace Ressy.Tests
                     )
                 }
             ));
+        }
+
+        [Fact]
+        public void User_can_get_version_info_of_Notepad()
+        {
+            // Arrange
+            var portableExecutable = new PortableExecutable(
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                    "System32",
+                    "notepad.exe"
+                )
+            );
+
+            // Act
+            var versionInfo = portableExecutable.GetVersionInfo();
+
+            // Assert
+            versionInfo.GetAttribute(VersionAttributeName.InternalName).Should().BeEquivalentTo("Notepad");
+
+            // We can't rely on the returned data because it's not deterministic but we only really
+            // care that the deserialization has finished without any exceptions.
+        }
+
+        [Fact]
+        public void User_can_get_version_info_of_InternetExplorer()
+        {
+            // Arrange
+            var portableExecutable = new PortableExecutable(
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                    "Internet Explorer",
+                    "iexplore.exe"
+                )
+            );
+
+            // Act
+            var versionInfo = portableExecutable.GetVersionInfo();
+
+            // Assert
+            versionInfo.GetAttribute(VersionAttributeName.InternalName).Should().BeEquivalentTo("iexplore");
+
+            // We can't rely on the returned data because it's not deterministic but we only really
+            // care that the deserialization has finished without any exceptions.
         }
 
         [Fact]

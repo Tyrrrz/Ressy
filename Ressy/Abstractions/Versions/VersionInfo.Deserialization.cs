@@ -155,19 +155,24 @@ namespace Ressy.Abstractions.Versions
                 // szKey
                 var key = reader.ReadNullTerminatedString();
 
-                // Padding
-                reader.SkipPadding();
-
                 // -- StringFileInfo
                 if (string.Equals(key, "StringFileInfo", StringComparison.Ordinal))
                 {
                     // Can contain 1 or more string tables
                     while (reader.BaseStream.Position < childEndPosition)
+                    {
+                        // Padding
+                        reader.SkipPadding();
+
                         ReadStringTable(reader, builder);
+                    }
                 }
                 // -- VarFileInfo
                 else if (string.Equals(key, "VarFileInfo", StringComparison.Ordinal))
                 {
+                    // Padding
+                    reader.SkipPadding();
+
                     // There is nothing useful here, since all of the required information can be extracted
                     // from StringFileInfo anyway. So we can just skip it.
                     reader.BaseStream.Seek(childEndPosition, SeekOrigin.Begin);
