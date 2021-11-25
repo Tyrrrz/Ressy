@@ -152,7 +152,7 @@ portableExecutable.ClearResources();
 
 ### High-level operations
 
-Ressy provides extensions for `PortableExecutable` that enable you to directly read and manipulate known resources types, such as icons, manifests, versions, etc.
+Ressy provides extensions for `PortableExecutable` that enable you to directly read and manipulate known resource types, such as icons, manifests, versions, etc.
 
 #### Manifest resources
 
