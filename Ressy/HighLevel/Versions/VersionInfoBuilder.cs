@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ressy.Utils;
 
-namespace Ressy.Abstractions.Versions
+namespace Ressy.HighLevel.Versions
 {
     /// <summary>
     /// Builder for <see cref="VersionInfo"/>.

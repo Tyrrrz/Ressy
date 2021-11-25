@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Ressy.Abstractions.Manifests;
+using Ressy.HighLevel.Manifests;
 using Ressy.Tests.Fixtures;
 using Xunit;
 

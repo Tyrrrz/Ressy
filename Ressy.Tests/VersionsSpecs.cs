@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using FluentAssertions;
-using Ressy.Abstractions.Versions;
+using Ressy.HighLevel.Versions;
 using Ressy.Tests.Fixtures;
 using Xunit;
 

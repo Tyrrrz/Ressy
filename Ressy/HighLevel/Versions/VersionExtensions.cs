@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace Ressy.Abstractions.Versions
+namespace Ressy.HighLevel.Versions
 {
     /// <summary>
     /// Extensions for <see cref="PortableExecutable"/> for working with version resources.

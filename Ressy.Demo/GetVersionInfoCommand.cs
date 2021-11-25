@@ -4,7 +4,7 @@ using CliFx.Attributes;
 using CliFx.Infrastructure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Ressy.Abstractions.Versions;
+using Ressy.HighLevel.Versions;
 
 namespace Ressy.Demo
 {

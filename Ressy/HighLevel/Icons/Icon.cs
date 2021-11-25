@@ -1,4 +1,4 @@
-namespace Ressy.Abstractions.Icons
+namespace Ressy.HighLevel.Icons
 {
     internal class Icon
     {

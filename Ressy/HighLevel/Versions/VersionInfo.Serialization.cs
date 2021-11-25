@@ -3,7 +3,7 @@ using System.IO;
 using Ressy.Utils;
 using Ressy.Utils.Extensions;
 
-namespace Ressy.Abstractions.Versions
+namespace Ressy.HighLevel.Versions
 {
     public partial class VersionInfo
     {

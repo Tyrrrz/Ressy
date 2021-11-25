@@ -1,7 +1,7 @@
 using System.IO;
 using Ressy.Utils.Extensions;
 
-namespace Ressy.Abstractions.Icons
+namespace Ressy.HighLevel.Icons
 {
     /// <summary>
     /// Extensions for <see cref="PortableExecutable"/> for working with icon resources.

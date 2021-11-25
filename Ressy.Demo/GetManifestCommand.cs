@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
-using Ressy.Abstractions.Manifests;
+using Ressy.HighLevel.Manifests;
 
 namespace Ressy.Demo
 {

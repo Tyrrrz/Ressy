@@ -167,7 +167,7 @@ To read the manifest resource as an XML text string, call the `GetManifest()` ex
 
 ```csharp
 using Ressy;
-using Ressy.Abstractions;
+using Ressy.HighLevel;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
@@ -185,7 +185,7 @@ To add or overwrite a manifest resource, call the `SetManifest(...)` extension m
 
 ```csharp
 using Ressy;
-using Ressy.Abstractions;
+using Ressy.HighLevel;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
@@ -198,7 +198,7 @@ To remove all manifest resources, call the `RemoveManifest()` extension method:
 
 ```csharp
 using Ressy;
-using Ressy.Abstractions;
+using Ressy.HighLevel;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
@@ -216,7 +216,7 @@ To add or overwrite icon resources based on an ICO file, call the `SetIcon(...)`
 
 ```csharp
 using Ressy;
-using Ressy.Abstractions;
+using Ressy.HighLevel;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
@@ -230,7 +230,7 @@ Additionally, you can also set the icon by passing a stream that contains ICO-fo
 
 ```csharp
 using Ressy;
-using Ressy.Abstractions;
+using Ressy.HighLevel;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
@@ -244,7 +244,7 @@ To remove all icon and icon group resources, call the `RemoveIcon()` extension m
 
 ```csharp
 using Ressy;
-using Ressy.Abstractions;
+using Ressy.HighLevel;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
@@ -263,7 +263,7 @@ This returns a `VersionInfo` object that represents the deserialized binary data
 
 ```csharp
 using Ressy;
-using Ressy.Abstractions;
+using Ressy.HighLevel;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
@@ -325,7 +325,7 @@ To remove all version info resources, call the `RemoveVersionInfo()` extension m
 
 ```csharp
 using Ressy;
-using Ressy.Abstractions;
+using Ressy.HighLevel;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
@@ -339,7 +339,7 @@ You can use the `VersionInfoBuilder` class to drastically simplify the creation 
 
 ```csharp
 using Ressy;
-using Ressy.Abstractions;
+using Ressy.HighLevel;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
@@ -360,7 +360,7 @@ Properties that are not provided are pulled from the existing version info resou
 
 ```csharp
 using Ressy;
-using Ressy.Abstractions;
+using Ressy.HighLevel;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 

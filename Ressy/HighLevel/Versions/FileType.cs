@@ -1,4 +1,4 @@
-namespace Ressy.Abstractions.Versions
+namespace Ressy.HighLevel.Versions
 {
     /// <summary>
     /// Type of a portable executable file.

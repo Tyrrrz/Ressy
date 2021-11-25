@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Ressy.Abstractions.Versions
+namespace Ressy.HighLevel.Versions
 {
     /// <summary>
     /// Set of version attributes bound to a specific language and code page.

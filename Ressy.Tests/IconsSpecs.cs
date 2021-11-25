@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.IO;
 using FluentAssertions;
-using Ressy.Abstractions.Icons;
+using Ressy.HighLevel.Icons;
 using Ressy.Tests.Fixtures;
 using Ressy.Tests.Utils;
 using Ressy.Tests.Utils.Extensions;
