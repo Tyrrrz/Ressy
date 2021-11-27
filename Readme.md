@@ -25,9 +25,12 @@ It offers a high-level abstraction model for working with [resource functions](h
 Ressy's functionality is provided entirely through the `PortableExecutable` class.
 You can create an instance of this class by passing a string that specifies the path to a PE file:
 
+Include the namespace:
 ```csharp
 using Ressy;
+```
 
+```csharp
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 // ...
@@ -39,41 +42,45 @@ var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe
 
 To get the list of resources in a PE file, use the `GetResourceIdentifiers()` method:
 
-```csharp
-using Ressy;
-
+<!-- snippet: EnumeratingIdentifiers -->
+<a id='snippet-enumeratingidentifiers'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 var identifiers = portableExecutable.GetResourceIdentifiers();
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L23-L29' title='Snippet source file'>snippet source</a> | <a href='#snippet-enumeratingidentifiers' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 Returned list should contain:
 
+<!-- snippet: Snippets.EnumeratingIdentifiers.verified.txt -->
+<a id='snippet-Snippets.EnumeratingIdentifiers.verified.txt'></a>
 ```txt
-- Type: 16 (RT_VERSION), Name: 1, Language: 1033
-- Type: 24 (RT_MANIFEST), Name: 1, Language: 1033
-- Type: 3 (RT_ICON), Name: 1, Language: 1033
-- Type: 3 (RT_ICON), Name: 2, Language: 1033
-- Type: 3 (RT_ICON), Name: 3, Language: 1033
-- Type: 14 (RT_GROUP_ICON), Name: 2, Language: 1033
-- Type: 4 (RT_MENU), Name: 1, Language: 1033
-- Type: 5 (RT_DIALOG), Name: 1, Language: 1033
-- Type: 5 (RT_DIALOG), Name: 2, Language: 1033
-- Type: 5 (RT_DIALOG), Name: 3, Language: 1033
-- Type: "EDPENLIGHTENEDAPPINFOID", Name: "MICROSOFTEDPENLIGHTENEDAPPINFO", Language: 1033
-- Type: "EDPPERMISSIVEAPPINFOID", Name: "MICROSOFTEDPPERMISSIVEAPPINFO", Language: 1033
-- Type: "MUI", Name: 1, Language: 1033
-- ...
+[
+  - Type: EDPENLIGHTENEDAPPINFOID 1033, Name: , Language: 1033,
+  - Type: EDPPERMISSIVEAPPINFOID 1033, Name: , Language: 1033,
+  - Type: MUI 1033, Name: 1, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 1, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 2, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 3, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 4, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 5, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 6, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 7, Language: 1033
+]
 ```
+<sup><a href='/Ressy.Tests/Snippets.EnumeratingIdentifiers.verified.txt#L1-L12' title='Snippet source file'>snippet source</a> | <a href='#snippet-Snippets.EnumeratingIdentifiers.verified.txt' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 #### Retrieving data
 
 To resolve a specific resource, you can call the `GetResource(...)` method.
 This returns an instance of the `Resource` class, which contains the resource data:
 
-```csharp
-using Ressy;
-
+<!-- snippet: RetrievingData -->
+<a id='snippet-retrievingdata'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 var resource = portableExecutable.GetResource(new ResourceIdentifier(
@@ -85,13 +92,15 @@ var resource = portableExecutable.GetResource(new ResourceIdentifier(
 var resourceData = resource.Data; // byte[]
 var resourceString = resource.ReadAsString(Encoding.UTF8); // string
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L57-L70' title='Snippet source file'>snippet source</a> | <a href='#snippet-retrievingdata' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 If you aren't sure if the requested resource exists in the PE file, you can also use the `TryGetResource(...)` method instead.
 It returns `null` in case the resource is missing:
 
-```csharp
-using Ressy;
-
+<!-- snippet: TryGetResource -->
+<a id='snippet-trygetresource'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 var resource = portableExecutable.TryGetResource(new ResourceIdentifier(
@@ -100,6 +109,8 @@ var resource = portableExecutable.TryGetResource(new ResourceIdentifier(
     new Language(1033)
 )); // resource is null
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L39-L49' title='Snippet source file'>snippet source</a> | <a href='#snippet-trygetresource' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 ### Modifying resources
 
@@ -107,9 +118,9 @@ var resource = portableExecutable.TryGetResource(new ResourceIdentifier(
 
 To add or overwrite a resource, call the `SetResource(...)` method:
 
-```csharp
-using Ressy;
-
+<!-- snippet: SetResource -->
+<a id='snippet-setresource'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 portableExecutable.SetResource(
@@ -118,37 +129,44 @@ portableExecutable.SetResource(
         ResourceName.FromCode(1),
         new Language(1033)
     ),
-    new byte[] { 0x01, 0x02, 0x03 }
+    new byte[] {0x01, 0x02, 0x03}
 );
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L82-L95' title='Snippet source file'>snippet source</a> | <a href='#snippet-setresource' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 #### Removing a resource
 
 To remove a resource, call the `RemoveResource(...)` method:
 
-```csharp
-using Ressy;
-
+<!-- snippet: SetResource -->
+<a id='snippet-setresource'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
-portableExecutable.RemoveResource(
+portableExecutable.SetResource(
     new ResourceIdentifier(
         ResourceType.Manifest,
         ResourceName.FromCode(1),
         new Language(1033)
-    )
+    ),
+    new byte[] {0x01, 0x02, 0x03}
 );
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L82-L95' title='Snippet source file'>snippet source</a> | <a href='#snippet-setresource' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 To remove all resources in a PE file, call the `ClearResources()` method:
 
-```csharp
-using Ressy;
-
+<!-- snippet: ClearResources -->
+<a id='snippet-clearresources'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 portableExecutable.ClearResources();
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L100-L106' title='Snippet source file'>snippet source</a> | <a href='#snippet-clearresources' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 ### High-level operations
 
@@ -165,16 +183,27 @@ To learn more about application manifests, see [this article](https://docs.micro
 
 To read the manifest resource as an XML text string, call the `GetManifest()` extension method:
 
-```csharp
-using Ressy;
-using Ressy.HighLevel;
-
+<!-- snippet: GetManifest -->
+<a id='snippet-getmanifest'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 var manifest = portableExecutable.GetManifest();
-// -or-
-// var manifest = portableExecutable.TryGetManifest();
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L112-L118' title='Snippet source file'>snippet source</a> | <a href='#snippet-getmanifest' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
+
+Or: `TryGetManifest()`
+
+<!-- snippet: TryGetManifest -->
+<a id='snippet-trygetmanifest'></a>
+```cs
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+var manifest = portableExecutable.TryGetManifest();
+```
+<sup><a href='/Ressy.Tests/Snippets.cs#L126-L132' title='Snippet source file'>snippet source</a> | <a href='#snippet-trygetmanifest' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 > 💡 If there are multiple manifest resources, this method retrieves the one with the lowest ordinal name (ID), while giving preference to resources in the neutral language.
 If there are no matching resources, this method retrieves the first manifest resource it finds.
@@ -183,27 +212,29 @@ If there are no matching resources, this method retrieves the first manifest res
 
 To add or overwrite a manifest resource, call the `SetManifest(...)` extension method:
 
-```csharp
-using Ressy;
-using Ressy.HighLevel;
-
+<!-- snippet: SetManifest -->
+<a id='snippet-setmanifest'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
-portableExecutable.SetManifest("<assembly>...</assembly>"); 
+portableExecutable.SetManifest("<assembly>...</assembly>");
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L139-L145' title='Snippet source file'>snippet source</a> | <a href='#snippet-setmanifest' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 ##### Removing the manifest
 
 To remove all manifest resources, call the `RemoveManifest()` extension method:
 
-```csharp
-using Ressy;
-using Ressy.HighLevel;
-
+<!-- snippet: RemoveManifest -->
+<a id='snippet-removemanifest'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 portableExecutable.RemoveManifest();
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L150-L156' title='Snippet source file'>snippet source</a> | <a href='#snippet-removemanifest' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 #### Icon resources
 
@@ -214,42 +245,45 @@ Each portable executable file may contain multiple icon resources (usually in di
 
 To add or overwrite icon resources based on an ICO file, call the `SetIcon(...)` extension method:
 
-```csharp
-using Ressy;
-using Ressy.HighLevel;
-
+<!-- snippet: SetIcon -->
+<a id='snippet-seticon'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 portableExecutable.SetIcon("new_icon.ico");
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L161-L167' title='Snippet source file'>snippet source</a> | <a href='#snippet-seticon' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 > ⚠️ Calling this method does not remove existing icon and icon group resources, except for those that are overwritten directly.
 If you want to clean out redundant icon resources (e.g. if the previous icon group contained more icons), call the `RemoveIcon()` method first.
 
 Additionally, you can also set the icon by passing a stream that contains ICO-formatted data:
 
-```csharp
-using Ressy;
-using Ressy.HighLevel;
-
+<!-- snippet: SetIconStream -->
+<a id='snippet-seticonstream'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
-using var iconFileStream = File.Open("new_icon.ico");
+using var iconFileStream = File.OpenRead("new_icon.ico");
 portableExecutable.SetIcon(iconFileStream);
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L172-L179' title='Snippet source file'>snippet source</a> | <a href='#snippet-seticonstream' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 ##### Removing the icon
 
 To remove all icon and icon group resources, call the `RemoveIcon()` extension method:
 
-```csharp
-using Ressy;
-using Ressy.HighLevel;
-
+<!-- snippet: RemoveIcon -->
+<a id='snippet-removeicon'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 portableExecutable.RemoveIcon();
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L184-L190' title='Snippet source file'>snippet source</a> | <a href='#snippet-removeicon' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 #### Version info resources
 
@@ -261,49 +295,62 @@ Some of these attributes (such as, for example, `ProductName` and `Copyright`) a
 To get the version info resource, call the `GetVersionInfo()` extension method.
 This returns a `VersionInfo` object that represents the deserialized binary data stored in the resource:
 
-```csharp
-using Ressy;
-using Ressy.HighLevel;
-
+<!-- snippet: GetVersionInfo -->
+<a id='snippet-getversioninfo'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 var versionInfo = portableExecutable.GetVersionInfo();
-// -or-
-// var versionInfo = portableExecutable.TryGetVersionInfo();
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L196-L202' title='Snippet source file'>snippet source</a> | <a href='#snippet-getversioninfo' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
+
+Or `TryGetVersionInfo()`:
+
+<!-- snippet: TryGetVersionInfo -->
+<a id='snippet-trygetversioninfo'></a>
+```cs
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+var versionInfo = portableExecutable.TryGetVersionInfo();
+```
+<sup><a href='/Ressy.Tests/Snippets.cs#L210-L216' title='Snippet source file'>snippet source</a> | <a href='#snippet-trygetversioninfo' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 Returned object should contain:
 
-```json
+<!-- snippet: Snippets.GetVersionInfo.verified.txt -->
+<a id='snippet-Snippets.GetVersionInfo.verified.txt'></a>
+```txt
 {
-  "FileVersion": "10.0.19041.1",
-  "ProductVersion": "10.0.19041.1",
-  "FileFlags": "None",
-  "FileOperatingSystem": "Windows32, WindowsNT",
-  "FileType": "Application",
-  "FileSubType": "Unknown",
-  "AttributeTables": [
+  FileVersion: 10.0.19041.1,
+  ProductVersion: 10.0.19041.1,
+  FileOperatingSystem: Windows32, WindowsNT,
+  FileType: Application,
+  AttributeTables: [
     {
-      "Language": {
-        "Id": 1033
+      Language: {
+        Id: Id_1
       },
-      "CodePage": {
-        "Id": 1200
+      CodePage: {
+        Id: Id_2
       },
-      "Attributes": {
-        "CompanyName": "Microsoft Corporation",
-        "FileDescription": "Notepad",
-        "FileVersion": "10.0.19041.1 (WinBuild.160101.0800)",
-        "InternalName": "Notepad",
-        "LegalCopyright": "© Microsoft Corporation. All rights reserved.",
-        "OriginalFilename": "NOTEPAD.EXE.MUI",
-        "ProductName": "Microsoft® Windows® Operating System",
-        "ProductVersion": "10.0.19041.1"
+      Attributes: {
+        CompanyName: Microsoft Corporation,
+        FileDescription: Notepad,
+        FileVersion: 10.0.19041.1 (WinBuild.160101.0800),
+        InternalName: Notepad,
+        LegalCopyright: © Microsoft Corporation. All rights reserved.,
+        OriginalFilename: NOTEPAD.EXE.MUI,
+        ProductName: Microsoft® Windows® Operating System,
+        ProductVersion: 10.0.19041.1
       }
     }
   ]
 }
 ```
+<sup><a href='/Ressy.Tests/Snippets.GetVersionInfo.verified.txt#L1-L26' title='Snippet source file'>snippet source</a> | <a href='#snippet-Snippets.GetVersionInfo.verified.txt' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 > 💡 If there are multiple version info resources, this method retrieves the one with the lowest ordinal name (ID), while giving preference to resources in the neutral language.
 If there are no matching resources, this method retrieves the first version info resource it finds.
@@ -311,36 +358,51 @@ If there are no matching resources, this method retrieves the first version info
 When working with version info resources that include multiple attribute tables (bound to different language and code page pairs), you can use the `GetAttribute(...)` method to query a specific attribute.
 This method searches through all attribute tables (while giving priority to tables in the neutral language) and returns the first matching value it finds:
 
-```csharp
-// ...
-
-var companyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName); // Microsoft Corporation
-// -or-
-// var companyName = versionInfo.TryGetAttribute(VersionAttributeName.CompanyName);
+<!-- snippet: GetAttribute -->
+<a id='snippet-getattribute'></a>
+```cs
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+var versionInfo = portableExecutable.GetVersionInfo();
+var companyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName);
+// Microsoft Corporation
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L224-L231' title='Snippet source file'>snippet source</a> | <a href='#snippet-getattribute' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
+
+Or `TryGetAttribute`:
+
+<!-- snippet: TryGetAttribute -->
+<a id='snippet-trygetattribute'></a>
+```cs
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+var versionInfo = portableExecutable.GetVersionInfo();
+var companyName = versionInfo.TryGetAttribute(VersionAttributeName.CompanyName);
+// Microsoft Corporation
+```
+<sup><a href='/Ressy.Tests/Snippets.cs#L239-L246' title='Snippet source file'>snippet source</a> | <a href='#snippet-trygetattribute' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 ##### Removing version info
 
 To remove all version info resources, call the `RemoveVersionInfo()` extension method:
 
-```csharp
-using Ressy;
-using Ressy.HighLevel;
-
+<!-- snippet: RemoveVersionInfo -->
+<a id='snippet-removeversioninfo'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
-
 portableExecutable.RemoveVersionInfo();
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L253-L258' title='Snippet source file'>snippet source</a> | <a href='#snippet-removeversioninfo' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 ##### Setting version info
 
 To add or overwrite a version info resource, call the `SetVersionInfo(...)` extension method.
 You can use the `VersionInfoBuilder` class to drastically simplify the creation of a new `VersionInfo` instance:
 
-```csharp
-using Ressy;
-using Ressy.HighLevel;
-
+<!-- snippet: SetVersionInfo -->
+<a id='snippet-setversioninfo'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 var versionInfo = new VersionInfoBuilder()
@@ -354,14 +416,15 @@ var versionInfo = new VersionInfoBuilder()
 
 portableExecutable.SetVersionInfo(versionInfo);
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L263-L278' title='Snippet source file'>snippet source</a> | <a href='#snippet-setversioninfo' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 You can also use an alternative overload of this method, which lets you selectively modify only a subset of properties in a version info resource, leaving the rest intact.
 Properties that are not provided are pulled from the existing version info resource or resolved to their default values in case the resource does not exist:
 
-```csharp
-using Ressy;
-using Ressy.HighLevel;
-
+<!-- snippet: SelectiveSetVersionInfo -->
+<a id='snippet-selectivesetversioninfo'></a>
+```cs
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
 portableExecutable.SetVersionInfo(v => v
@@ -369,6 +432,8 @@ portableExecutable.SetVersionInfo(v => v
     .SetAttribute("Custom Attribute", "My new value")
 );
 ```
+<sup><a href='/Ressy.Tests/Snippets.cs#L283-L292' title='Snippet source file'>snippet source</a> | <a href='#snippet-selectivesetversioninfo' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 > 💡 When using the `SetAttribute(...)` method on `VersionInfoBuilder`, you can optionally specify the language and code page of the table that you want to add the attribute to.
 If you choose to omit these parameters, Ressy will set the attribute in all attribute tables.

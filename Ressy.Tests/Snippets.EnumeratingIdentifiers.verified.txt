@@ -1,0 +1,12 @@
+﻿[
+  - Type: EDPENLIGHTENEDAPPINFOID 1033, Name: , Language: 1033,
+  - Type: EDPPERMISSIVEAPPINFOID 1033, Name: , Language: 1033,
+  - Type: MUI 1033, Name: 1, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 1, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 2, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 3, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 4, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 5, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 6, Language: 1033,
+  - Type: #3 (ICON) 1033, Name: 7, Language: 1033
+]

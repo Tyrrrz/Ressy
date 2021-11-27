@@ -1,0 +1,26 @@
+﻿{
+  FileVersion: 10.0.19041.1,
+  ProductVersion: 10.0.19041.1,
+  FileOperatingSystem: Windows32, WindowsNT,
+  FileType: Application,
+  AttributeTables: [
+    {
+      Language: {
+        Id: Id_1
+      },
+      CodePage: {
+        Id: Id_2
+      },
+      Attributes: {
+        CompanyName: Microsoft Corporation,
+        FileDescription: Notepad,
+        FileVersion: 10.0.19041.1 (WinBuild.160101.0800),
+        InternalName: Notepad,
+        LegalCopyright: © Microsoft Corporation. All rights reserved.,
+        OriginalFilename: NOTEPAD.EXE.MUI,
+        ProductName: Microsoft® Windows® Operating System,
+        ProductVersion: 10.0.19041.1
+      }
+    }
+  ]
+}

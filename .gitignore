@@ -19,3 +19,9 @@ bld/
 
 # Coverage
 *.opencover.xml
+
+# Verity temp snapshots
+*.received.*
+
+# Visual Studio cache/options directory
+.vs/
