@@ -7,6 +7,7 @@ using Ressy;
 using Ressy.HighLevel.Icons;
 using Ressy.HighLevel.Manifests;
 using Ressy.HighLevel.Versions;
+using VerifyTests;
 using VerifyXunit;
 using Xunit;
 
@@ -15,8 +16,9 @@ public class Snippets
 {
     static Snippets()
     {
-        
+        VerifierSettings.ScrubLinesContaining("Version");
     }
+
     [Fact]
     public Task EnumeratingIdentifiers()
     {
