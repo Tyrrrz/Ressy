@@ -62,7 +62,8 @@ public class Snippets
 
         var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
-        var resource = portableExecutable.GetResource(new ResourceIdentifier(
+        var resource = portableExecutable.GetResource(
+            new ResourceIdentifier(
             ResourceType.Manifest,
             ResourceName.FromCode(1),
             new Language(1033)
