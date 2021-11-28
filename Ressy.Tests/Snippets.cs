@@ -17,6 +17,7 @@ public class Snippets
     static Snippets()
     {
         VerifierSettings.ScrubLinesContaining("Version");
+        VerifierSettings.ModifySerialization(settings => settings.DontScrubNumericIds());
     }
 
     [Fact]
