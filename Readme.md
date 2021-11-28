@@ -328,10 +328,10 @@ Returned object should contain:
   AttributeTables: [
     {
       Language: {
-        Id: Id_1
+        Id: 1033
       },
       CodePage: {
-        Id: Id_2
+        Id: 1200
       },
       Attributes: {
         CompanyName: Microsoft Corporation,
