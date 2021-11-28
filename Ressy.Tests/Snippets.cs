@@ -37,21 +37,22 @@ public class Snippets
     }
 
     [Fact]
-    public Task TryGetResource()
+    public void TryGetResource()
     {
         #region TryGetResource
 
         var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
-        var resource = portableExecutable.TryGetResource(new ResourceIdentifier(
-            ResourceType.Manifest,
-            ResourceName.FromCode(100),
-            new Language(1033)
-        )); // resource is null
+        var resource = portableExecutable.TryGetResource(
+            new ResourceIdentifier(
+                ResourceType.Manifest,
+                ResourceName.FromCode(100),
+                new Language(1033)
+            )); // resource is null
 
         #endregion
 
-        return Verifier.Verify(resource);
+        Assert.Null(resource);
     }
 
     [Fact]
