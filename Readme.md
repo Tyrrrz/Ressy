@@ -234,7 +234,7 @@ using Ressy.HighLevel.Icons;
 
 var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
 
-using var iconFileStream = File.Open("new_icon.ico");
+using var iconFileStream = File.OpenRead("new_icon.ico");
 portableExecutable.SetIcon(iconFileStream);
 ```
 
