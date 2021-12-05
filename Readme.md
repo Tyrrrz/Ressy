@@ -7,9 +7,9 @@
 [![Discord](https://img.shields.io/discord/869237470565392384?label=discord)](https://discord.gg/2SUWKFnHSm)
 [![Donate](https://img.shields.io/badge/donate-$$$-purple.svg)](https://tyrrrz.me/donate)
 
-✅ **Project status: active**.
+✅ **Project status: active**. [What does it mean?](https://github.com/Tyrrrz/shared/blob/master/docs/project-status.md)
 
-Ressy is a library for reading and writing native resources stored in portable executable images (i.e. EXE and DLL files).
+**Ressy** is a library for reading and writing native resources stored in portable executable images (i.e. EXE and DLL files).
 It offers a high-level abstraction model for working with [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
 
 > ⚠️ This library relies on Windows API and, as such, works only on Windows.
@@ -22,7 +22,7 @@ It offers a high-level abstraction model for working with [resource functions](h
 
 ## Usage
 
-Ressy's functionality is provided entirely through the `PortableExecutable` class.
+**Ressy**'s functionality is provided entirely through the `PortableExecutable` class.
 You can create an instance of this class by passing a string that specifies the path to a PE file:
 
 ```csharp
@@ -152,7 +152,7 @@ portableExecutable.ClearResources();
 
 ### High-level operations
 
-Ressy provides extensions for `PortableExecutable` that enable you to directly read and manipulate known resource types, such as icons, manifests, versions, etc.
+**Ressy** provides extensions for `PortableExecutable` that enable you to directly read and manipulate known resource types, such as icons, manifests, versions, etc.
 
 #### Manifest resources
 
@@ -371,5 +371,5 @@ portableExecutable.SetVersionInfo(v => v
 ```
 
 > 💡 When using the `SetAttribute(...)` method on `VersionInfoBuilder`, you can optionally specify the language and code page of the table that you want to add the attribute to.
-If you choose to omit these parameters, Ressy will set the attribute in all attribute tables.
+If you choose to omit these parameters, **Ressy** will set the attribute in all attribute tables.
 In case there are no existing attribute tables, this method creates a new one bound to the neutral language and Unicode code page.
