@@ -3,75 +3,95 @@ using System.IO;
 using Ressy.Utils;
 using Ressy.Utils.Extensions;
 
-namespace Ressy.HighLevel.Versions
+namespace Ressy.HighLevel.Versions;
+
+public partial class VersionInfo
 {
-    public partial class VersionInfo
+    private void WriteFixedFileInfo(BinaryWriter writer)
     {
-        private void WriteFixedFileInfo(BinaryWriter writer)
-        {
-            // dwSignature
-            writer.Write(0xFEEF04BD);
+        // dwSignature
+        writer.Write(0xFEEF04BD);
 
-            // dwStrucVersion
-            writer.Write(0x00010000);
+        // dwStrucVersion
+        writer.Write(0x00010000);
 
-            // dwFileVersionMS, dwFileVersionLS
-            var fileVersionClamped = FileVersion.ClampComponents();
+        // dwFileVersionMS, dwFileVersionLS
+        var fileVersionClamped = FileVersion.ClampComponents();
 
-            writer.Write(
-                BitPack.Merge(
-                    (ushort)fileVersionClamped.Major,
-                    (ushort)fileVersionClamped.Minor
-                )
-            );
+        writer.Write(
+            BitPack.Merge(
+                (ushort)fileVersionClamped.Major,
+                (ushort)fileVersionClamped.Minor
+            )
+        );
 
-            writer.Write(
-                BitPack.Merge(
-                    (ushort)fileVersionClamped.Build,
-                    (ushort)fileVersionClamped.Revision
-                )
-            );
+        writer.Write(
+            BitPack.Merge(
+                (ushort)fileVersionClamped.Build,
+                (ushort)fileVersionClamped.Revision
+            )
+        );
 
-            // dwProductVersionMS, dwProductVersionLS
-            var productVersionClamped = ProductVersion.ClampComponents();
+        // dwProductVersionMS, dwProductVersionLS
+        var productVersionClamped = ProductVersion.ClampComponents();
 
-            writer.Write(
-                BitPack.Merge(
-                    (ushort)productVersionClamped.Major,
-                    (ushort)productVersionClamped.Minor
-                )
-            );
+        writer.Write(
+            BitPack.Merge(
+                (ushort)productVersionClamped.Major,
+                (ushort)productVersionClamped.Minor
+            )
+        );
 
-            writer.Write(
-                BitPack.Merge(
-                    (ushort)productVersionClamped.Build,
-                    (ushort)productVersionClamped.Revision
-                )
-            );
+        writer.Write(
+            BitPack.Merge(
+                (ushort)productVersionClamped.Build,
+                (ushort)productVersionClamped.Revision
+            )
+        );
 
-            // dwFileFlagsMask
-            writer.Write(0x3F);
+        // dwFileFlagsMask
+        writer.Write(0x3F);
 
-            // dwFileFlags
-            writer.Write((uint)FileFlags);
+        // dwFileFlags
+        writer.Write((uint)FileFlags);
 
-            // dwFileOS
-            writer.Write((uint)FileOperatingSystem);
+        // dwFileOS
+        writer.Write((uint)FileOperatingSystem);
 
-            // dwFileType
-            writer.Write((uint)FileType);
+        // dwFileType
+        writer.Write((uint)FileType);
 
-            // dwFileSubtype
-            writer.Write((uint)FileSubType);
+        // dwFileSubtype
+        writer.Write((uint)FileSubType);
 
-            // dwFileDateMS, dwFileDateLS (never actually used by Win32)
-            writer.Write((ulong)0L);
-        }
+        // dwFileDateMS, dwFileDateLS (never actually used by Win32)
+        writer.Write((ulong)0L);
+    }
 
-        private void WriteStringFileInfo(BinaryWriter writer)
+    private void WriteStringFileInfo(BinaryWriter writer)
+    {
+        // wLength (will overwrite later)
+        var lengthPortal = writer.BaseStream.CreatePortal();
+        writer.Write((ushort)0);
+
+        // wValueLength (always zero)
+        writer.Write((ushort)0);
+
+        // wType (always zero)
+        writer.Write((ushort)0);
+
+        // szKey
+        writer.WriteNullTerminatedString("StringFileInfo");
+
+        // Padding
+        writer.SkipPadding();
+
+        // -- StringTable
+
+        foreach (var attributeTable in AttributeTables)
         {
             // wLength (will overwrite later)
-            var lengthPortal = writer.BaseStream.CreatePortal();
+            var tableLengthPortal = writer.BaseStream.CreatePortal();
             writer.Write((ushort)0);
 
             // wValueLength (always zero)
@@ -81,176 +101,155 @@ namespace Ressy.HighLevel.Versions
             writer.Write((ushort)0);
 
             // szKey
-            writer.WriteNullTerminatedString("StringFileInfo");
+            writer.WriteNullTerminatedString(
+                attributeTable.Language.Id.ToString("X4", CultureInfo.InvariantCulture) +
+                attributeTable.CodePage.Id.ToString("X4", CultureInfo.InvariantCulture)
+            );
 
-            // Padding
-            writer.SkipPadding();
-
-            // -- StringTable
-
-            foreach (var attributeTable in AttributeTables)
+            // -- String
+            foreach (var (name, value) in attributeTable.Attributes)
             {
+                // Padding
+                writer.SkipPadding();
+
                 // wLength (will overwrite later)
-                var tableLengthPortal = writer.BaseStream.CreatePortal();
+                var stringLengthPortal = writer.BaseStream.CreatePortal();
                 writer.Write((ushort)0);
 
-                // wValueLength (always zero)
-                writer.Write((ushort)0);
+                // wValueLength (includes null terminator)
+                writer.Write((ushort)Encoding.GetByteCount(value + '\0'));
 
-                // wType (always zero)
-                writer.Write((ushort)0);
+                // wType (always one)
+                writer.Write((ushort)1);
 
                 // szKey
-                writer.WriteNullTerminatedString(
-                    attributeTable.Language.Id.ToString("X4", CultureInfo.InvariantCulture) +
-                    attributeTable.CodePage.Id.ToString("X4", CultureInfo.InvariantCulture)
-                );
+                writer.WriteNullTerminatedString(name);
 
-                // -- String
-                foreach (var (name, value) in attributeTable.Attributes)
-                {
-                    // Padding
-                    writer.SkipPadding();
+                // Padding
+                writer.SkipPadding();
 
-                    // wLength (will overwrite later)
-                    var stringLengthPortal = writer.BaseStream.CreatePortal();
-                    writer.Write((ushort)0);
-
-                    // wValueLength (includes null terminator)
-                    writer.Write((ushort)Encoding.GetByteCount(value + '\0'));
-
-                    // wType (always one)
-                    writer.Write((ushort)1);
-
-                    // szKey
-                    writer.WriteNullTerminatedString(name);
-
-                    // Padding
-                    writer.SkipPadding();
-
-                    // Value
-                    writer.WriteNullTerminatedString(value);
-
-                    // Update length
-                    var stringLength = writer.BaseStream.Position - stringLengthPortal.Position;
-                    using (stringLengthPortal.Jump())
-                        writer.Write((ushort)stringLength);
-                }
+                // Value
+                writer.WriteNullTerminatedString(value);
 
                 // Update length
-                var tableLength = writer.BaseStream.Position - tableLengthPortal.Position;
-                using (tableLengthPortal.Jump())
-                    writer.Write((ushort)tableLength);
+                var stringLength = writer.BaseStream.Position - stringLengthPortal.Position;
+                using (stringLengthPortal.Jump())
+                    writer.Write((ushort)stringLength);
             }
 
             // Update length
-            var length = writer.BaseStream.Position - lengthPortal.Position;
-            using (lengthPortal.Jump())
-                writer.Write((ushort)length);
+            var tableLength = writer.BaseStream.Position - tableLengthPortal.Position;
+            using (tableLengthPortal.Jump())
+                writer.Write((ushort)tableLength);
         }
 
-        private void WriteVarFileInfo(BinaryWriter writer)
+        // Update length
+        var length = writer.BaseStream.Position - lengthPortal.Position;
+        using (lengthPortal.Jump())
+            writer.Write((ushort)length);
+    }
+
+    private void WriteVarFileInfo(BinaryWriter writer)
+    {
+        // wLength (will overwrite later)
+        var lengthPortal = writer.BaseStream.CreatePortal();
+        writer.Write((ushort)0);
+
+        // wValueLength (always zero)
+        writer.Write((ushort)0);
+
+        // wType (always zero)
+        writer.Write((ushort)0);
+
+        // szKey
+        writer.WriteNullTerminatedString("VarFileInfo");
+
+        // Padding
+        writer.SkipPadding();
+
+        // -- Translation
+
+        // wLength (will overwrite later)
+        var translationLengthPortal = writer.BaseStream.CreatePortal();
+        writer.Write((ushort)0);
+
+        // wValueLength (4 bytes per codepage*languageId pair)
+        writer.Write((ushort)(AttributeTables.Count * 4));
+
+        // wType (always zero)
+        writer.Write((ushort)0);
+
+        // szKey
+        writer.WriteNullTerminatedString("Translation");
+
+        // Padding
+        writer.SkipPadding();
+
+        // -- Var
+        foreach (var attributeTable in AttributeTables)
         {
-            // wLength (will overwrite later)
-            var lengthPortal = writer.BaseStream.CreatePortal();
-            writer.Write((ushort)0);
-
-            // wValueLength (always zero)
-            writer.Write((ushort)0);
-
-            // wType (always zero)
-            writer.Write((ushort)0);
-
-            // szKey
-            writer.WriteNullTerminatedString("VarFileInfo");
-
-            // Padding
-            writer.SkipPadding();
-
-            // -- Translation
-
-            // wLength (will overwrite later)
-            var translationLengthPortal = writer.BaseStream.CreatePortal();
-            writer.Write((ushort)0);
-
-            // wValueLength (4 bytes per codepage*languageId pair)
-            writer.Write((ushort)(AttributeTables.Count * 4));
-
-            // wType (always zero)
-            writer.Write((ushort)0);
-
-            // szKey
-            writer.WriteNullTerminatedString("Translation");
-
-            // Padding
-            writer.SkipPadding();
-
-            // -- Var
-            foreach (var attributeTable in AttributeTables)
-            {
-                writer.Write(
-                    BitPack.Merge(
-                        (ushort)attributeTable.CodePage.Id,
-                        (ushort)attributeTable.Language.Id
-                    )
-                );
-            }
-
-            // Update length
-            var varFileInfoLength = writer.BaseStream.Position - translationLengthPortal.Position;
-            using (translationLengthPortal.Jump())
-                writer.Write((ushort)varFileInfoLength);
-
-            // Update length
-            var length = writer.BaseStream.Position - lengthPortal.Position;
-            using (lengthPortal.Jump())
-                writer.Write((ushort)length);
+            writer.Write(
+                BitPack.Merge(
+                    (ushort)attributeTable.CodePage.Id,
+                    (ushort)attributeTable.Language.Id
+                )
+            );
         }
 
-        internal byte[] Serialize()
-        {
-            using var stream = new MemoryStream();
-            using var writer = new BinaryWriter(stream, Encoding);
+        // Update length
+        var varFileInfoLength = writer.BaseStream.Position - translationLengthPortal.Position;
+        using (translationLengthPortal.Jump())
+            writer.Write((ushort)varFileInfoLength);
 
-            // -- VS_VERSIONINFO
+        // Update length
+        var length = writer.BaseStream.Position - lengthPortal.Position;
+        using (lengthPortal.Jump())
+            writer.Write((ushort)length);
+    }
 
-            // wLength (will overwrite later)
-            var lengthPortal = writer.BaseStream.CreatePortal();
-            writer.Write((ushort)0);
+    internal byte[] Serialize()
+    {
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream, Encoding);
 
-            // wValueLength (always 52)
-            writer.Write((ushort)52);
+        // -- VS_VERSIONINFO
 
-            // wType (always zero)
-            writer.Write((ushort)0);
+        // wLength (will overwrite later)
+        var lengthPortal = writer.BaseStream.CreatePortal();
+        writer.Write((ushort)0);
 
-            // szKey
-            writer.WriteNullTerminatedString("VS_VERSION_INFO");
+        // wValueLength (always 52)
+        writer.Write((ushort)52);
 
-            // Padding
-            writer.SkipPadding();
+        // wType (always zero)
+        writer.Write((ushort)0);
 
-            // -- VS_FIXEDFILEINFO
-            WriteFixedFileInfo(writer);
+        // szKey
+        writer.WriteNullTerminatedString("VS_VERSION_INFO");
 
-            // Padding
-            writer.SkipPadding();
+        // Padding
+        writer.SkipPadding();
 
-            // -- StringFileInfo
-            WriteStringFileInfo(writer);
+        // -- VS_FIXEDFILEINFO
+        WriteFixedFileInfo(writer);
 
-            // Padding
-            writer.SkipPadding();
+        // Padding
+        writer.SkipPadding();
 
-            // -- VarFileInfo
-            WriteVarFileInfo(writer);
+        // -- StringFileInfo
+        WriteStringFileInfo(writer);
 
-            // Update length
-            var length = stream.Position - lengthPortal.Position;
-            using (lengthPortal.Jump())
-                writer.Write((ushort)length);
+        // Padding
+        writer.SkipPadding();
 
-            return stream.ToArray();
-        }
+        // -- VarFileInfo
+        WriteVarFileInfo(writer);
+
+        // Update length
+        var length = stream.Position - lengthPortal.Position;
+        using (lengthPortal.Jump())
+            writer.Write((ushort)length);
+
+        return stream.ToArray();
     }
 }

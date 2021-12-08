@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Ressy.Tests.Dummy
+namespace Ressy.Tests.Dummy;
+
+public static class Program
 {
-    public static class Program
-    {
-        public static void Main() => Console.WriteLine("Hello world!");
-    }
+    public static void Main() => Console.WriteLine("Hello world!");
 }

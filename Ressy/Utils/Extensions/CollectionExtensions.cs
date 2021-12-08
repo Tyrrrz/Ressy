@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 
-namespace Ressy.Utils.Extensions
+namespace Ressy.Utils.Extensions;
+
+internal static class CollectionExtensions
 {
-    internal static class CollectionExtensions
+    public static IEnumerable<(T value, int index)> Indexed<T>(this IEnumerable<T> source)
     {
-        public static IEnumerable<(T value, int index)> Indexed<T>(this IEnumerable<T> source)
-        {
-            var i = 0;
-            foreach (var o in source)
-                yield return (o, i++);
-        }
+        var i = 0;
+        foreach (var o in source)
+            yield return (o, i++);
     }
 }

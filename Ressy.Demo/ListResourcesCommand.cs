@@ -3,30 +3,29 @@ using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
 
-namespace Ressy.Demo
+namespace Ressy.Demo;
+
+[Command("list", Description = "List all available resources in a PE file.")]
+public class ListResourcesCommand : ICommand
 {
-    [Command("list", Description = "List all available resources in a PE file.")]
-    public class ListResourcesCommand : ICommand
+    [CommandOption("file", 'f', IsRequired = true, Description = "PE file to list resources from.")]
+    public string FilePath { get; init; } = default!;
+
+    public ValueTask ExecuteAsync(IConsole console)
     {
-        [CommandOption("file", 'f', IsRequired = true, Description = "PE file to list resources from.")]
-        public string FilePath { get; init; } = default!;
+        var portableExecutable = new PortableExecutable(FilePath);
 
-        public ValueTask ExecuteAsync(IConsole console)
+        foreach (var identifier in portableExecutable.GetResourceIdentifiers())
         {
-            var portableExecutable = new PortableExecutable(FilePath);
-
-            foreach (var identifier in portableExecutable.GetResourceIdentifiers())
-            {
-                console.Output.WriteLine(
-                    "{{ " +
-                    $"Type: {identifier.Type}, " +
-                    $"Name: {identifier.Name}, " +
-                    $"Language: {identifier.Language}" +
-                    "}}"
-                );
-            }
-
-            return default;
+            console.Output.WriteLine(
+                "{{ " +
+                $"Type: {identifier.Type}, " +
+                $"Name: {identifier.Name}, " +
+                $"Language: {identifier.Language}" +
+                "}}"
+            );
         }
+
+        return default;
     }
 }

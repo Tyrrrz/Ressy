@@ -5,45 +5,44 @@ using System.IO;
 using System.Linq;
 using Ressy.Tests.Utils;
 
-namespace Ressy.Tests.Fixtures
+namespace Ressy.Tests.Fixtures;
+
+public class DummyFixture : IDisposable
 {
-    public class DummyFixture : IDisposable
+    private readonly ConcurrentBag<string> _filePaths = new();
+
+    public string CreatePortableExecutable()
     {
-        private readonly ConcurrentBag<string> _filePaths = new();
+        var sourceFilePath = Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe");
+        var destFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, $"Test-{Guid.NewGuid()}.tmp");
 
-        public string CreatePortableExecutable()
+        File.Copy(sourceFilePath, destFilePath);
+        _filePaths.Add(destFilePath);
+
+        return destFilePath;
+    }
+
+    public void Dispose()
+    {
+        var exceptions = new List<Exception>();
+
+        foreach (var filePath in _filePaths)
         {
-            var sourceFilePath = Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe");
-            var destFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, $"Test-{Guid.NewGuid()}.tmp");
-
-            File.Copy(sourceFilePath, destFilePath);
-            _filePaths.Add(destFilePath);
-
-            return destFilePath;
-        }
-
-        public void Dispose()
-        {
-            var exceptions = new List<Exception>();
-
-            foreach (var filePath in _filePaths)
+            try
             {
-                try
-                {
-                    File.Delete(filePath);
-                }
-                catch (FileNotFoundException)
-                {
-                    // Ignore
-                }
-                catch (Exception ex)
-                {
-                    exceptions.Add(ex);
-                }
+                File.Delete(filePath);
             }
-
-            if (exceptions.Any())
-                throw new AggregateException(exceptions);
+            catch (FileNotFoundException)
+            {
+                // Ignore
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+            }
         }
+
+        if (exceptions.Any())
+            throw new AggregateException(exceptions);
     }
 }

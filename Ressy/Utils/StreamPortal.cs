@@ -1,34 +1,33 @@
 using System;
 using System.IO;
 
-namespace Ressy.Utils
+namespace Ressy.Utils;
+
+// Allows to save a location in a stream and temporarily return back to it
+internal class StreamPortal
 {
-    // Allows to save a location in a stream and temporarily return back to it
-    internal class StreamPortal
+    private readonly Stream _stream;
+
+    public long Position { get; }
+
+    public StreamPortal(Stream stream, long position)
     {
-        private readonly Stream _stream;
-
-        public long Position { get; }
-
-        public StreamPortal(Stream stream, long position)
-        {
-            _stream = stream;
-            Position = position;
-        }
-
-        public IDisposable Jump()
-        {
-            var oldPosition = _stream.Position;
-            _stream.Seek(Position, SeekOrigin.Begin);
-
-            return Disposable.Create(() => _stream.Seek(oldPosition, SeekOrigin.Begin));
-        }
+        _stream = stream;
+        Position = position;
     }
 
-    internal static class StreamPortalExtensions
+    public IDisposable Jump()
     {
-        public static StreamPortal CreatePortal(this Stream stream, long position) => new(stream, position);
+        var oldPosition = _stream.Position;
+        _stream.Seek(Position, SeekOrigin.Begin);
 
-        public static StreamPortal CreatePortal(this Stream stream) => stream.CreatePortal(stream.Position);
+        return Disposable.Create(() => _stream.Seek(oldPosition, SeekOrigin.Begin));
     }
+}
+
+internal static class StreamPortalExtensions
+{
+    public static StreamPortal CreatePortal(this Stream stream, long position) => new(stream, position);
+
+    public static StreamPortal CreatePortal(this Stream stream) => stream.CreatePortal(stream.Position);
 }

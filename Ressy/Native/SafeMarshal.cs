@@ -1,21 +1,20 @@
 using System.Runtime.InteropServices;
 
-namespace Ressy.Native
+namespace Ressy.Native;
+
+internal static class SafeMarshal
 {
-    internal static class SafeMarshal
+    public static SafeIntPtr AllocHGlobal(int length) =>
+        new(Marshal.AllocHGlobal(length), Marshal.FreeHGlobal);
+
+    public static SafeIntPtr AllocHGlobal(byte[] data)
     {
-        public static SafeIntPtr AllocHGlobal(int length) =>
-            new(Marshal.AllocHGlobal(length), Marshal.FreeHGlobal);
+        var ptr = AllocHGlobal(data.Length);
+        Marshal.Copy(data, 0, ptr, data.Length);
 
-        public static SafeIntPtr AllocHGlobal(byte[] data)
-        {
-            var ptr = AllocHGlobal(data.Length);
-            Marshal.Copy(data, 0, ptr, data.Length);
-
-            return ptr;
-        }
-
-        public static SafeIntPtr AllocHGlobal(string data) =>
-            new(Marshal.StringToHGlobalAuto(data), Marshal.FreeHGlobal);
+        return ptr;
     }
+
+    public static SafeIntPtr AllocHGlobal(string data) =>
+        new(Marshal.StringToHGlobalAuto(data), Marshal.FreeHGlobal);
 }
