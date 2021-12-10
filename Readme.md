@@ -1,6 +1,6 @@
 # Ressy
 
-[![Build](https://github.com/Tyrrrz/Ressy/workflows/CI/badge.svg?branch=master)](https://github.com/Tyrrrz/Ressy/actions)
+[![Build](https://github.com/Tyrrrz/Ressy/workflows/main/badge.svg?branch=master)](https://github.com/Tyrrrz/Ressy/actions)
 [![Coverage](https://codecov.io/gh/Tyrrrz/Ressy/branch/master/graph/badge.svg)](https://codecov.io/gh/Tyrrrz/Ressy)
 [![Version](https://img.shields.io/nuget/v/Ressy.svg)](https://nuget.org/packages/Ressy)
 [![Downloads](https://img.shields.io/nuget/dt/Ressy.svg)](https://nuget.org/packages/Ressy)
