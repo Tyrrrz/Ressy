@@ -4,6 +4,7 @@
     <TargetFrameworks>netstandard2.1;netstandard2.0;net461</TargetFrameworks>
     <Authors>$(Company)</Authors>
     <Description>Library for interacting with external command line interfaces</Description>
+    <IsPackable>true</IsPackable>
     <PackageTags>shell pipe command line executable interface wrapper standard input output error arguments net core</PackageTags>
     <PackageProjectUrl>https://github.com/Tyrrrz/Ressy</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/Tyrrrz/Ressy/blob/master/Changelog.md</PackageReleaseNotes>
