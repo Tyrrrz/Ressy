@@ -8,14 +8,23 @@
 [![Donate](https://img.shields.io/badge/donate-$$$-purple.svg)](https://tyrrrz.me/donate)
 [![Fuck Russia](https://img.shields.io/badge/fuck-russia-black.svg)](https://twitter.com/Tyrrrz/status/1495972128977571848)
 
-✅ **Project status: active**. [What does it mean?](https://github.com/Tyrrrz/.github/blob/master/docs/project-status.md)
+✅ **Project status: active**<sup>[[?]](https://github.com/Tyrrrz/.github/blob/master/docs/project-status.md)</sup>
 
 **Ressy** is a library for reading and writing native resources stored in portable executable images (i.e. EXE and DLL files).
 It offers a high-level abstraction model for working with [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
 
 > ⚠️ This library relies on Windows API and, as such, works only on Windows.
 
-💬 **If you want to chat, join my [Discord server](https://discord.gg/2SUWKFnHSm)**.
+## Terms of use
+
+By using this project or its source code, for any purpose and in any shape or form, you grant your **implicit agreement** to all the following statements:
+
+- You **condemn Russia and its military aggression against Ukraine**
+- You **recognize that Russia is an occupant that unlawfully invaded a sovereign state**
+- You **support Ukraine's territorial integrity, including its claims over temporarily occupied territories of Crimea and Donbas**
+- You **reject false narratives perpetuated by Russian state propaganda**
+
+To learn more about the war and how you can help, [click here](https://tyrrrz.me). Glory to Ukraine! 🇺🇦
 
 ## Download
 
