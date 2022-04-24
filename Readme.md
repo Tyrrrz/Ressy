@@ -79,8 +79,8 @@ Returned list should contain:
 
 #### Retrieving data
 
-To resolve a specific resource, you can call the `GetResource(...)` method.
-This returns an instance of the `Resource` class, which contains the resource data:
+To resolve a specific resource, call the `GetResource(...)` method.
+This returns an instance of the `Resource` class containing resource data:
 
 ```csharp
 using Ressy;
@@ -167,7 +167,7 @@ portableExecutable.ClearResources();
 
 #### Manifest resources
 
-A manifest resource (type 24) contains XML data that describes and identifies assemblies that an application should bind to at run time.
+A manifest resource (type `24`) contains XML data that identifies and describes native assemblies that an application should bind to at run time.
 It may also contain other information, such as application settings, requested execution level, and more.
 
 To learn more about application manifests, see [this article](https://docs.microsoft.com/en-us/windows/win32/sbscs/application-manifests).
@@ -218,7 +218,7 @@ portableExecutable.RemoveManifest();
 
 #### Icon resources
 
-Icon resources (type 3) and icon group resources (type 14) are used by the operating system to visually identify an application in the shell and other places.
+Icon resources (type `3`) and icon group resources (type `14`) are used by the operating system to visually identify the application in the shell.
 Each portable executable file may contain multiple icon resources (usually in different sizes or color configurations), which are grouped together by the corresponding icon group resource.
 
 ##### Setting the icon
@@ -264,8 +264,8 @@ portableExecutable.RemoveIcon();
 
 #### Version info resources
 
-A version info resource (type 16) contains file's version numbers, compatibility flags, and arbitrary string attributes.
-Some of these attributes (such as, for example, `ProductName` and `Copyright`) are recognized by the operating system and may be displayed in some places.
+A version info resource (type `16`) contains file version numbers, compatibility flags, and arbitrary string attributes.
+Some of these attributes (such as, for example, `ProductName` and `Copyright`) are recognized by the operating system and may be displayed in the shell.
 
 ##### Reading version info
 
@@ -320,7 +320,7 @@ Returned object should contain:
 If there are no matching resources, this method retrieves the first version info resource it finds.
 
 When working with version info resources that include multiple attribute tables (bound to different language and code page pairs), you can use the `GetAttribute(...)` method to query a specific attribute.
-This method searches through all attribute tables (while giving priority to tables in the neutral language) and returns the first matching value it finds:
+This method searches through all attribute tables (while giving preference to tables in the neutral language) and returns the first matching value it finds:
 
 ```csharp
 // ...
@@ -328,19 +328,6 @@ This method searches through all attribute tables (while giving priority to tabl
 var companyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName); // Microsoft Corporation
 // -or-
 // var companyName = versionInfo.TryGetAttribute(VersionAttributeName.CompanyName);
-```
-
-##### Removing version info
-
-To remove all version info resources, call the `RemoveVersionInfo()` extension method:
-
-```csharp
-using Ressy;
-using Ressy.HighLevel.Versions;
-
-var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
-
-portableExecutable.RemoveVersionInfo();
 ```
 
 ##### Setting version info
@@ -384,3 +371,16 @@ portableExecutable.SetVersionInfo(v => v
 > 💡 When using the `SetAttribute(...)` method on `VersionInfoBuilder`, you can optionally specify the language and code page of the table that you want to add the attribute to.
 If you choose to omit these parameters, **Ressy** will set the attribute in all attribute tables.
 In case there are no existing attribute tables, this method creates a new one bound to the neutral language and Unicode code page.
+
+##### Removing version info
+
+To remove all version info resources, call the `RemoveVersionInfo()` extension method:
+
+```csharp
+using Ressy;
+using Ressy.HighLevel.Versions;
+
+var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe");
+
+portableExecutable.RemoveVersionInfo();
+```
