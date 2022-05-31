@@ -14,9 +14,10 @@
 **Ressy** is a library for reading and writing native resources stored in portable executable images (i.e. EXE and DLL files).
 It offers a high-level abstraction model for working with [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
 
-> ⚠️ This library relies on Windows API and, as such, works only on Windows.
+> **Warning**:
+> This library relies on Windows API and, as such, works only on Windows.
 
-## Terms of use
+## Terms of use<sup>[[?]](https://github.com/Tyrrrz/.github/blob/master/docs/why-so-political.md)</sup>
 
 By using this project or its source code, for any purpose and in any shape or form, you grant your **implicit agreement** to all the following statements:
 
@@ -187,7 +188,8 @@ var manifest = portableExecutable.GetManifest();
 // var manifest = portableExecutable.TryGetManifest();
 ```
 
-> 💡 If there are multiple manifest resources, this method retrieves the one with the lowest ordinal name (ID), while giving preference to resources in the neutral language.
+> **Note**:
+> If there are multiple manifest resources, this method retrieves the one with the lowest ordinal name (ID), while giving preference to resources in the neutral language.
 If there are no matching resources, this method retrieves the first manifest resource it finds.
 
 ##### Setting the manifest
@@ -234,8 +236,9 @@ var portableExecutable = new PortableExecutable("C:/Windows/System32/notepad.exe
 portableExecutable.SetIcon("new_icon.ico");
 ```
 
-> ⚠️ Calling this method does not remove existing icon and icon group resources, except for those that are overwritten directly.
-If you want to clean out redundant icon resources (e.g. if the previous icon group contained more icons), call the `RemoveIcon()` method first.
+> **Warning**:
+> Calling this method does not remove existing icon and icon group resources, except for those that are overwritten directly.
+> If you want to clean out redundant icon resources (e.g. if the previous icon group contained more icons), call the `RemoveIcon()` method first.
 
 Additionally, you can also set the icon by passing a stream that contains ICO-formatted data:
 
@@ -316,8 +319,9 @@ Returned object should contain:
 }
 ```
 
-> 💡 If there are multiple version info resources, this method retrieves the one with the lowest ordinal name (ID), while giving preference to resources in the neutral language.
-If there are no matching resources, this method retrieves the first version info resource it finds.
+> **Note**:
+> If there are multiple version info resources, this method retrieves the one with the lowest ordinal name (ID), while giving preference to resources in the neutral language.
+> If there are no matching resources, this method retrieves the first version info resource it finds.
 
 When working with version info resources that include multiple attribute tables (bound to different language and code page pairs), you can use the `GetAttribute(...)` method to query a specific attribute.
 This method searches through all attribute tables (while giving preference to tables in the neutral language) and returns the first matching value it finds:
@@ -368,8 +372,9 @@ portableExecutable.SetVersionInfo(v => v
 );
 ```
 
-> 💡 When using the `SetAttribute(...)` method on `VersionInfoBuilder`, you can optionally specify the language and code page of the table that you want to add the attribute to.
-If you choose to omit these parameters, **Ressy** will set the attribute in all attribute tables.
+> **Note**:
+> When using the `SetAttribute(...)` method on `VersionInfoBuilder`, you can optionally specify the language and code page of the table that you want to add the attribute to.
+> If you choose to omit these parameters, **Ressy** will set the attribute in all attribute tables.
 In case there are no existing attribute tables, this method creates a new one bound to the neutral language and Unicode code page.
 
 ##### Removing version info
