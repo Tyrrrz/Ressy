@@ -73,7 +73,7 @@ public class IconsSpecs : IClassFixture<DummyFixture>
         actualIcon?.ToBitmap().GetData().Should().Equal(sourceIcon.ToBitmap().GetData());
     }
 
-    [Fact]
+    [Fact(Skip = "Takes a long time and doesn't seem to reproduce the issue when running on CI")]
     public void User_can_add_multiple_icons_in_quick_succession()
     {
         // https://github.com/Tyrrrz/Ressy/issues/4
@@ -87,7 +87,7 @@ public class IconsSpecs : IClassFixture<DummyFixture>
         portableExecutable.RemoveIcon();
 
         // Act
-        for (var i = 0; i < 50; i++)
+        for (var i = 0; i < 100; i++)
         {
             portableExecutable.SetIcon(iconFilePath);
         }

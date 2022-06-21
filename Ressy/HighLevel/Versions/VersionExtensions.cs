@@ -103,7 +103,8 @@ public static class VersionExtensions
 
     /// <summary>
     /// Modifies the currently stored version info resource.
-    /// If the version info resource doesn't exist, default values will be used as the base instead.
+    /// If the version info resource doesn't exist, default values will be used
+    /// for properties that haven't been provided.
     /// </summary>
     public static void SetVersionInfo(
         this PortableExecutable portableExecutable,
@@ -118,14 +119,14 @@ public static class VersionExtensions
             existingResource?.Identifier ??
             new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1));
 
-        // If the resource already exists, reuse the same data as base
+        // If the resource already exists, use the data as base
         if (existingResource is not null)
         {
             builder.SetAll(existingResource.ReadAsVersionInfo());
         }
+        // Otherwise, infer reasonable defaults as base
         else
         {
-            // Infer reasonable defaults
             builder.SetFileType(portableExecutable.GetFileType());
         }
 

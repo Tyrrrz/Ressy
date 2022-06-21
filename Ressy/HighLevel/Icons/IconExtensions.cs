@@ -42,7 +42,7 @@ public static class IconExtensions
         portableExecutable.UpdateResources(ctx =>
         {
             // Icon resources (written as-is)
-            foreach (var (icon, index) in iconGroup.Icons.Indexed())
+            foreach (var (icon, index) in iconGroup.Icons.WithIndex())
             {
                 ctx.Set(new ResourceIdentifier(
                     ResourceType.Icon,
@@ -61,7 +61,7 @@ public static class IconExtensions
                 writer.Write((ushort)iconGroup.Icons.Count);
 
                 // Icon directory
-                foreach (var (icon, index) in iconGroup.Icons.Indexed())
+                foreach (var (icon, index) in iconGroup.Icons.WithIndex())
                 {
                     writer.Write(icon.Width);
                     writer.Write(icon.Height);

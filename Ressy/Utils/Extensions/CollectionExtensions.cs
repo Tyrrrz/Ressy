@@ -4,7 +4,7 @@ namespace Ressy.Utils.Extensions;
 
 internal static class CollectionExtensions
 {
-    public static IEnumerable<(T value, int index)> Indexed<T>(this IEnumerable<T> source)
+    public static IEnumerable<(T value, int index)> WithIndex<T>(this IEnumerable<T> source)
     {
         var i = 0;
         foreach (var o in source)
