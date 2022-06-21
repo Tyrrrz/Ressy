@@ -74,6 +74,29 @@ public class IconsSpecs : IClassFixture<DummyFixture>
     }
 
     [Fact]
+    public void User_can_add_multiple_icons_in_quick_succession()
+    {
+        // https://github.com/Tyrrrz/Ressy/issues/4
+        // For some reason, it's easiest to reproduce this with `SetIcon(...)` but
+        // the underlying issue should probably affect all types of resource operations.
+
+        // Arrange
+        var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
+
+        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        portableExecutable.RemoveIcon();
+
+        // Act
+        for (var i = 0; i < 50; i++)
+        {
+            portableExecutable.SetIcon(iconFilePath);
+        }
+
+        // Assert
+        portableExecutable.GetResourceIdentifiers().Should().Contain(r => r.Type.Code == ResourceType.Icon.Code);
+    }
+
+    [Fact]
     public void User_can_remove_the_icon()
     {
         // Arrange
