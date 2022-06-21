@@ -27,10 +27,12 @@ public class PortableExecutable
     private SafeIntPtr GetImageHandle()
     {
         var handle = new SafeIntPtr(
-            NativeHelpers.ErrorCheck(() =>
+            NativeHelpers.ThrowIfError(() =>
                 NativeMethods.LoadLibraryEx(FilePath, IntPtr.Zero, 0x00000040)
             ),
-            h => NativeMethods.FreeLibrary(h)
+            h => NativeHelpers.LogIfError(() =>
+                NativeMethods.FreeLibrary(h)
+            )
         );
 
         return handle;
@@ -47,7 +49,7 @@ public class PortableExecutable
         {
             var result = new List<ResourceType>();
 
-            NativeHelpers.ErrorCheck(() =>
+            NativeHelpers.ThrowIfError(() =>
                 NativeMethods.EnumResourceTypesEx(
                     imageHandle,
                     (_, typeHandle, _) =>
@@ -68,7 +70,7 @@ public class PortableExecutable
 
             var result = new List<ResourceName>();
 
-            NativeHelpers.ErrorCheck(() =>
+            NativeHelpers.ThrowIfError(() =>
                 NativeMethods.EnumResourceNamesEx(
                     imageHandle, typeHandle,
                     (_, _, nameHandle, _) =>
@@ -90,7 +92,7 @@ public class PortableExecutable
 
             var result = new List<Language>();
 
-            NativeHelpers.ErrorCheck(() =>
+            NativeHelpers.ThrowIfError(() =>
                 NativeMethods.EnumResourceLanguagesEx(
                     imageHandle, typeHandle, nameHandle,
                     (_, _, _, languageId, _) =>
@@ -142,15 +144,15 @@ public class PortableExecutable
             throw new Win32Exception(errorCode);
         }
 
-        var dataHandle = NativeHelpers.ErrorCheck(() =>
+        var dataHandle = NativeHelpers.ThrowIfError(() =>
             NativeMethods.LoadResource(imageHandle, resourceHandle)
         );
 
-        var dataSource = NativeHelpers.ErrorCheck(() =>
+        var dataSource = NativeHelpers.ThrowIfError(() =>
             NativeMethods.LockResource(dataHandle)
         );
 
-        var length = NativeHelpers.ErrorCheck(() =>
+        var length = NativeHelpers.ThrowIfError(() =>
             NativeMethods.SizeofResource(imageHandle, resourceHandle)
         );
 

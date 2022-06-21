@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Ressy.Native;
@@ -10,13 +11,13 @@ internal static class NativeHelpers
         Marshal.PtrToStringAuto(handle) ??
         throw new Win32Exception($"Pointer {handle} resolves to an empty string.");
 
-    public static void ErrorCheck(Func<bool> invokeNativeMethod)
+    public static void ThrowIfError(Func<bool> invokeNativeMethod)
     {
         if (!invokeNativeMethod())
             throw new Win32Exception();
     }
 
-    public static uint ErrorCheck(Func<uint> invokeNativeMethod)
+    public static uint ThrowIfError(Func<uint> invokeNativeMethod)
     {
         var result = invokeNativeMethod();
 
@@ -26,7 +27,7 @@ internal static class NativeHelpers
         return result;
     }
 
-    public static IntPtr ErrorCheck(Func<IntPtr> invokeNativeMethod)
+    public static IntPtr ThrowIfError(Func<IntPtr> invokeNativeMethod)
     {
         var result = invokeNativeMethod();
 
@@ -34,5 +35,16 @@ internal static class NativeHelpers
             throw new Win32Exception();
 
         return result;
+    }
+
+    public static void LogIfError(Func<bool> invokeNativeMethod)
+    {
+        if (!invokeNativeMethod())
+        {
+            Debug.WriteLine(
+                "Win32 error: " + Marshal.GetLastWin32Error() + ". " +
+                "Stacktrace: " + Environment.StackTrace
+            );
+        }
     }
 }
