@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Ressy.Utils;
 
-// Allows to save a location in a stream and temporarily return back to it
+// Allows to temporarily go to a location in a stream and return back to the original position
 internal class StreamPortal
 {
     private readonly Stream _stream;
