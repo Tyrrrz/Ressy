@@ -5,7 +5,7 @@ using System.Linq;
 namespace Ressy.HighLevel.Versions;
 
 /// <summary>
-/// Extensions for <see cref="PortableExecutable"/> for working with version resources.
+/// Extensions for <see cref="PortableExecutable" /> for working with version resources.
 /// </summary>
 public static class VersionExtensions
 {

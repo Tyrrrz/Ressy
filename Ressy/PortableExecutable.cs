@@ -20,7 +20,7 @@ public class PortableExecutable
     public string FilePath { get; }
 
     /// <summary>
-    /// Initializes an instance of <see cref="PortableExecutable"/>.
+    /// Initializes an instance of <see cref="PortableExecutable" />.
     /// </summary>
     public PortableExecutable(string filePath) => FilePath = filePath;
 

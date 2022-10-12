@@ -5,7 +5,7 @@ using System.Text;
 namespace Ressy.HighLevel.Manifests;
 
 /// <summary>
-/// Extensions for <see cref="PortableExecutable"/> for working with manifest resources.
+/// Extensions for <see cref="PortableExecutable" /> for working with manifest resources.
 /// </summary>
 public static class ManifestExtensions
 {

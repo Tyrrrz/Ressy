@@ -35,7 +35,7 @@ public class ManifestsSpecs : IClassFixture<DummyFixture>
                         name=""MyAssembly""
                         processorArchitecture=""x86""
                         version=""1.0.0.0""
-                        type=""win32""/>
+                        type=""win32"" />
                 </assembly>";
 
         var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());

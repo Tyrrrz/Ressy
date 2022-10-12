@@ -13,7 +13,7 @@ public readonly partial struct VersionAttributeName
     public string Raw { get; }
 
     /// <summary>
-    /// Initializes an instance of <see cref="VersionAttributeName"/>.
+    /// Initializes an instance of <see cref="VersionAttributeName" />.
     /// </summary>
     public VersionAttributeName(string raw) => Raw = raw;
 

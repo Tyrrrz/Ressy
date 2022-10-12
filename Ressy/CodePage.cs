@@ -16,7 +16,7 @@ public readonly partial struct CodePage
     public int Id { get; }
 
     /// <summary>
-    /// Initializes an instance of <see cref="CodePage"/>.
+    /// Initializes an instance of <see cref="CodePage" />.
     /// </summary>
     public CodePage(int id) => Id = id;
 

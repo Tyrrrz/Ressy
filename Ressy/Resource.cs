@@ -18,7 +18,7 @@ public class Resource
     public byte[] Data { get; }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="Resource"/>.
+    /// Initializes a new instance of <see cref="Resource" />.
     /// </summary>
     public Resource(ResourceIdentifier identifier, byte[] data)
     {

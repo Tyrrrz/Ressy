@@ -48,7 +48,7 @@ public partial class VersionInfo
     public IReadOnlyList<VersionAttributeTable> AttributeTables { get; }
 
     /// <summary>
-    /// Initializes an instance of <see cref="VersionInfo"/>.
+    /// Initializes an instance of <see cref="VersionInfo" />.
     /// </summary>
     public VersionInfo(
         Version fileVersion,

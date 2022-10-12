@@ -6,7 +6,7 @@ using Ressy.Utils;
 namespace Ressy.HighLevel.Versions;
 
 /// <summary>
-/// Builder for <see cref="VersionInfo"/>.
+/// Builder for <see cref="VersionInfo" />.
 /// </summary>
 public class VersionInfoBuilder
 {
@@ -133,7 +133,7 @@ public class VersionInfoBuilder
     }
 
     /// <summary>
-    /// Copies all data from an existing <see cref="VersionInfo"/> instance.
+    /// Copies all data from an existing <see cref="VersionInfo" /> instance.
     /// </summary>
     public VersionInfoBuilder SetAll(VersionInfo versionInfo)
     {
@@ -158,7 +158,7 @@ public class VersionInfoBuilder
     }
 
     /// <summary>
-    /// Builds a new <see cref="VersionInfo"/> instance.
+    /// Builds a new <see cref="VersionInfo" /> instance.
     /// </summary>
     public VersionInfo Build()
     {

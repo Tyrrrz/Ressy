@@ -23,7 +23,7 @@ public class VersionAttributeTable
     public IReadOnlyDictionary<VersionAttributeName, string> Attributes { get; }
 
     /// <summary>
-    /// Initializes an instance of <see cref="VersionAttributeTable"/>.
+    /// Initializes an instance of <see cref="VersionAttributeTable" />.
     /// </summary>
     public VersionAttributeTable(
         Language language,

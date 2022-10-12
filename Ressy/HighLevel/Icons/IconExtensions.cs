@@ -4,7 +4,7 @@ using Ressy.Utils.Extensions;
 namespace Ressy.HighLevel.Icons;
 
 /// <summary>
-/// Extensions for <see cref="PortableExecutable"/> for working with icon resources.
+/// Extensions for <see cref="PortableExecutable" /> for working with icon resources.
 /// </summary>
 public static class IconExtensions
 {
@@ -32,7 +32,7 @@ public static class IconExtensions
     /// Adds or overwrites icon and icon group resources based on the specified ICO file stream.
     /// </summary>
     /// <remarks>
-    /// Consider calling <see cref="RemoveIcon"/> first to remove redundant
+    /// Consider calling <see cref="RemoveIcon" /> first to remove redundant
     /// icon and icon group resources.
     /// </remarks>
     public static void SetIcon(this PortableExecutable portableExecutable, Stream iconFileStream)
@@ -85,7 +85,7 @@ public static class IconExtensions
     /// Adds or overwrites icon and icon group resources based on the specified ICO file.
     /// </summary>
     /// <remarks>
-    /// Consider calling <see cref="RemoveIcon"/> first to remove redundant
+    /// Consider calling <see cref="RemoveIcon" /> first to remove redundant
     /// icon and icon group resources.
     /// </remarks>
     public static void SetIcon(this PortableExecutable portableExecutable, string iconFilePath)

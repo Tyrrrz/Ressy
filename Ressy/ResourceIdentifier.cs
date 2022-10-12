@@ -25,7 +25,7 @@ public partial class ResourceIdentifier
     public Language Language { get; }
 
     /// <summary>
-    /// Initializes an instance of <see cref="ResourceIdentifier"/>.
+    /// Initializes an instance of <see cref="ResourceIdentifier" />.
     /// </summary>
     public ResourceIdentifier(ResourceType type, ResourceName name, Language language = default)
     {

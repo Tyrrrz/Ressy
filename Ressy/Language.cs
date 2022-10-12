@@ -16,7 +16,7 @@ public readonly partial struct Language
     public int Id { get; }
 
     /// <summary>
-    /// Initializes an instance of <see cref="Language"/>.
+    /// Initializes an instance of <see cref="Language" />.
     /// </summary>
     public Language(int id) => Id = id;
 
