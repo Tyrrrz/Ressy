@@ -5,7 +5,7 @@
     <TargetFramework>net6.0-windows</TargetFramework>
   </PropertyGroup>
 
-  <!-- These properties affect contained resources -->
+  <!-- These properties affect the contained resources -->
   <PropertyGroup>
     <!-- Icon and icon group resources -->
     <ApplicationIcon>Icon.ico</ApplicationIcon>
