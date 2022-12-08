@@ -29,6 +29,7 @@ public class ManifestsSpecs : IClassFixture<DummyFixture>
     {
         // Arrange
         const string manifest =
+            // language=XML
             """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
