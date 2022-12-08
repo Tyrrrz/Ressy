@@ -28,15 +28,17 @@ public class ManifestsSpecs : IClassFixture<DummyFixture>
     public void User_can_add_a_manifest()
     {
         // Arrange
-        const string manifest = @"
-                <?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>
-                <assembly xmlns=""urn:schemas-microsoft-com:asm.v1"" manifestVersion=""1.0"">
-                    <assemblyIdentity
-                        name=""MyAssembly""
-                        processorArchitecture=""x86""
-                        version=""1.0.0.0""
-                        type=""win32"" />
-                </assembly>";
+        const string manifest =
+            """
+            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+                <assemblyIdentity
+                    name="MyAssembly"
+                    processorArchitecture="x86"
+                    version="1.0.0.0"
+                    type="win32" />
+            </assembly>
+            """;
 
         var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
         portableExecutable.RemoveManifest();

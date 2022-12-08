@@ -15,7 +15,7 @@ public class GetResourceDataCommand : ICommand
         IsRequired = true,
         Description = "PE file to read the resource from."
     )]
-    public string FilePath { get; init; } = default!;
+    public required string FilePath { get; init; }
 
     [CommandOption(
         "type",
@@ -23,7 +23,7 @@ public class GetResourceDataCommand : ICommand
         IsRequired = true,
         Description = "Type of the resource to read."
     )]
-    public string Type { get; init; } = default!;
+    public required string Type { get; init; }
 
     [CommandOption(
         "name",
@@ -31,7 +31,7 @@ public class GetResourceDataCommand : ICommand
         IsRequired = true,
         Description = "Name of the resource to read."
     )]
-    public string Name { get; init; } = default!;
+    public required string Name { get; init; }
 
     [CommandOption(
         "lang",

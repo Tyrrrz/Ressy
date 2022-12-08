@@ -23,7 +23,7 @@ public class GetVersionInfoCommand : ICommand
         IsRequired = true,
         Description = "PE file to read the version info resource from."
     )]
-    public string FilePath { get; init; } = default!;
+    public required string FilePath { get; init; }
 
     public ValueTask ExecuteAsync(IConsole console)
     {

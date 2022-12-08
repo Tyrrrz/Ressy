@@ -14,7 +14,7 @@ public class ListResourcesCommand : ICommand
         IsRequired = true,
         Description = "PE file to list resources from."
     )]
-    public string FilePath { get; init; } = default!;
+    public required string FilePath { get; init; }
 
     public ValueTask ExecuteAsync(IConsole console)
     {

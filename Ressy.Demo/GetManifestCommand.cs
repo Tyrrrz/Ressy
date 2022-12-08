@@ -16,7 +16,7 @@ public class GetManifestCommand : ICommand
         IsRequired = true,
         Description = "PE file to read the manifest resource from."
     )]
-    public string FilePath { get; init; } = default!;
+    public required string FilePath { get; init; }
 
     public string FileName => Path.GetFileName(FilePath);
 
