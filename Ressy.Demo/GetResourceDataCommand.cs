@@ -9,35 +9,16 @@ namespace Ressy.Demo;
 [Command("read", Description = "Read a specific resource from a PE file.")]
 public class GetResourceDataCommand : ICommand
 {
-    [CommandOption(
-        "file",
-        'f',
-        IsRequired = true,
-        Description = "PE file to read the resource from."
-    )]
+    [CommandOption("file", 'f', Description = "PE file to read the resource from.")]
     public required string FilePath { get; init; }
 
-    [CommandOption(
-        "type",
-        't',
-        IsRequired = true,
-        Description = "Type of the resource to read."
-    )]
+    [CommandOption("type", 't', Description = "Type of the resource to read.")]
     public required string Type { get; init; }
 
-    [CommandOption(
-        "name",
-        'n',
-        IsRequired = true,
-        Description = "Name of the resource to read."
-    )]
+    [CommandOption("name", 'n', Description = "Name of the resource to read.")]
     public required string Name { get; init; }
 
-    [CommandOption(
-        "lang",
-        'l',
-        Description = "Language of the resource to read."
-    )]
+    [CommandOption("lang", 'l', Description = "Language of the resource to read.")]
     public int Language { get; init; } = 0;
 
     public ValueTask ExecuteAsync(IConsole console)

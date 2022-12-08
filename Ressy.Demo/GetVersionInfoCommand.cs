@@ -17,12 +17,7 @@ public class GetVersionInfoCommand : ICommand
         Converters = { new StringEnumConverter() }
     };
 
-    [CommandOption(
-        "file",
-        'f',
-        IsRequired = true,
-        Description = "PE file to read the version info resource from."
-    )]
+    [CommandOption("file", 'f', Description = "PE file to read the version info resource from.")]
     public required string FilePath { get; init; }
 
     public ValueTask ExecuteAsync(IConsole console)

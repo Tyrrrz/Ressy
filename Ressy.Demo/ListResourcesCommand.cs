@@ -8,12 +8,7 @@ namespace Ressy.Demo;
 [Command("list", Description = "List all available resources in a PE file.")]
 public class ListResourcesCommand : ICommand
 {
-    [CommandOption(
-        "file",
-        'f',
-        IsRequired = true,
-        Description = "PE file to list resources from."
-    )]
+    [CommandOption("file", 'f', Description = "PE file to list resources from.")]
     public required string FilePath { get; init; }
 
     public ValueTask ExecuteAsync(IConsole console)
