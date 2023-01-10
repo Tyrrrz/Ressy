@@ -1,6 +1,6 @@
 # Ressy
 
-[![Made in Ukraine](https://img.shields.io/badge/made_in-ukraine-ffd700.svg?labelColor=0057b7)](https://vshymanskyy.github.io/StandWithUkraine)
+[![Made in Ukraine](https://img.shields.io/badge/made_in-ukraine-ffd700.svg?labelColor=0057b7)](https://tyrrrz.me/ukraine)
 [![Build](https://img.shields.io/github/actions/workflow/status/Tyrrrz/Ressy/main.yml?branch=master)](https://github.com/Tyrrrz/Ressy/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/Tyrrrz/Ressy/master)](https://codecov.io/gh/Tyrrrz/Ressy)
 [![Version](https://img.shields.io/nuget/v/Ressy.svg)](https://nuget.org/packages/Ressy)
@@ -199,7 +199,7 @@ using Ressy.HighLevel.Manifests;
 
 var portableExecutable = new PortableExecutable("some_app.exe");
 
-portableExecutable.SetManifest("<assembly>...</assembly>"); 
+portableExecutable.SetManifest("<assembly>...</assembly>");
 ```
 
 ##### Removing the manifest
