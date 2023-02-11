@@ -2,26 +2,24 @@ using System.Drawing;
 using System.IO;
 using FluentAssertions;
 using Ressy.HighLevel.Icons;
-using Ressy.Tests.Fixtures;
 using Ressy.Tests.Utils;
 using Ressy.Tests.Utils.Extensions;
 using Xunit;
 
 namespace Ressy.Tests;
 
-public class IconsSpecs : IClassFixture<DummyFixture>
+public class IconsSpecs
 {
-    private readonly DummyFixture _dummy;
-
-    public IconsSpecs(DummyFixture dummy) => _dummy = dummy;
-
     [Fact]
     public void User_can_add_an_icon()
     {
         // Arrange
         var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveIcon();
 
         // Act
@@ -83,7 +81,10 @@ public class IconsSpecs : IClassFixture<DummyFixture>
         // Arrange
         var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveIcon();
 
         // Act
@@ -100,7 +101,10 @@ public class IconsSpecs : IClassFixture<DummyFixture>
     public void User_can_remove_the_icon()
     {
         // Arrange
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         portableExecutable.RemoveIcon();

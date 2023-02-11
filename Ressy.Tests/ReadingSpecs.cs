@@ -1,21 +1,21 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using FluentAssertions;
-using Ressy.Tests.Fixtures;
+using Ressy.Tests.Utils;
 using Xunit;
 
 namespace Ressy.Tests;
 
-public class ReadingSpecs : IClassFixture<DummyFixture>
+public class ReadingSpecs
 {
-    private readonly DummyFixture _dummy;
-
-    public ReadingSpecs(DummyFixture dummy) => _dummy = dummy;
-
     [Fact]
     public void User_can_get_a_list_of_resource_identifiers()
     {
         // Arrange
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         var identifiers = portableExecutable.GetResourceIdentifiers();
@@ -91,7 +91,10 @@ public class ReadingSpecs : IClassFixture<DummyFixture>
     public void User_can_get_a_specific_resource()
     {
         // Arrange
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         var resource = portableExecutable.GetResource(new ResourceIdentifier(
@@ -107,7 +110,10 @@ public class ReadingSpecs : IClassFixture<DummyFixture>
     public void User_can_try_to_get_a_non_existing_resource_and_receive_null_instead()
     {
         // Arrange
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         var resource = portableExecutable.TryGetResource(new ResourceIdentifier(

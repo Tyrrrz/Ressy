@@ -4,22 +4,21 @@ using System.Diagnostics;
 using System.IO;
 using FluentAssertions;
 using Ressy.HighLevel.Versions;
-using Ressy.Tests.Fixtures;
+using Ressy.Tests.Utils;
 using Xunit;
 
 namespace Ressy.Tests;
 
-public class VersionsSpecs : IClassFixture<DummyFixture>
+public class VersionsSpecs
 {
-    private readonly DummyFixture _dummy;
-
-    public VersionsSpecs(DummyFixture dummy) => _dummy = dummy;
-
     [Fact]
     public void User_can_get_version_info()
     {
         // Arrange
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         var versionInfo = portableExecutable.GetVersionInfo();
@@ -113,7 +112,10 @@ public class VersionsSpecs : IClassFixture<DummyFixture>
             .SetAttribute("Custom", "Value")
             .Build();
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveVersionInfo();
 
         // Act
@@ -138,7 +140,10 @@ public class VersionsSpecs : IClassFixture<DummyFixture>
     public void User_can_modify_version_info()
     {
         // Arrange
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         portableExecutable.SetVersionInfo(v => v
@@ -196,7 +201,10 @@ public class VersionsSpecs : IClassFixture<DummyFixture>
     public void User_can_remove_version_info()
     {
         // Arrange
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         portableExecutable.RemoveVersionInfo();

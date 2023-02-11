@@ -1,21 +1,21 @@
+using System.IO;
 using FluentAssertions;
 using Ressy.HighLevel.Manifests;
-using Ressy.Tests.Fixtures;
+using Ressy.Tests.Utils;
 using Xunit;
 
 namespace Ressy.Tests;
 
-public class ManifestsSpecs : IClassFixture<DummyFixture>
+public class ManifestsSpecs
 {
-    private readonly DummyFixture _dummy;
-
-    public ManifestsSpecs(DummyFixture dummy) => _dummy = dummy;
-
     [Fact]
     public void User_can_get_the_manifest()
     {
         // Arrange
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         var manifest = portableExecutable.GetManifest();
@@ -41,7 +41,10 @@ public class ManifestsSpecs : IClassFixture<DummyFixture>
             </assembly>
             """;
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveManifest();
 
         // Act
@@ -55,7 +58,10 @@ public class ManifestsSpecs : IClassFixture<DummyFixture>
     public void User_can_remove_the_manifest()
     {
         // Arrange
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         portableExecutable.RemoveManifest();

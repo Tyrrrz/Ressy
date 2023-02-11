@@ -1,16 +1,13 @@
 ﻿using System.Globalization;
+using System.IO;
 using FluentAssertions;
-using Ressy.Tests.Fixtures;
+using Ressy.Tests.Utils;
 using Xunit;
 
 namespace Ressy.Tests;
 
-public class WritingSpecs : IClassFixture<DummyFixture>
+public class WritingSpecs
 {
-    private readonly DummyFixture _dummy;
-
-    public WritingSpecs(DummyFixture dummy) => _dummy = dummy;
-
     [Fact]
     public void User_can_add_a_resource()
     {
@@ -20,7 +17,10 @@ public class WritingSpecs : IClassFixture<DummyFixture>
             ResourceName.FromCode(7)
         );
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
 
         // Act
@@ -47,7 +47,10 @@ public class WritingSpecs : IClassFixture<DummyFixture>
             ResourceName.FromCode(7)
         );
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
 
         // Act
@@ -74,7 +77,10 @@ public class WritingSpecs : IClassFixture<DummyFixture>
             ResourceName.FromCode(7)
         );
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
 
         // Act
@@ -101,7 +107,10 @@ public class WritingSpecs : IClassFixture<DummyFixture>
             ResourceName.FromString("BAR")
         );
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
 
         // Act
@@ -128,7 +137,10 @@ public class WritingSpecs : IClassFixture<DummyFixture>
             ResourceName.FromString("BAR")
         );
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
 
         // Act
@@ -156,7 +168,10 @@ public class WritingSpecs : IClassFixture<DummyFixture>
             Language.FromCultureInfo(CultureInfo.GetCultureInfo("uk-UA"))
         );
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
 
         // Act
@@ -183,7 +198,10 @@ public class WritingSpecs : IClassFixture<DummyFixture>
             ResourceName.FromCode(1)
         );
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
@@ -209,7 +227,10 @@ public class WritingSpecs : IClassFixture<DummyFixture>
             ResourceName.FromCode(1)
         );
 
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         portableExecutable.RemoveResource(identifier);
@@ -228,7 +249,10 @@ public class WritingSpecs : IClassFixture<DummyFixture>
     public void User_can_clear_resources()
     {
         // Arrange
-        var portableExecutable = new PortableExecutable(_dummy.CreatePortableExecutable());
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         portableExecutable.ClearResources();
