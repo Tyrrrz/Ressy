@@ -9,7 +9,7 @@ namespace Ressy.Tests;
 public class WritingSpecs
 {
     [Fact]
-    public void User_can_add_a_resource()
+    public void I_can_add_a_resource()
     {
         // Arrange
         var identifier = new ResourceIdentifier(
@@ -39,7 +39,7 @@ public class WritingSpecs
     }
 
     [Fact]
-    public void User_can_add_a_resource_with_a_non_standard_ordinal_type()
+    public void I_can_add_a_resource_with_a_non_standard_ordinal_type()
     {
         // Arrange
         var identifier = new ResourceIdentifier(
@@ -69,7 +69,7 @@ public class WritingSpecs
     }
 
     [Fact]
-    public void User_can_add_a_resource_with_a_non_ordinal_type()
+    public void I_can_add_a_resource_with_a_non_ordinal_type()
     {
         // Arrange
         var identifier = new ResourceIdentifier(
@@ -99,7 +99,7 @@ public class WritingSpecs
     }
 
     [Fact]
-    public void User_can_add_a_resource_with_a_non_ordinal_name()
+    public void I_can_add_a_resource_with_a_non_ordinal_name()
     {
         // Arrange
         var identifier = new ResourceIdentifier(
@@ -129,7 +129,7 @@ public class WritingSpecs
     }
 
     [Fact]
-    public void User_can_add_a_resource_with_a_non_ordinal_type_and_non_ordinal_name()
+    public void I_can_add_a_resource_with_a_non_ordinal_type_and_non_ordinal_name()
     {
         // Arrange
         var identifier = new ResourceIdentifier(
@@ -159,7 +159,7 @@ public class WritingSpecs
     }
 
     [Fact]
-    public void User_can_add_a_resource_with_a_custom_language()
+    public void I_can_add_a_resource_with_a_custom_language()
     {
         // Arrange
         var identifier = new ResourceIdentifier(
@@ -190,7 +190,7 @@ public class WritingSpecs
     }
 
     [Fact]
-    public void User_can_overwrite_a_specific_resource()
+    public void I_can_overwrite_a_specific_resource()
     {
         // Arrange
         var identifier = new ResourceIdentifier(
@@ -219,7 +219,7 @@ public class WritingSpecs
     }
 
     [Fact]
-    public void User_can_remove_a_specific_resource()
+    public void I_can_remove_a_specific_resource()
     {
         // Arrange
         var identifier = new ResourceIdentifier(
@@ -246,7 +246,7 @@ public class WritingSpecs
     }
 
     [Fact]
-    public void User_can_clear_resources()
+    public void I_can_clear_resources()
     {
         // Arrange
         using var file = TempFile.Create();

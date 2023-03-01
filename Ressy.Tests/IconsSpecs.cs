@@ -11,7 +11,7 @@ namespace Ressy.Tests;
 public class IconsSpecs
 {
     [Fact]
-    public void User_can_add_an_icon()
+    public void I_can_add_an_icon()
     {
         // Arrange
         var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
@@ -72,7 +72,7 @@ public class IconsSpecs
     }
 
     [Fact(Skip = "Takes a long time and doesn't seem to reproduce the issue when running on CI")]
-    public void User_can_add_multiple_icons_in_quick_succession()
+    public void I_can_add_multiple_icons_in_quick_succession()
     {
         // https://github.com/Tyrrrz/Ressy/issues/4
         // For some reason, it's easiest to reproduce this with `SetIcon(...)` but
@@ -98,7 +98,7 @@ public class IconsSpecs
     }
 
     [Fact]
-    public void User_can_remove_the_icon()
+    public void I_can_remove_the_icon()
     {
         // Arrange
         using var file = TempFile.Create();

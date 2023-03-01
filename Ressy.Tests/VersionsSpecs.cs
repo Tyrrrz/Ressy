@@ -12,7 +12,7 @@ namespace Ressy.Tests;
 public class VersionsSpecs
 {
     [Fact]
-    public void User_can_get_version_info()
+    public void I_can_get_the_version_info()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -55,7 +55,7 @@ public class VersionsSpecs
     }
 
     [Fact]
-    public void User_can_get_version_info_of_Notepad()
+    public void I_can_get_the_version_info_of_Notepad()
     {
         // Arrange
         var portableExecutable = new PortableExecutable(
@@ -77,7 +77,7 @@ public class VersionsSpecs
     }
 
     [Fact]
-    public void User_can_get_version_info_of_InternetExplorer()
+    public void I_can_get_the_version_info_of_InternetExplorer()
     {
         // Arrange
         var portableExecutable = new PortableExecutable(
@@ -99,7 +99,7 @@ public class VersionsSpecs
     }
 
     [Fact]
-    public void User_can_add_version_info()
+    public void I_can_add_the_version_info()
     {
         // Arrange
         var versionInfo = new VersionInfoBuilder()
@@ -137,7 +137,7 @@ public class VersionsSpecs
     }
 
     [Fact]
-    public void User_can_modify_version_info()
+    public void I_can_modify_the_version_info()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -198,7 +198,7 @@ public class VersionsSpecs
     }
 
     [Fact]
-    public void User_can_remove_version_info()
+    public void I_can_remove_the_version_info()
     {
         // Arrange
         using var file = TempFile.Create();

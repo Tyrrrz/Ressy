@@ -9,7 +9,7 @@ namespace Ressy.Tests;
 public class ManifestsSpecs
 {
     [Fact]
-    public void User_can_get_the_manifest()
+    public void I_can_get_the_manifest()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -25,7 +25,7 @@ public class ManifestsSpecs
     }
 
     [Fact]
-    public void User_can_add_a_manifest()
+    public void I_can_add_a_manifest()
     {
         // Arrange
         const string manifest =
@@ -55,7 +55,7 @@ public class ManifestsSpecs
     }
 
     [Fact]
-    public void User_can_remove_the_manifest()
+    public void I_can_remove_the_manifest()
     {
         // Arrange
         using var file = TempFile.Create();

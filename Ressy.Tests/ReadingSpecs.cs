@@ -9,7 +9,7 @@ namespace Ressy.Tests;
 public class ReadingSpecs
 {
     [Fact]
-    public void User_can_get_a_list_of_resource_identifiers()
+    public void I_can_get_a_list_of_resource_identifiers()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -88,7 +88,7 @@ public class ReadingSpecs
     }
 
     [Fact]
-    public void User_can_get_a_specific_resource()
+    public void I_can_get_a_specific_resource()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -107,7 +107,7 @@ public class ReadingSpecs
     }
 
     [Fact]
-    public void User_can_try_to_get_a_non_existing_resource_and_receive_null_instead()
+    public void I_can_try_to_get_a_non_existing_resource_and_receive_null_instead()
     {
         // Arrange
         using var file = TempFile.Create();
