@@ -11,8 +11,8 @@
 
 > 🟡 **Project status**: maintenance mode<sup>[[?]](https://github.com/Tyrrrz/.github/blob/master/docs/project-status.md)</sup>
 
-**Ressy** is a library for reading and writing native resources stored in portable executable images (i.e. EXE and DLL files).
-It offers a high-level abstraction model for working with [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
+**Ressy** is a library for managing native resources stored in portable executable images (i.e. EXE and DLL files).
+It offers a high-level abstraction model for working with the [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
 
 > **Warning**:
 > This library relies on the Windows API and, as such, works only on Windows.
@@ -47,7 +47,7 @@ var portableExecutable = new PortableExecutable("some_app.exe");
 
 ### Reading resources
 
-#### Enumerating identifiers
+#### Enumerate resource identifiers
 
 To get the list of resources in a PE file, use the `GetResourceIdentifiers()` method:
 
@@ -76,7 +76,7 @@ Returned list should contain something similiar to this:
 - ...
 ```
 
-#### Retrieving data
+#### Retrieve resource data
 
 To resolve a specific resource, call the `GetResource(...)` method.
 This returns an instance of the `Resource` class that contains the resource data:
@@ -96,7 +96,7 @@ var resourceData = resource.Data; // byte[]
 var resourceString = resource.ReadAsString(Encoding.UTF8); // string
 ```
 
-If you aren't sure if the requested resource actually exists in the PE file, you can also use the `TryGetResource(...)` method instead.
+If you aren't sure that the requested resource actually exists in the PE file, you can use the `TryGetResource(...)` method instead.
 It returns `null` in case the resource is missing:
 
 ```csharp
@@ -113,7 +113,7 @@ var resource = portableExecutable.TryGetResource(new ResourceIdentifier(
 
 ### Modifying resources
 
-#### Setting resource data
+#### Set resource data
 
 To add or overwrite a resource, call the `SetResource(...)` method:
 
@@ -132,7 +132,7 @@ portableExecutable.SetResource(
 );
 ```
 
-#### Removing a resource
+#### Remove resources
 
 To remove a resource, call the `RemoveResource(...)` method:
 
@@ -171,7 +171,7 @@ It may also contain other information, such as application settings, requested e
 
 To learn more about application manifests, see [this article](https://docs.microsoft.com/en-us/windows/win32/sbscs/application-manifests).
 
-##### Reading the manifest
+##### Retrieve the manifest
 
 To read the manifest resource as an XML text string, call the `GetManifest()` extension method:
 
@@ -187,9 +187,9 @@ var manifest = portableExecutable.GetManifest();
 ```
 
 > **Note**:
-> If there are multiple manifest resources, this method retrieves the first one it finds, while giving preference to resources with lower ordinal name (ID) and in the neutral language.
+> If there are multiple manifest resources, this method retrieves the first one it finds, giving preference to resources with lower ordinal name (ID) and in the neutral language.
 
-##### Setting the manifest
+##### Set the manifest
 
 To add or overwrite a manifest resource, call the `SetManifest(...)` extension method:
 
@@ -202,7 +202,7 @@ var portableExecutable = new PortableExecutable("some_app.exe");
 portableExecutable.SetManifest("<assembly>...</assembly>");
 ```
 
-##### Removing the manifest
+##### Remove the manifest
 
 To remove all manifest resources, call the `RemoveManifest()` extension method:
 
@@ -217,10 +217,10 @@ portableExecutable.RemoveManifest();
 
 #### Icon resources
 
-Icon resources (type `3`) and icon group resources (type `14`) are used by the operating system to visually identify the application.
+Icon resources (type `3`) and icon group resources (type `14`) are used to visually identify an application within the operating system.
 Each portable executable file may contain multiple icon resources (usually in different sizes or color configurations), which are grouped together by the corresponding icon group resource.
 
-##### Setting the icon
+##### Set the icon
 
 To add or overwrite icon resources based on an ICO file, call the `SetIcon(...)` extension method:
 
@@ -249,7 +249,7 @@ using var iconFileStream = File.OpenRead("new_icon.ico");
 portableExecutable.SetIcon(iconFileStream);
 ```
 
-##### Removing the icon
+##### Remove the icon
 
 To remove all icon and icon group resources, call the `RemoveIcon()` extension method:
 
@@ -267,7 +267,7 @@ portableExecutable.RemoveIcon();
 A version info resource (type `16`) contains file version numbers, compatibility flags, and arbitrary string attributes.
 Some of these attributes (such as, for example, `ProductName` and `Copyright`) are recognized by the operating system and may be displayed in certain places.
 
-##### Reading version info
+##### Retrieve version info
 
 To get the version info resource, call the `GetVersionInfo()` extension method.
 This returns a `VersionInfo` object that represents the deserialized binary data stored in the resource:
@@ -283,7 +283,7 @@ var versionInfo = portableExecutable.GetVersionInfo();
 // var versionInfo = portableExecutable.TryGetVersionInfo();
 ```
 
-Returned object should contain something similar to this:
+Returned object should contain data similar to this:
 
 ```jsonc
 // Formatted as JSON in this example for better readability
@@ -318,10 +318,10 @@ Returned object should contain something similar to this:
 ```
 
 > **Note**:
-> If there are multiple version info resources, this method retrieves the first one it finds, while giving preference to resources with lower ordinal name (ID) and in the neutral language.
+> If there are multiple version info resources, this method retrieves the first one it finds, giving preference to resources with lower ordinal name (ID) and in the neutral language.
 
 When working with version info resources that include multiple attribute tables (bound to different language and code page pairs), you can use the `GetAttribute(...)` method to query a specific attribute.
-This method searches through all attribute tables (while giving preference to tables in the neutral language) and returns the first matching value it finds:
+This method searches through all attribute tables (giving preference to tables in the neutral language) and returns the first matching value it finds:
 
 ```csharp
 // ...
@@ -331,7 +331,7 @@ var companyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName); //
 // var companyName = versionInfo.TryGetAttribute(VersionAttributeName.CompanyName);
 ```
 
-##### Setting version info
+##### Set version info
 
 To add or overwrite a version info resource, call the `SetVersionInfo(...)` extension method.
 You can use the `VersionInfoBuilder` class to drastically simplify the creation of a new `VersionInfo` instance:
@@ -372,9 +372,9 @@ portableExecutable.SetVersionInfo(v => v
 > **Note**:
 > When using the `SetAttribute(...)` method on `VersionInfoBuilder`, you can optionally specify the language and code page of the table that you want to add the attribute to.
 > If you choose to omit these parameters, **Ressy** will set the attribute in all attribute tables.
-> In case there are no existing attribute tables, this method creates a new one bound to the neutral language and Unicode code page.
+> In case there are no existing attribute tables, this method creates a new one bound to the neutral language and the Unicode code page.
 
-##### Removing version info
+##### Remove version info
 
 To remove all version info resources, call the `RemoveVersionInfo()` extension method:
 

@@ -74,7 +74,7 @@ public partial class VersionInfo
     /// </summary>
     /// <remarks>
     /// If version info includes multiple attribute tables, this method retrieves the value from the
-    /// first table that contains the specified attribute, while giving preference to tables in the
+    /// first table that contains the specified attribute, giving preference to tables in the
     /// neutral language.
     /// </remarks>
     public string? TryGetAttribute(VersionAttributeName name) => AttributeTables
@@ -87,7 +87,7 @@ public partial class VersionInfo
     /// </summary>
     /// <remarks>
     /// If version info includes multiple attribute tables, this method retrieves the value from the
-    /// first table that contains the specified attribute, while giving preference to tables in the
+    /// first table that contains the specified attribute, giving preference to tables in the
     /// neutral language.
     /// </remarks>
     public string GetAttribute(VersionAttributeName name) =>

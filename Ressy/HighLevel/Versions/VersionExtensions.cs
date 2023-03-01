@@ -46,7 +46,7 @@ public static class VersionExtensions
     /// </summary>
     /// <remarks>
     /// If there are multiple version info resources, this method retrieves the one
-    /// with the lowest ordinal name (ID), while giving preference to resources
+    /// with the lowest ordinal name (ID), giving preference to resources
     /// in the neutral language.
     /// If there are no matching resources, this method retrieves the first
     /// version info resource it finds.
