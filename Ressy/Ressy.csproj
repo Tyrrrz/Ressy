@@ -7,8 +7,8 @@
 
   <PropertyGroup>
     <Authors>$(Company)</Authors>
-    <Description>Library for interacting with external command line interfaces</Description>
-    <PackageTags>shell pipe command line executable interface wrapper standard input output error arguments net core</PackageTags>
+    <Description>Library for managing native resources stored in portable executable images (i.e. EXE and DLL files)</Description>
+    <PackageTags>pe portable executable native resources win32 exe dll editor</PackageTags>
     <PackageProjectUrl>https://github.com/Tyrrrz/Ressy</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/Tyrrrz/Ressy/blob/master/Changelog.md</PackageReleaseNotes>
     <PackageReadmeFile>Readme.md</PackageReadmeFile>
