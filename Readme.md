@@ -14,9 +14,6 @@
 **Ressy** is a library for managing native resources stored in portable executable images (i.e. EXE and DLL files).
 It offers a high-level abstraction model for working with the [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
 
-> **Warning**:
-> This library relies on the Windows API and, as such, works only on Windows.
-
 ## Terms of use<sup>[[?]](https://github.com/Tyrrrz/.github/blob/master/docs/why-so-political.md)</sup>
 
 By using this project or its source code, for any purpose and in any shape or form, you grant your **implicit agreement** to all the following statements:
@@ -31,6 +28,9 @@ To learn more about the war and how you can help, [click here](https://tyrrrz.me
 ## Install
 
 - 📦 [NuGet](https://nuget.org/packages/Ressy): `dotnet add package Ressy`
+
+> **Warning**:
+> This library relies on the Windows API and, as such, works only on Windows.
 
 ## Usage
 
