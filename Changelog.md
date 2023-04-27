@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.3 (27-Apr-2023)
+
+- Fixed NuGet packaging issues.
+
 ## v1.0.2 (27-Apr-2023)
 
 - Improved support for older target frameworks via polyfills.
