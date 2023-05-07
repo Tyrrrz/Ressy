@@ -89,9 +89,7 @@ public class IconsSpecs
 
         // Act
         for (var i = 0; i < 100; i++)
-        {
             portableExecutable.SetIcon(iconFilePath);
-        }
 
         // Assert
         portableExecutable.GetResourceIdentifiers().Should().Contain(r => r.Type.Code == ResourceType.Icon.Code);

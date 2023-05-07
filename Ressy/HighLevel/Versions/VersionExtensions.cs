@@ -91,11 +91,9 @@ public static class VersionExtensions
         this PortableExecutable portableExecutable,
         VersionInfo versionInfo)
     {
-        var existingResourceIdentifier = portableExecutable.TryGetVersionInfoResourceIdentifier();
-
         // If the resource already exists, reuse the same identifier
         var identifier =
-            existingResourceIdentifier ??
+            portableExecutable.TryGetVersionInfoResourceIdentifier() ??
             new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1));
 
         portableExecutable.SetResource(identifier, versionInfo.Serialize());

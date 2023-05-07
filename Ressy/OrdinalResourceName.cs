@@ -14,7 +14,7 @@ internal partial class OrdinalResourceName : ResourceName
 
     public OrdinalResourceName(int code) => _code = code;
 
-    internal override SafeIntPtr ToPointer() => SafeIntPtr.FromValue(_code);
+    internal override INativeHandle GetHandle() => new NoopNativeHandle(new IntPtr(_code));
 }
 
 internal partial class OrdinalResourceName : IEquatable<OrdinalResourceName>

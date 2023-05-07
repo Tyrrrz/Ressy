@@ -11,7 +11,7 @@ public partial class VersionInfo
     {
         // dwSignature
         if (reader.ReadUInt32() != 0xFEEF04BD)
-            throw new InvalidOperationException("Not a valid version resource: missing 'VS_FIXEDFILEINFO'.");
+            throw new InvalidOperationException("Invalid version resource: missing 'VS_FIXEDFILEINFO'.");
 
         // dwStrucVersion
         _ = reader.ReadUInt32();
@@ -129,7 +129,7 @@ public partial class VersionInfo
 
         // szKey
         if (!string.Equals(reader.ReadNullTerminatedString(), "VS_VERSION_INFO", StringComparison.Ordinal))
-            throw new InvalidOperationException("Not a valid version resource: missing 'VS_VERSION_INFO'.");
+            throw new InvalidOperationException("Invalid version resource: missing 'VS_VERSION_INFO'.");
 
         // Padding
         reader.SkipPadding();
@@ -179,7 +179,7 @@ public partial class VersionInfo
             }
             else
             {
-                throw new InvalidOperationException($"Not a valid version resource: unexpected key '{key}'.");
+                throw new InvalidOperationException($"Invalid version resource: unexpected key '{key}'.");
             }
         }
 

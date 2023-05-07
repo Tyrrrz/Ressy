@@ -24,26 +24,12 @@ public class PortableExecutable
     /// </summary>
     public PortableExecutable(string filePath) => FilePath = filePath;
 
-    private SafeIntPtr GetImageHandle()
-    {
-        var handle = new SafeIntPtr(
-            NativeHelpers.ThrowIfError(() =>
-                NativeMethods.LoadLibraryEx(FilePath, IntPtr.Zero, 0x00000040)
-            ),
-            h => NativeHelpers.LogIfError(() =>
-                NativeMethods.FreeLibrary(h)
-            )
-        );
-
-        return handle;
-    }
-
     /// <summary>
     /// Gets the identifiers of all existing resources.
     /// </summary>
     public IReadOnlyList<ResourceIdentifier> GetResourceIdentifiers()
     {
-        using var imageHandle = GetImageHandle();
+        using var library = NativeLibrary.LoadAsDataFile(FilePath);
 
         IReadOnlyList<ResourceType> GetResourceTypes()
         {
@@ -51,7 +37,7 @@ public class PortableExecutable
 
             NativeHelpers.ThrowIfError(() =>
                 NativeMethods.EnumResourceTypesEx(
-                    imageHandle,
+                    library.Handle,
                     (_, typeHandle, _) =>
                     {
                         result.Add(ResourceType.FromHandle(typeHandle));
@@ -66,13 +52,13 @@ public class PortableExecutable
 
         IReadOnlyList<ResourceName> GetResourceNames(ResourceType type)
         {
-            using var typeHandle = type.ToPointer();
+            using var typeHandle = type.GetHandle();
 
             var result = new List<ResourceName>();
 
             NativeHelpers.ThrowIfError(() =>
                 NativeMethods.EnumResourceNamesEx(
-                    imageHandle, typeHandle,
+                    library.Handle, typeHandle.Value,
                     (_, _, nameHandle, _) =>
                     {
                         result.Add(ResourceName.FromHandle(nameHandle));
@@ -87,14 +73,14 @@ public class PortableExecutable
 
         IReadOnlyList<Language> GetResourceLanguages(ResourceType type, ResourceName name)
         {
-            using var typeHandle = type.ToPointer();
-            using var nameHandle = name.ToPointer();
+            using var typeHandle = type.GetHandle();
+            using var nameHandle = name.GetHandle();
 
             var result = new List<Language>();
 
             NativeHelpers.ThrowIfError(() =>
                 NativeMethods.EnumResourceLanguagesEx(
-                    imageHandle, typeHandle, nameHandle,
+                    library.Handle, typeHandle.Value, nameHandle.Value,
                     (_, _, _, languageId, _) =>
                     {
                         result.Add(new Language(languageId));
@@ -121,14 +107,14 @@ public class PortableExecutable
     /// </summary>
     public Resource? TryGetResource(ResourceIdentifier identifier)
     {
-        using var imageHandle = GetImageHandle();
-        using var typeHandle = identifier.Type.ToPointer();
-        using var nameHandle = identifier.Name.ToPointer();
+        using var library = NativeLibrary.LoadAsDataFile(FilePath);
+        using var typeHandle = identifier.Type.GetHandle();
+        using var nameHandle = identifier.Name.GetHandle();
 
         var resourceHandle = NativeMethods.FindResourceEx(
-            imageHandle,
-            typeHandle,
-            nameHandle,
+            library.Handle,
+            typeHandle.Value,
+            nameHandle.Value,
             (ushort)identifier.Language.Id
         );
 
@@ -145,7 +131,7 @@ public class PortableExecutable
         }
 
         var dataHandle = NativeHelpers.ThrowIfError(() =>
-            NativeMethods.LoadResource(imageHandle, resourceHandle)
+            NativeMethods.LoadResource(library.Handle, resourceHandle)
         );
 
         var dataSource = NativeHelpers.ThrowIfError(() =>
@@ -153,7 +139,7 @@ public class PortableExecutable
         );
 
         var length = NativeHelpers.ThrowIfError(() =>
-            NativeMethods.SizeofResource(imageHandle, resourceHandle)
+            NativeMethods.SizeofResource(library.Handle, resourceHandle)
         );
 
         var data = new byte[length];

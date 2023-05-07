@@ -24,7 +24,7 @@ public abstract partial class ResourceType
     /// <summary>
     /// Marshals the value of this resource type to native memory for use with Windows API.
     /// </summary>
-    internal abstract SafeIntPtr ToPointer();
+    internal abstract INativeHandle GetHandle();
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

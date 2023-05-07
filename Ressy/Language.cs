@@ -22,7 +22,7 @@ public readonly partial struct Language
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
-    public override string ToString() => Id.ToString(CultureInfo.InvariantCulture);
+    public override string ToString() => $"ID: {Id}";
 }
 
 public partial struct Language
@@ -35,7 +35,7 @@ public partial struct Language
     /// <summary>
     /// Creates a language identifier from a culture descriptor.
     /// </summary>
-    // https://docs.microsoft.com/en-us/windows/win32/intl/locale-identifiers?redirectedfrom=MSDN
+    // https://docs.microsoft.com/en-us/windows/win32/intl/locale-identifiers
     public static Language FromCultureInfo(CultureInfo cultureInfo)
     {
         var (_, languageId) = BitPack.Split(cultureInfo.LCID);

@@ -250,6 +250,8 @@ public partial class VersionInfo
         using (lengthPortal.Jump())
             writer.Write((ushort)length);
 
+        writer.Flush();
+
         return stream.ToArray();
     }
 }

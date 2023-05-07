@@ -1,12 +1,11 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Text;
 
 namespace Ressy;
 
 /// <summary>
-/// Code page identifier that specifies the encoding of text in a resource.
+/// Code page identifier that specifies the text encoding of a resource.
 /// </summary>
 public readonly partial struct CodePage
 {
@@ -22,7 +21,7 @@ public readonly partial struct CodePage
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
-    public override string ToString() => Id.ToString(CultureInfo.InvariantCulture);
+    public override string ToString() => $"ID: {Id}";
 }
 
 public partial struct CodePage

@@ -21,9 +21,9 @@ public abstract partial class ResourceName
     public abstract string Label { get; }
 
     /// <summary>
-    /// Marshals the value of this resource name to native memory for use with Windows API.
+    /// Marshals the value of this resource name to native memory for use with the Windows API.
     /// </summary>
-    internal abstract SafeIntPtr ToPointer();
+    internal abstract INativeHandle GetHandle();
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

@@ -9,7 +9,7 @@ internal static class NativeHelpers
 {
     public static string GetString(IntPtr handle) =>
         Marshal.PtrToStringAuto(handle) ??
-        throw new Win32Exception($"Pointer {handle} resolves to an empty string.");
+        throw new Win32Exception($"Pointer {handle} resolved to a null string.");
 
     public static void ThrowIfError(Func<bool> invokeNativeMethod)
     {

@@ -19,7 +19,7 @@ internal partial class IconGroup
         using var reader = new BinaryReader(stream);
 
         if (reader.ReadUInt16() != 0 || reader.ReadUInt16() != 1)
-            throw new InvalidOperationException("Invalid ICO file format (missing or unexpected magic number).");
+            throw new InvalidOperationException("Invalid ICO file: missing or unexpected magic number.");
 
         var iconCount = reader.ReadUInt16();
         var icons = new Icon[iconCount];

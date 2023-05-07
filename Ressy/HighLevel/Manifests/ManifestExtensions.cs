@@ -89,11 +89,9 @@ public static class ManifestExtensions
         string manifest,
         Encoding? encoding = null)
     {
-        var existingResourceIdentifier = portableExecutable.TryGetManifestResourceIdentifier();
-
         // If the resource already exists, reuse the same identifier
         var identifier =
-            existingResourceIdentifier ??
+            portableExecutable.TryGetManifestResourceIdentifier() ??
             new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
         portableExecutable.SetResource(identifier, (encoding ?? DefaultManifestEncoding).GetBytes(manifest));

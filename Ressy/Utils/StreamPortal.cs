@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Ressy.Utils;
 
-// Allows to temporarily go to a location in a stream and return back to the original position
+// Allows to temporarily go to a location in a stream and then return back to the original position
 internal class StreamPortal
 {
     private readonly Stream _stream;
@@ -21,13 +21,17 @@ internal class StreamPortal
         var oldPosition = _stream.Position;
         _stream.Seek(Position, SeekOrigin.Begin);
 
-        return Disposable.Create(() => _stream.Seek(oldPosition, SeekOrigin.Begin));
+        return Disposable.Create(
+            () => _stream.Seek(oldPosition, SeekOrigin.Begin)
+        );
     }
 }
 
 internal static class StreamPortalExtensions
 {
-    public static StreamPortal CreatePortal(this Stream stream, long position) => new(stream, position);
+    public static StreamPortal CreatePortal(this Stream stream, long position) =>
+        new(stream, position);
 
-    public static StreamPortal CreatePortal(this Stream stream) => stream.CreatePortal(stream.Position);
+    public static StreamPortal CreatePortal(this Stream stream) =>
+        stream.CreatePortal(stream.Position);
 }

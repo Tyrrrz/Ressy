@@ -8,37 +8,37 @@ namespace Ressy;
 
 internal partial class ResourceUpdateContext : IDisposable
 {
-    private readonly SafeIntPtr _handle;
+    private readonly IntPtr _handle;
 
-    public ResourceUpdateContext(SafeIntPtr handle) => _handle = handle;
+    public ResourceUpdateContext(IntPtr handle) => _handle = handle;
 
     [ExcludeFromCodeCoverage]
     ~ResourceUpdateContext() => Dispose();
 
     public void Set(ResourceIdentifier identifier, byte[] data)
     {
-        using var typeHandle = identifier.Type.ToPointer();
-        using var nameHandle = identifier.Name.ToPointer();
-        using var dataHandle = SafeMarshal.AllocHGlobal(data);
+        using var typeHandle = identifier.Type.GetHandle();
+        using var nameHandle = identifier.Name.GetHandle();
+        using var dataMemory = NativeMemory.Create(data);
 
         NativeHelpers.ThrowIfError(() =>
             NativeMethods.UpdateResource(
                 _handle,
-                typeHandle, nameHandle, (ushort)identifier.Language.Id,
-                dataHandle, (uint)data.Length
+                typeHandle.Value, nameHandle.Value, (ushort)identifier.Language.Id,
+                dataMemory.Handle, (uint)data.Length
             )
         );
     }
 
     public void Remove(ResourceIdentifier identifier)
     {
-        using var typeHandle = identifier.Type.ToPointer();
-        using var nameHandle = identifier.Name.ToPointer();
+        using var typeHandle = identifier.Type.GetHandle();
+        using var nameHandle = identifier.Name.GetHandle();
 
         NativeHelpers.ThrowIfError(() =>
             NativeMethods.UpdateResource(
                 _handle,
-                typeHandle, nameHandle, (ushort)identifier.Language.Id,
+                typeHandle.Value, nameHandle.Value, (ushort)identifier.Language.Id,
                 IntPtr.Zero, 0
             )
         );
@@ -46,7 +46,9 @@ internal partial class ResourceUpdateContext : IDisposable
 
     public void Dispose()
     {
-        _handle.Dispose();
+        NativeHelpers.LogIfError(() =>
+            NativeMethods.EndUpdateResource(_handle, false)
+        );
 
         // This line is CRITICAL!
         // Attempting to finalize the update context twice leads to really
@@ -59,13 +61,8 @@ internal partial class ResourceUpdateContext
 {
     public static ResourceUpdateContext Create(string imageFilePath, bool deleteExistingResources = false)
     {
-        var handle = new SafeIntPtr(
-            NativeHelpers.ThrowIfError(() =>
-                NativeMethods.BeginUpdateResource(imageFilePath, deleteExistingResources)
-            ),
-            h => NativeHelpers.LogIfError(() =>
-                NativeMethods.EndUpdateResource(h, false)
-            )
+        var handle = NativeHelpers.ThrowIfError(() =>
+            NativeMethods.BeginUpdateResource(imageFilePath, deleteExistingResources)
         );
 
         return new ResourceUpdateContext(handle);

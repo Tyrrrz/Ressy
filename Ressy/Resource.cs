@@ -13,7 +13,7 @@ public class Resource
     public ResourceIdentifier Identifier { get; }
 
     /// <summary>
-    /// Resource binary data.
+    /// Binary data associated with the resource.
     /// </summary>
     public byte[] Data { get; }
 
