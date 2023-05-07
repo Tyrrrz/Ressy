@@ -64,6 +64,6 @@ internal static class BinaryReaderExtensions
         }
 
         if (totalBytesRead < destination.Length)
-            throw new EndOfStreamException("Could not read enough bytes to fill the buffer.");
+            throw new EndOfStreamException("Could not read enough bytes to fill the destination array.");
     }
 }
