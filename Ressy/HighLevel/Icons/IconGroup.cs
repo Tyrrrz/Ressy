@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Ressy.Utils.Extensions;
 
 namespace Ressy.HighLevel.Icons;
 
@@ -56,7 +57,7 @@ internal partial class IconGroup
         for (var i = 0; i < iconCount; i++)
         {
             reader.BaseStream.Seek(iconDataOffsets[i], SeekOrigin.Begin);
-            reader.Read(iconDataSets[i], 0, iconDataSets[i].Length);
+            reader.ReadByteArray(iconDataSets[i]);
         }
 
         return new IconGroup(icons);

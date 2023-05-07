@@ -50,4 +50,20 @@ internal static class BinaryReaderExtensions
 
         return buffer.ToString();
     }
+
+    public static void ReadByteArray(this BinaryReader reader, byte[] destination)
+    {
+        int bytesRead;
+        var totalBytesRead = 0;
+
+        while (
+            totalBytesRead < destination.Length &&
+            (bytesRead = reader.Read(destination, totalBytesRead, destination.Length - totalBytesRead)) > 0)
+        {
+            totalBytesRead += bytesRead;
+        }
+
+        if (totalBytesRead < destination.Length)
+            throw new EndOfStreamException("Could not read enough bytes to fill the buffer.");
+    }
 }
