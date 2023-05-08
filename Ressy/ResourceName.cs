@@ -23,7 +23,7 @@ public abstract partial class ResourceName
     /// <summary>
     /// Marshals the value of this resource name to native memory for use with the Windows API.
     /// </summary>
-    internal abstract INativeHandle GetHandle();
+    internal abstract NativeResource Marshal();
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

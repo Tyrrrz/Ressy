@@ -13,7 +13,7 @@ internal partial class StringResourceType : ResourceType
 
     public StringResourceType(string name) => _name = name;
 
-    internal override INativeHandle GetHandle() => NativeMemory.Create(_name);
+    internal override NativeResource Marshal() => NativeMemory.Create(_name);
 }
 
 internal partial class StringResourceType : IEquatable<StringResourceType>

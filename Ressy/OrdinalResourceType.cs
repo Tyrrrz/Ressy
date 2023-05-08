@@ -50,7 +50,7 @@ internal partial class OrdinalResourceType : ResourceType
 
     public OrdinalResourceType(int code) => _code = code;
 
-    internal override INativeHandle GetHandle() => new NoopNativeHandle(new IntPtr(_code));
+    internal override NativeResource Marshal() => new DummyNativeResource(new IntPtr(_code));
 }
 
 internal partial class OrdinalResourceType : IEquatable<OrdinalResourceType>

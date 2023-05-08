@@ -1,25 +1,17 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Ressy.Native;
 
-internal partial class NativeLibrary : INativeHandle
+internal partial class NativeLibrary : NativeResource
 {
-    public IntPtr Handle { get; }
-
-    IntPtr INativeHandle.Value => Handle;
-
-    public NativeLibrary(IntPtr handle) => Handle = handle;
-
-    [ExcludeFromCodeCoverage]
-    ~NativeLibrary() => Dispose();
-
-    public void Dispose()
+    public NativeLibrary(IntPtr handle)
+        : base(handle)
     {
-        NativeMethods.FreeLibrary(Handle);
-        GC.SuppressFinalize(this);
     }
+
+    protected override void Dispose(bool disposing) =>
+        NativeMethods.FreeLibrary(Handle);
 }
 
 internal partial class NativeLibrary

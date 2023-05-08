@@ -52,13 +52,13 @@ public class PortableExecutable
 
         IReadOnlyList<ResourceName> GetResourceNames(ResourceType type)
         {
-            using var typeHandle = type.GetHandle();
+            using var typeMarshaled = type.Marshal();
 
             var result = new List<ResourceName>();
 
             NativeHelpers.ThrowIfError(() =>
                 NativeMethods.EnumResourceNamesEx(
-                    library.Handle, typeHandle.Value,
+                    library.Handle, typeMarshaled.Handle,
                     (_, _, nameHandle, _) =>
                     {
                         result.Add(ResourceName.FromHandle(nameHandle));
@@ -73,14 +73,14 @@ public class PortableExecutable
 
         IReadOnlyList<Language> GetResourceLanguages(ResourceType type, ResourceName name)
         {
-            using var typeHandle = type.GetHandle();
-            using var nameHandle = name.GetHandle();
+            using var typeMarshaled = type.Marshal();
+            using var nameMarshaled = name.Marshal();
 
             var result = new List<Language>();
 
             NativeHelpers.ThrowIfError(() =>
                 NativeMethods.EnumResourceLanguagesEx(
-                    library.Handle, typeHandle.Value, nameHandle.Value,
+                    library.Handle, typeMarshaled.Handle, nameMarshaled.Handle,
                     (_, _, _, languageId, _) =>
                     {
                         result.Add(new Language(languageId));
@@ -108,13 +108,13 @@ public class PortableExecutable
     public Resource? TryGetResource(ResourceIdentifier identifier)
     {
         using var library = NativeLibrary.LoadAsDataFile(FilePath);
-        using var typeHandle = identifier.Type.GetHandle();
-        using var nameHandle = identifier.Name.GetHandle();
+        using var typeMarshaled = identifier.Type.Marshal();
+        using var nameMarshaled = identifier.Name.Marshal();
 
         var resourceHandle = NativeMethods.FindResourceEx(
             library.Handle,
-            typeHandle.Value,
-            nameHandle.Value,
+            typeMarshaled.Handle,
+            nameMarshaled.Handle,
             (ushort)identifier.Language.Id
         );
 

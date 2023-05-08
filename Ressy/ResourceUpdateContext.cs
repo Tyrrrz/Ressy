@@ -17,14 +17,14 @@ internal partial class ResourceUpdateContext : IDisposable
 
     public void Set(ResourceIdentifier identifier, byte[] data)
     {
-        using var typeHandle = identifier.Type.GetHandle();
-        using var nameHandle = identifier.Name.GetHandle();
+        using var typeMarshaled = identifier.Type.Marshal();
+        using var nameMarshaled = identifier.Name.Marshal();
         using var dataMemory = NativeMemory.Create(data);
 
         NativeHelpers.ThrowIfError(() =>
             NativeMethods.UpdateResource(
                 _handle,
-                typeHandle.Value, nameHandle.Value, (ushort)identifier.Language.Id,
+                typeMarshaled.Handle, nameMarshaled.Handle, (ushort)identifier.Language.Id,
                 dataMemory.Handle, (uint)data.Length
             )
         );
@@ -32,13 +32,13 @@ internal partial class ResourceUpdateContext : IDisposable
 
     public void Remove(ResourceIdentifier identifier)
     {
-        using var typeHandle = identifier.Type.GetHandle();
-        using var nameHandle = identifier.Name.GetHandle();
+        using var typeMarshaled = identifier.Type.Marshal();
+        using var nameMarshaled = identifier.Name.Marshal();
 
         NativeHelpers.ThrowIfError(() =>
             NativeMethods.UpdateResource(
                 _handle,
-                typeHandle.Value, nameHandle.Value, (ushort)identifier.Language.Id,
+                typeMarshaled.Handle, nameMarshaled.Handle, (ushort)identifier.Language.Id,
                 IntPtr.Zero, 0
             )
         );

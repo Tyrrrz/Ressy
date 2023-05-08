@@ -1,25 +1,17 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace Ressy.Native;
 
-internal partial class NativeMemory : INativeHandle
+internal partial class NativeMemory : NativeResource
 {
-    public IntPtr Handle { get; }
-
-    IntPtr INativeHandle.Value => Handle;
-
-    private NativeMemory(IntPtr handle) => Handle = handle;
-
-    [ExcludeFromCodeCoverage]
-    ~NativeMemory() => Dispose();
-
-    public void Dispose()
+    private NativeMemory(IntPtr handle)
+        : base(handle)
     {
-        Marshal.FreeHGlobal(Handle);
-        GC.SuppressFinalize(this);
     }
+
+    protected override void Dispose(bool disposing) =>
+        Marshal.FreeHGlobal(Handle);
 }
 
 internal partial class NativeMemory
