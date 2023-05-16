@@ -1,13 +1,12 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace Ressy.Native;
 
 [UnmanagedFunctionPointer(CallingConvention.Winapi, CharSet = CharSet.Auto, SetLastError = true)]
 internal delegate bool EnumResLangProc(
-    IntPtr hModule,
-    IntPtr lpType,
-    IntPtr lpName,
+    nint hModule,
+    nint lpType,
+    nint lpName,
     ushort langId,
-    IntPtr lParam
+    nint lParam
 );

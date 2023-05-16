@@ -1,11 +1,10 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace Ressy.Native;
 
 internal partial class NativeLibrary : NativeResource
 {
-    public NativeLibrary(IntPtr handle)
+    public NativeLibrary(nint handle)
         : base(handle)
     {
     }
@@ -20,11 +19,11 @@ internal partial class NativeLibrary
     {
         var handle = NativeMethods.LoadLibraryEx(
             filePath,
-            IntPtr.Zero,
+            0,
             isExclusive ? 0x00000040u : 0x00000002u
         );
 
-        return handle != IntPtr.Zero
+        return handle != 0
             ? new NativeLibrary(handle)
             : throw new Win32Exception();
     }

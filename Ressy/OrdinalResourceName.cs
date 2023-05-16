@@ -14,7 +14,7 @@ internal partial class OrdinalResourceName : ResourceName
 
     public OrdinalResourceName(int code) => _code = code;
 
-    internal override NativeResource Marshal() => new DummyNativeResource(new IntPtr(_code));
+    internal override NativeResource Marshal() => new DummyNativeResource(_code);
 }
 
 internal partial class OrdinalResourceName : IEquatable<OrdinalResourceName>

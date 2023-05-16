@@ -8,9 +8,9 @@ namespace Ressy;
 
 internal partial class ResourceUpdateContext : IDisposable
 {
-    private readonly IntPtr _handle;
+    private readonly nint _handle;
 
-    public ResourceUpdateContext(IntPtr handle) => _handle = handle;
+    public ResourceUpdateContext(nint handle) => _handle = handle;
 
     [ExcludeFromCodeCoverage]
     ~ResourceUpdateContext() => Dispose();
@@ -39,7 +39,7 @@ internal partial class ResourceUpdateContext : IDisposable
             NativeMethods.UpdateResource(
                 _handle,
                 typeMarshaled.Handle, nameMarshaled.Handle, (ushort)identifier.Language.Id,
-                IntPtr.Zero, 0
+                0, 0
             )
         );
     }

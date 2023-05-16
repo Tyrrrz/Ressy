@@ -5,9 +5,9 @@ namespace Ressy.Native;
 
 internal abstract class NativeResource : IDisposable
 {
-    public IntPtr Handle { get; }
+    public nint Handle { get; }
 
-    protected NativeResource(IntPtr handle) => Handle = handle;
+    protected NativeResource(nint handle) => Handle = handle;
 
     [ExcludeFromCodeCoverage]
     ~NativeResource() => Dispose(false);

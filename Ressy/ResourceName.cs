@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Ressy.Native;
 
 namespace Ressy;
@@ -42,7 +41,7 @@ public partial class ResourceName
     /// </summary>
     public static ResourceName FromString(string name) => new StringResourceName(name);
 
-    internal static ResourceName FromHandle(IntPtr handle) => handle.ToInt64() < 0x10000
-        ? FromCode(handle.ToInt32())
+    internal static ResourceName FromHandle(nint handle) => (long)handle < 0x10000
+        ? FromCode((int)handle)
         : FromString(NativeHelpers.GetString(handle));
 }

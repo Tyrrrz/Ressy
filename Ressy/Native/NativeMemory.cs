@@ -1,11 +1,10 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace Ressy.Native;
 
 internal partial class NativeMemory : NativeResource
 {
-    private NativeMemory(IntPtr handle)
+    private NativeMemory(nint handle)
         : base(handle)
     {
     }

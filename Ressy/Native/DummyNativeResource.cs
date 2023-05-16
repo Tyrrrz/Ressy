@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace Ressy.Native;
+﻿namespace Ressy.Native;
 
 internal class DummyNativeResource : NativeResource
 {
-    public DummyNativeResource(IntPtr handle)
+    public DummyNativeResource(nint handle)
         : base(handle)
     {
     }

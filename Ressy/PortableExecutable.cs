@@ -43,7 +43,7 @@ public class PortableExecutable
                         result.Add(ResourceType.FromHandle(typeHandle));
                         return true;
                     },
-                    IntPtr.Zero, 0, 0
+                    0, 0, 0
                 )
             );
 
@@ -64,7 +64,7 @@ public class PortableExecutable
                         result.Add(ResourceName.FromHandle(nameHandle));
                         return true;
                     },
-                    IntPtr.Zero, 0, 0
+                    0, 0, 0
                 )
             );
 
@@ -86,7 +86,7 @@ public class PortableExecutable
                         result.Add(new Language(languageId));
                         return true;
                     },
-                    IntPtr.Zero, 0, 0
+                    0, 0, 0
                 )
             );
 
@@ -118,7 +118,7 @@ public class PortableExecutable
             (ushort)identifier.Language.Id
         );
 
-        if (resourceHandle == IntPtr.Zero)
+        if (resourceHandle == 0)
         {
             var errorCode = Marshal.GetLastWin32Error();
 

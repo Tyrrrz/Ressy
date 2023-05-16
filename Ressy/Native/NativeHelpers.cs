@@ -7,7 +7,7 @@ namespace Ressy.Native;
 
 internal static class NativeHelpers
 {
-    public static string GetString(IntPtr handle) =>
+    public static string GetString(nint handle) =>
         Marshal.PtrToStringAuto(handle) ??
         throw new Win32Exception($"Pointer {handle} resolved to a null string.");
 
@@ -27,11 +27,11 @@ internal static class NativeHelpers
         return result;
     }
 
-    public static IntPtr ThrowIfError(Func<IntPtr> invokeNativeMethod)
+    public static nint ThrowIfError(Func<nint> invokeNativeMethod)
     {
         var result = invokeNativeMethod();
 
-        if (result == IntPtr.Zero)
+        if (result == 0)
             throw new Win32Exception();
 
         return result;
