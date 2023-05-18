@@ -57,7 +57,7 @@ internal partial class IconGroup
         for (var i = 0; i < iconCount; i++)
         {
             reader.BaseStream.Seek(iconDataOffsets[i], SeekOrigin.Begin);
-            reader.ReadByteArray(iconDataSets[i]);
+            reader.BaseStream.ReadExactly(iconDataSets[i]);
         }
 
         return new IconGroup(icons);
