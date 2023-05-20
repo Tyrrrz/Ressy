@@ -6,7 +6,7 @@ using CliFx.Infrastructure;
 
 namespace Ressy.Demo;
 
-[Command("read", Description = "Read a specific resource from a PE file.")]
+[Command("read", Description = "Reads a specific resource from a PE file.")]
 public class GetResourceDataCommand : ICommand
 {
     [CommandOption("file", 'f', Description = "PE file to read the resource from.")]

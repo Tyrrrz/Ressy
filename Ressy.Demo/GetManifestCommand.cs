@@ -7,7 +7,7 @@ using Ressy.HighLevel.Manifests;
 
 namespace Ressy.Demo;
 
-[Command("read manifest", Description = "Read the manifest resource from a PE file.")]
+[Command("read manifest", Description = "Reads the manifest resource from a PE file.")]
 public class GetManifestCommand : ICommand
 {
     [CommandOption("file", 'f', Description = "PE file to read the manifest resource from.")]

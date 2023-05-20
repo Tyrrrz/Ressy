@@ -5,7 +5,7 @@ using CliFx.Infrastructure;
 
 namespace Ressy.Demo;
 
-[Command("list", Description = "List all available resources in a PE file.")]
+[Command("list", Description = "Lists all available resources in a PE file.")]
 public class ListResourcesCommand : ICommand
 {
     [CommandOption("file", 'f', Description = "PE file to list resources from.")]

@@ -9,7 +9,7 @@ using Ressy.HighLevel.Versions;
 
 namespace Ressy.Demo;
 
-[Command("read version", Description = "Read the version info resource from a PE file.")]
+[Command("read version", Description = "Reads the version info resource from a PE file.")]
 public class GetVersionInfoCommand : ICommand
 {
     [CommandOption("file", 'f', Description = "PE file to read the version info resource from.")]
