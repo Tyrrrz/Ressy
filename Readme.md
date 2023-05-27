@@ -11,6 +11,10 @@
 
 > 🟡 **Project status**: maintenance mode<sup>[[?]](https://github.com/Tyrrrz/.github/blob/master/docs/project-status.md)</sup>
 
+<p align="center">
+    <img src="favicon.png" alt="Icon" />
+</p>
+
 **Ressy** is a library for managing native resources stored in portable executable images (i.e. EXE and DLL files).
 It offers a high-level abstraction model for working with the [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
 
