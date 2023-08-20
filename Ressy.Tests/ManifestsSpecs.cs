@@ -29,7 +29,7 @@ public class ManifestsSpecs
     {
         // Arrange
         const string manifest =
-            // language=XML
+            // lang=xml
             """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
