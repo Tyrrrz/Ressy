@@ -15,11 +15,11 @@ internal static class VersionExtensions
         var revision = Math.Max(0, version.Revision);
 
         return
-            major != version.Major ||
-            minor != version.Minor ||
-            build != version.Build ||
-            revision != version.Revision
-                ? new Version(major, minor, build, revision)
-                : version;
+            major != version.Major
+            || minor != version.Minor
+            || build != version.Build
+            || revision != version.Revision
+            ? new Version(major, minor, build, revision)
+            : version;
     }
 }

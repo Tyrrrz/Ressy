@@ -56,7 +56,8 @@ public partial class VersionInfo
         FileOperatingSystem fileOperatingSystem,
         FileType fileType,
         FileSubType fileSubType,
-        IReadOnlyList<VersionAttributeTable> attributeTables)
+        IReadOnlyList<VersionAttributeTable> attributeTables
+    )
     {
         FileVersion = fileVersion;
         ProductVersion = productVersion;
@@ -76,10 +77,11 @@ public partial class VersionInfo
     /// first table that contains the specified attribute, giving preference to tables in the
     /// neutral language.
     /// </remarks>
-    public string? TryGetAttribute(VersionAttributeName name) => AttributeTables
-        .OrderBy(t => t.Language.Id == Language.Neutral.Id)
-        .Select(t => t.Attributes.GetValueOrDefault(name))
-        .FirstOrDefault(s => s is not null);
+    public string? TryGetAttribute(VersionAttributeName name) =>
+        AttributeTables
+            .OrderBy(t => t.Language.Id == Language.Neutral.Id)
+            .Select(t => t.Attributes.GetValueOrDefault(name))
+            .FirstOrDefault(s => s is not null);
 
     /// <summary>
     /// Gets the value of the specified attribute.
@@ -90,8 +92,10 @@ public partial class VersionInfo
     /// neutral language.
     /// </remarks>
     public string GetAttribute(VersionAttributeName name) =>
-        TryGetAttribute(name) ??
-        throw new InvalidOperationException($"Attribute '{name}' does not exist in any of the attribute tables.");
+        TryGetAttribute(name)
+        ?? throw new InvalidOperationException(
+            $"Attribute '{name}' does not exist in any of the attribute tables."
+        );
 }
 
 public partial class VersionInfo

@@ -19,27 +19,18 @@ public partial class VersionInfo
         var fileVersionClamped = FileVersion.ClampComponents();
 
         writer.Write(
-            BitPack.Merge(
-                (ushort)fileVersionClamped.Major,
-                (ushort)fileVersionClamped.Minor
-            )
+            BitPack.Merge((ushort)fileVersionClamped.Major, (ushort)fileVersionClamped.Minor)
         );
 
         writer.Write(
-            BitPack.Merge(
-                (ushort)fileVersionClamped.Build,
-                (ushort)fileVersionClamped.Revision
-            )
+            BitPack.Merge((ushort)fileVersionClamped.Build, (ushort)fileVersionClamped.Revision)
         );
 
         // dwProductVersionMS, dwProductVersionLS
         var productVersionClamped = ProductVersion.ClampComponents();
 
         writer.Write(
-            BitPack.Merge(
-                (ushort)productVersionClamped.Major,
-                (ushort)productVersionClamped.Minor
-            )
+            BitPack.Merge((ushort)productVersionClamped.Major, (ushort)productVersionClamped.Minor)
         );
 
         writer.Write(
@@ -102,8 +93,8 @@ public partial class VersionInfo
 
             // szKey
             writer.WriteNullTerminatedString(
-                attributeTable.Language.Id.ToString("X4", CultureInfo.InvariantCulture) +
-                attributeTable.CodePage.Id.ToString("X4", CultureInfo.InvariantCulture)
+                attributeTable.Language.Id.ToString("X4", CultureInfo.InvariantCulture)
+                    + attributeTable.CodePage.Id.ToString("X4", CultureInfo.InvariantCulture)
             );
 
             // -- String

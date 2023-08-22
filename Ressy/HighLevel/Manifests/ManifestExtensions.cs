@@ -20,8 +20,11 @@ public static class ManifestExtensions
     public static string ReadAsManifest(this Resource resource, Encoding? encoding = null) =>
         resource.ReadAsString(encoding ?? DefaultManifestEncoding);
 
-    private static ResourceIdentifier? TryGetManifestResourceIdentifier(this PortableExecutable portableExecutable) =>
-        portableExecutable.GetResourceIdentifiers()
+    private static ResourceIdentifier? TryGetManifestResourceIdentifier(
+        this PortableExecutable portableExecutable
+    ) =>
+        portableExecutable
+            .GetResourceIdentifiers()
             .Where(r => r.Type.Code == ResourceType.Manifest.Code)
             .OrderBy(r => r.Language.Id == Language.Neutral.Id)
             .ThenBy(r => r.Name.Code ?? int.MaxValue)
@@ -47,8 +50,10 @@ public static class ManifestExtensions
     /// If there are no matching resources, this method retrieves the first
     /// manifest resource it finds.
     /// </remarks>
-    public static string? TryGetManifest(this PortableExecutable portableExecutable, Encoding? encoding = null) =>
-        portableExecutable.TryGetManifestResource()?.ReadAsManifest(encoding);
+    public static string? TryGetManifest(
+        this PortableExecutable portableExecutable,
+        Encoding? encoding = null
+    ) => portableExecutable.TryGetManifestResource()?.ReadAsManifest(encoding);
 
     /// <summary>
     /// Gets the manifest resource and reads its data as an XML text string.
@@ -60,9 +65,12 @@ public static class ManifestExtensions
     /// If there are no matching resources, this method retrieves the first
     /// manifest resource it finds.
     /// </remarks>
-    public static string GetManifest(this PortableExecutable portableExecutable, Encoding? encoding = null) =>
-        portableExecutable.TryGetManifest(encoding) ??
-        throw new InvalidOperationException("Application manifest resource does not exist.");
+    public static string GetManifest(
+        this PortableExecutable portableExecutable,
+        Encoding? encoding = null
+    ) =>
+        portableExecutable.TryGetManifest(encoding)
+        ?? throw new InvalidOperationException("Application manifest resource does not exist.");
 
     /// <summary>
     /// Removes all existing manifest resources.
@@ -87,13 +95,17 @@ public static class ManifestExtensions
     public static void SetManifest(
         this PortableExecutable portableExecutable,
         string manifest,
-        Encoding? encoding = null)
+        Encoding? encoding = null
+    )
     {
         // If the resource already exists, reuse the same identifier
         var identifier =
-            portableExecutable.TryGetManifestResourceIdentifier() ??
-            new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
+            portableExecutable.TryGetManifestResourceIdentifier()
+            ?? new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
-        portableExecutable.SetResource(identifier, (encoding ?? DefaultManifestEncoding).GetBytes(manifest));
+        portableExecutable.SetResource(
+            identifier,
+            (encoding ?? DefaultManifestEncoding).GetBytes(manifest)
+        );
     }
 }

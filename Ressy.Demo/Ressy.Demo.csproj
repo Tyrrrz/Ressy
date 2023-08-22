@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="CliFx" Version="2.3.4" />
+    <PackageReference Include="CSharpier.MsBuild" Version="0.25.0" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

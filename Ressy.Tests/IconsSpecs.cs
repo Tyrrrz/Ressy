@@ -26,44 +26,44 @@ public class IconsSpecs
         portableExecutable.SetIcon(iconFilePath);
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().Contain(new[]
-        {
-            new ResourceIdentifier(
-                ResourceType.IconGroup,
-                ResourceName.FromCode(1),
-                Language.Neutral
-            ),
-
-            new ResourceIdentifier(
-                ResourceType.Icon,
-                ResourceName.FromCode(1),
-                Language.Neutral
-            ),
-
-            new ResourceIdentifier(
-                ResourceType.Icon,
-                ResourceName.FromCode(2),
-                Language.Neutral
-            ),
-
-            new ResourceIdentifier(
-                ResourceType.Icon,
-                ResourceName.FromCode(3),
-                Language.Neutral
-            ),
-
-            new ResourceIdentifier(
-                ResourceType.Icon,
-                ResourceName.FromCode(4),
-                Language.Neutral
-            ),
-
-            new ResourceIdentifier(
-                ResourceType.Icon,
-                ResourceName.FromCode(5),
-                Language.Neutral
-            )
-        });
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .Contain(
+                new[]
+                {
+                    new ResourceIdentifier(
+                        ResourceType.IconGroup,
+                        ResourceName.FromCode(1),
+                        Language.Neutral
+                    ),
+                    new ResourceIdentifier(
+                        ResourceType.Icon,
+                        ResourceName.FromCode(1),
+                        Language.Neutral
+                    ),
+                    new ResourceIdentifier(
+                        ResourceType.Icon,
+                        ResourceName.FromCode(2),
+                        Language.Neutral
+                    ),
+                    new ResourceIdentifier(
+                        ResourceType.Icon,
+                        ResourceName.FromCode(3),
+                        Language.Neutral
+                    ),
+                    new ResourceIdentifier(
+                        ResourceType.Icon,
+                        ResourceName.FromCode(4),
+                        Language.Neutral
+                    ),
+                    new ResourceIdentifier(
+                        ResourceType.Icon,
+                        ResourceName.FromCode(5),
+                        Language.Neutral
+                    )
+                }
+            );
 
         using var sourceIcon = new Icon(iconFilePath);
         using var actualIcon = Icon.ExtractAssociatedIcon(portableExecutable.FilePath);
@@ -92,7 +92,10 @@ public class IconsSpecs
             portableExecutable.SetIcon(iconFilePath);
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().Contain(r => r.Type.Code == ResourceType.Icon.Code);
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .Contain(r => r.Type.Code == ResourceType.Icon.Code);
     }
 
     [Fact]
@@ -108,9 +111,13 @@ public class IconsSpecs
         portableExecutable.RemoveIcon();
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().NotContain(r =>
-            r.Type.Code == ResourceType.IconGroup.Code ||
-            r.Type.Code == ResourceType.Icon.Code
-        );
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .NotContain(
+                r =>
+                    r.Type.Code == ResourceType.IconGroup.Code
+                    || r.Type.Code == ResourceType.Icon.Code
+            );
     }
 }

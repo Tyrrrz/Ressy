@@ -18,11 +18,11 @@ public class ListResourcesCommand : ICommand
         foreach (var identifier in portableExecutable.GetResourceIdentifiers())
         {
             console.Output.WriteLine(
-                "{ " +
-                $"Type: {identifier.Type}, " +
-                $"Name: {identifier.Name}, " +
-                $"Language: {identifier.Language}" +
-                "}"
+                "{ "
+                    + $"Type: {identifier.Type}, "
+                    + $"Name: {identifier.Name}, "
+                    + $"Language: {identifier.Language}"
+                    + "}"
             );
         }
 

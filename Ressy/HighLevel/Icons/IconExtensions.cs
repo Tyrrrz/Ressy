@@ -19,8 +19,10 @@ public static class IconExtensions
         {
             foreach (var identifier in identifiers)
             {
-                if (identifier.Type.Code == ResourceType.Icon.Code ||
-                    identifier.Type.Code == ResourceType.IconGroup.Code)
+                if (
+                    identifier.Type.Code == ResourceType.Icon.Code
+                    || identifier.Type.Code == ResourceType.IconGroup.Code
+                )
                 {
                     ctx.Remove(identifier);
                 }
@@ -44,10 +46,10 @@ public static class IconExtensions
             // Icon resources (written as-is)
             foreach (var (icon, index) in iconGroup.Icons.WithIndex())
             {
-                ctx.Set(new ResourceIdentifier(
-                    ResourceType.Icon,
-                    ResourceName.FromCode(index + 1)
-                ), icon.Data);
+                ctx.Set(
+                    new ResourceIdentifier(ResourceType.Icon, ResourceName.FromCode(index + 1)),
+                    icon.Data
+                );
             }
 
             // Icon group resource (offset is replaced with icon index)
@@ -73,10 +75,10 @@ public static class IconExtensions
                     writer.Write((ushort)(index + 1));
                 }
 
-                ctx.Set(new ResourceIdentifier(
-                    ResourceType.IconGroup,
-                    ResourceName.FromCode(1)
-                ), buffer.ToArray());
+                ctx.Set(
+                    new ResourceIdentifier(ResourceType.IconGroup, ResourceName.FromCode(1)),
+                    buffer.ToArray()
+                );
             }
         });
     }

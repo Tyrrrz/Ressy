@@ -8,8 +8,8 @@ namespace Ressy.Native;
 internal static class NativeHelpers
 {
     public static string GetString(nint handle) =>
-        Marshal.PtrToStringAuto(handle) ??
-        throw new Win32Exception($"Pointer {handle} resolved to a null string.");
+        Marshal.PtrToStringAuto(handle)
+        ?? throw new Win32Exception($"Pointer {handle} resolved to a null string.");
 
     public static void ThrowIfError(Func<bool> invokeNativeMethod)
     {
@@ -42,8 +42,11 @@ internal static class NativeHelpers
         if (!invokeNativeMethod())
         {
             Debug.WriteLine(
-                "Win32 error: " + Marshal.GetLastWin32Error() + ". " +
-                "Stacktrace: " + Environment.StackTrace
+                "Win32 error: "
+                    + Marshal.GetLastWin32Error()
+                    + ". "
+                    + "Stacktrace: "
+                    + Environment.StackTrace
             );
         }
     }

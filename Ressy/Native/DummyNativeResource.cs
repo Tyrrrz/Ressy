@@ -3,11 +3,7 @@
 internal class DummyNativeResource : NativeResource
 {
     public DummyNativeResource(nint handle)
-        : base(handle)
-    {
-    }
+        : base(handle) { }
 
-    protected override void Dispose(bool disposing)
-    {
-    }
+    protected override void Dispose(bool disposing) { }
 }

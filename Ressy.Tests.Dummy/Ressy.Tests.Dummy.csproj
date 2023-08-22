@@ -24,4 +24,8 @@
     <Copyright>TestCopyright</Copyright>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CSharpier.MsBuild" Version="0.25.0" PrivateAssets="all" />
+  </ItemGroup>
+
 </Project>

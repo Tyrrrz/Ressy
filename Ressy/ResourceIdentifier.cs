@@ -43,21 +43,25 @@ public partial class ResourceIdentifier : IEquatable<ResourceIdentifier>
     /// <inheritdoc />
     public bool Equals(ResourceIdentifier? other)
     {
-        if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
+        if (ReferenceEquals(null, other))
+            return false;
+        if (ReferenceEquals(this, other))
+            return true;
 
-        return
-            Type.Equals(other.Type) &&
-            Name.Equals(other.Name) &&
-            Language.Equals(other.Language);
+        return Type.Equals(other.Type)
+            && Name.Equals(other.Name)
+            && Language.Equals(other.Language);
     }
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
+        if (ReferenceEquals(null, obj))
+            return false;
+        if (ReferenceEquals(this, obj))
+            return true;
+        if (obj.GetType() != GetType())
+            return false;
 
         return Equals((ResourceIdentifier)obj);
     }

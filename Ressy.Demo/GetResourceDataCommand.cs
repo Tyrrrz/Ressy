@@ -25,11 +25,21 @@ public class GetResourceDataCommand : ICommand
     {
         var portableExecutable = new PortableExecutable(FilePath);
 
-        var type = int.TryParse(Type, NumberStyles.Integer, CultureInfo.InvariantCulture, out var typeCode)
+        var type = int.TryParse(
+            Type,
+            NumberStyles.Integer,
+            CultureInfo.InvariantCulture,
+            out var typeCode
+        )
             ? ResourceType.FromCode(typeCode)
             : ResourceType.FromString(Type);
 
-        var name = int.TryParse(Name, NumberStyles.Integer, CultureInfo.InvariantCulture, out var nameCode)
+        var name = int.TryParse(
+            Name,
+            NumberStyles.Integer,
+            CultureInfo.InvariantCulture,
+            out var nameCode
+        )
             ? ResourceName.FromCode(nameCode)
             : ResourceName.FromString(Name);
 

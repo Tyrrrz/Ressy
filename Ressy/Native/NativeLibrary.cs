@@ -5,12 +5,9 @@ namespace Ressy.Native;
 internal partial class NativeLibrary : NativeResource
 {
     public NativeLibrary(nint handle)
-        : base(handle)
-    {
-    }
+        : base(handle) { }
 
-    protected override void Dispose(bool disposing) =>
-        NativeMethods.FreeLibrary(Handle);
+    protected override void Dispose(bool disposing) => NativeMethods.FreeLibrary(Handle);
 }
 
 internal partial class NativeLibrary
@@ -23,8 +20,6 @@ internal partial class NativeLibrary
             isExclusive ? 0x00000040u : 0x00000002u
         );
 
-        return handle != 0
-            ? new NativeLibrary(handle)
-            : throw new Win32Exception();
+        return handle != 0 ? new NativeLibrary(handle) : throw new Win32Exception();
     }
 }

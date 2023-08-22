@@ -7,18 +7,20 @@ using Ressy.HighLevel.Versions;
 namespace Ressy.Demo.Utils;
 
 // Dictionaries with non-string keys require a custom converter
-internal class VersionAttributesJsonConverter : JsonConverter<IReadOnlyDictionary<VersionAttributeName, string>>
+internal class VersionAttributesJsonConverter
+    : JsonConverter<IReadOnlyDictionary<VersionAttributeName, string>>
 {
     public override IReadOnlyDictionary<VersionAttributeName, string> Read(
         ref Utf8JsonReader reader,
         Type typeToConvert,
-        JsonSerializerOptions options) =>
-        throw new NotSupportedException();
+        JsonSerializerOptions options
+    ) => throw new NotSupportedException();
 
     public override void Write(
         Utf8JsonWriter writer,
         IReadOnlyDictionary<VersionAttributeName, string> obj,
-        JsonSerializerOptions options)
+        JsonSerializerOptions options
+    )
     {
         writer.WriteStartObject();
 

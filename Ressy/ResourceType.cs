@@ -42,9 +42,8 @@ public partial class ResourceType
     /// </summary>
     public static ResourceType FromString(string type) => new StringResourceType(type);
 
-    internal static ResourceType FromHandle(nint handle) => handle < 0x10000
-        ? FromCode((int)handle)
-        : FromString(NativeHelpers.GetString(handle));
+    internal static ResourceType FromHandle(nint handle) =>
+        handle < 0x10000 ? FromCode((int)handle) : FromString(NativeHelpers.GetString(handle));
 }
 
 // https://docs.microsoft.com/en-us/windows/win32/menurc/resource-types

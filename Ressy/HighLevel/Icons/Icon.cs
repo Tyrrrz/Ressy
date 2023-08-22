@@ -14,7 +14,14 @@ internal class Icon
 
     public byte[] Data { get; }
 
-    public Icon(byte width, byte height, byte colorCount, ushort colorPlanes, ushort bitsPerPixel, byte[] data)
+    public Icon(
+        byte width,
+        byte height,
+        byte colorCount,
+        ushort colorPlanes,
+        ushort bitsPerPixel,
+        byte[] data
+    )
     {
         Width = width;
         Height = height;

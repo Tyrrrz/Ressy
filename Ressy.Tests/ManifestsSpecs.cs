@@ -29,8 +29,8 @@ public class ManifestsSpecs
     {
         // Arrange
         const string manifest =
-            // lang=xml
-            """
+        // lang=xml
+        """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
                 <assemblyIdentity
@@ -67,8 +67,9 @@ public class ManifestsSpecs
         portableExecutable.RemoveManifest();
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().NotContain(
-            r => r.Type.Code == ResourceType.Manifest.Code
-        );
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .NotContain(r => r.Type.Code == ResourceType.Manifest.Code);
     }
 }

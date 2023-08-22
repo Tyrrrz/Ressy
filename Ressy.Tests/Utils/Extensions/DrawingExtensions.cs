@@ -14,6 +14,5 @@ internal static class DrawingExtensions
         return stream.ToArray();
     }
 
-    public static byte[] GetData(this Bitmap bitmap) =>
-        bitmap.GetData(ImageFormat.Bmp);
+    public static byte[] GetData(this Bitmap bitmap) => bitmap.GetData(ImageFormat.Bmp);
 }

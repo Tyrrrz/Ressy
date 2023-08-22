@@ -28,7 +28,8 @@ public class VersionAttributeTable
     public VersionAttributeTable(
         Language language,
         CodePage codePage,
-        IReadOnlyDictionary<VersionAttributeName, string> attributes)
+        IReadOnlyDictionary<VersionAttributeName, string> attributes
+    )
     {
         Language = language;
         CodePage = codePage;

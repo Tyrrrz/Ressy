@@ -11,7 +11,9 @@ public partial class VersionInfo
     {
         // dwSignature
         if (reader.ReadUInt32() != 0xFEEF04BD)
-            throw new InvalidOperationException("Invalid version resource: missing 'VS_FIXEDFILEINFO'.");
+            throw new InvalidOperationException(
+                "Invalid version resource: missing 'VS_FIXEDFILEINFO'."
+            );
 
         // dwStrucVersion
         _ = reader.ReadUInt32();
@@ -20,23 +22,24 @@ public partial class VersionInfo
         var (fileVersionMajor, fileVersionMinor) = BitPack.Split(reader.ReadUInt32());
         var (fileVersionBuild, fileVersionRevision) = BitPack.Split(reader.ReadUInt32());
 
-        builder.SetFileVersion(new Version(
-            fileVersionMajor,
-            fileVersionMinor,
-            fileVersionBuild,
-            fileVersionRevision
-        ), false);
+        builder.SetFileVersion(
+            new Version(fileVersionMajor, fileVersionMinor, fileVersionBuild, fileVersionRevision),
+            false
+        );
 
         // dwProductVersionMS, dwProductVersionLS
         var (productVersionMajor, productVersionMinor) = BitPack.Split(reader.ReadUInt32());
         var (productVersionBuild, productVersionRevision) = BitPack.Split(reader.ReadUInt32());
 
-        builder.SetProductVersion(new Version(
-            productVersionMajor,
-            productVersionMinor,
-            productVersionBuild,
-            productVersionRevision
-        ), false);
+        builder.SetProductVersion(
+            new Version(
+                productVersionMajor,
+                productVersionMinor,
+                productVersionBuild,
+                productVersionRevision
+            ),
+            false
+        );
 
         // dwFileFlagsMask
         _ = reader.ReadUInt32();
@@ -128,8 +131,16 @@ public partial class VersionInfo
         _ = reader.ReadUInt16();
 
         // szKey
-        if (!string.Equals(reader.ReadNullTerminatedString(), "VS_VERSION_INFO", StringComparison.Ordinal))
-            throw new InvalidOperationException("Invalid version resource: missing 'VS_VERSION_INFO'.");
+        if (
+            !string.Equals(
+                reader.ReadNullTerminatedString(),
+                "VS_VERSION_INFO",
+                StringComparison.Ordinal
+            )
+        )
+            throw new InvalidOperationException(
+                "Invalid version resource: missing 'VS_VERSION_INFO'."
+            );
 
         // Padding
         reader.SkipPadding();
@@ -179,7 +190,9 @@ public partial class VersionInfo
             }
             else
             {
-                throw new InvalidOperationException($"Invalid version resource: unexpected key '{key}'.");
+                throw new InvalidOperationException(
+                    $"Invalid version resource: unexpected key '{key}'."
+                );
             }
         }
 

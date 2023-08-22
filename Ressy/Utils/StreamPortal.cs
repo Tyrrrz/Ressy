@@ -21,9 +21,7 @@ internal class StreamPortal
         var oldPosition = _stream.Position;
         _stream.Seek(Position, SeekOrigin.Begin);
 
-        return Disposable.Create(
-            () => _stream.Seek(oldPosition, SeekOrigin.Begin)
-        );
+        return Disposable.Create(() => _stream.Seek(oldPosition, SeekOrigin.Begin));
     }
 }
 

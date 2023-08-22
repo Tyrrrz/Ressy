@@ -12,10 +12,7 @@ public class WritingSpecs
     public void I_can_add_a_resource()
     {
         // Arrange
-        var identifier = new ResourceIdentifier(
-            ResourceType.FromCode(6),
-            ResourceName.FromCode(7)
-        );
+        var identifier = new ResourceIdentifier(ResourceType.FromCode(6), ResourceName.FromCode(7));
 
         using var file = TempFile.Create();
         File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
@@ -27,13 +24,17 @@ public class WritingSpecs
         portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().ContainSingle(r =>
-            r.Type.Code == identifier.Type.Code &&
-            r.Type.Label == identifier.Type.Label &&
-            r.Name.Code == identifier.Name.Code &&
-            r.Name.Label == identifier.Name.Label &&
-            r.Language.Id == identifier.Language.Id
-        );
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .ContainSingle(
+                r =>
+                    r.Type.Code == identifier.Type.Code
+                    && r.Type.Label == identifier.Type.Label
+                    && r.Name.Code == identifier.Name.Code
+                    && r.Name.Label == identifier.Name.Label
+                    && r.Language.Id == identifier.Language.Id
+            );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
     }
@@ -57,13 +58,17 @@ public class WritingSpecs
         portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().ContainSingle(r =>
-            r.Type.Code == identifier.Type.Code &&
-            r.Type.Label == identifier.Type.Label &&
-            r.Name.Code == identifier.Name.Code &&
-            r.Name.Label == identifier.Name.Label &&
-            r.Language.Id == identifier.Language.Id
-        );
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .ContainSingle(
+                r =>
+                    r.Type.Code == identifier.Type.Code
+                    && r.Type.Label == identifier.Type.Label
+                    && r.Name.Code == identifier.Name.Code
+                    && r.Name.Label == identifier.Name.Label
+                    && r.Language.Id == identifier.Language.Id
+            );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
     }
@@ -87,13 +92,17 @@ public class WritingSpecs
         portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().ContainSingle(r =>
-            r.Type.Code == identifier.Type.Code &&
-            r.Type.Label == identifier.Type.Label &&
-            r.Name.Code == identifier.Name.Code &&
-            r.Name.Label == identifier.Name.Label &&
-            r.Language.Id == identifier.Language.Id
-        );
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .ContainSingle(
+                r =>
+                    r.Type.Code == identifier.Type.Code
+                    && r.Type.Label == identifier.Type.Label
+                    && r.Name.Code == identifier.Name.Code
+                    && r.Name.Label == identifier.Name.Label
+                    && r.Language.Id == identifier.Language.Id
+            );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
     }
@@ -117,13 +126,17 @@ public class WritingSpecs
         portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().ContainSingle(r =>
-            r.Type.Code == identifier.Type.Code &&
-            r.Type.Label == identifier.Type.Label &&
-            r.Name.Code == identifier.Name.Code &&
-            r.Name.Label == identifier.Name.Label &&
-            r.Language.Id == identifier.Language.Id
-        );
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .ContainSingle(
+                r =>
+                    r.Type.Code == identifier.Type.Code
+                    && r.Type.Label == identifier.Type.Label
+                    && r.Name.Code == identifier.Name.Code
+                    && r.Name.Label == identifier.Name.Label
+                    && r.Language.Id == identifier.Language.Id
+            );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
     }
@@ -147,13 +160,17 @@ public class WritingSpecs
         portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().ContainSingle(r =>
-            r.Type.Code == identifier.Type.Code &&
-            r.Type.Label == identifier.Type.Label &&
-            r.Name.Code == identifier.Name.Code &&
-            r.Name.Label == identifier.Name.Label &&
-            r.Language.Id == identifier.Language.Id
-        );
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .ContainSingle(
+                r =>
+                    r.Type.Code == identifier.Type.Code
+                    && r.Type.Label == identifier.Type.Label
+                    && r.Name.Code == identifier.Name.Code
+                    && r.Name.Label == identifier.Name.Label
+                    && r.Language.Id == identifier.Language.Id
+            );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
     }
@@ -178,13 +195,17 @@ public class WritingSpecs
         portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().ContainSingle(r =>
-            r.Type.Code == identifier.Type.Code &&
-            r.Type.Label == identifier.Type.Label &&
-            r.Name.Code == identifier.Name.Code &&
-            r.Name.Label == identifier.Name.Label &&
-            r.Language.Id == identifier.Language.Id
-        );
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .ContainSingle(
+                r =>
+                    r.Type.Code == identifier.Type.Code
+                    && r.Type.Label == identifier.Type.Label
+                    && r.Name.Code == identifier.Name.Code
+                    && r.Name.Label == identifier.Name.Label
+                    && r.Language.Id == identifier.Language.Id
+            );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
     }
@@ -193,10 +214,7 @@ public class WritingSpecs
     public void I_can_overwrite_a_specific_resource()
     {
         // Arrange
-        var identifier = new ResourceIdentifier(
-            ResourceType.Manifest,
-            ResourceName.FromCode(1)
-        );
+        var identifier = new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
         using var file = TempFile.Create();
         File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
@@ -207,13 +225,17 @@ public class WritingSpecs
         portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().ContainSingle(r =>
-            r.Type.Code == identifier.Type.Code &&
-            r.Type.Label == identifier.Type.Label &&
-            r.Name.Code == identifier.Name.Code &&
-            r.Name.Label == identifier.Name.Label &&
-            r.Language.Id == identifier.Language.Id
-        );
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .ContainSingle(
+                r =>
+                    r.Type.Code == identifier.Type.Code
+                    && r.Type.Label == identifier.Type.Label
+                    && r.Name.Code == identifier.Name.Code
+                    && r.Name.Label == identifier.Name.Label
+                    && r.Language.Id == identifier.Language.Id
+            );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
     }
@@ -222,10 +244,7 @@ public class WritingSpecs
     public void I_can_remove_a_specific_resource()
     {
         // Arrange
-        var identifier = new ResourceIdentifier(
-            ResourceType.Manifest,
-            ResourceName.FromCode(1)
-        );
+        var identifier = new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
         using var file = TempFile.Create();
         File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
@@ -236,13 +255,17 @@ public class WritingSpecs
         portableExecutable.RemoveResource(identifier);
 
         // Assert
-        portableExecutable.GetResourceIdentifiers().Should().NotContain(r =>
-            r.Type.Code == identifier.Type.Code &&
-            r.Type.Label == identifier.Type.Label &&
-            r.Name.Code == identifier.Name.Code &&
-            r.Name.Label == identifier.Name.Label &&
-            r.Language.Id == identifier.Language.Id
-        );
+        portableExecutable
+            .GetResourceIdentifiers()
+            .Should()
+            .NotContain(
+                r =>
+                    r.Type.Code == identifier.Type.Code
+                    && r.Type.Label == identifier.Type.Label
+                    && r.Name.Code == identifier.Name.Code
+                    && r.Name.Label == identifier.Name.Label
+                    && r.Language.Id == identifier.Language.Id
+            );
     }
 
     [Fact]

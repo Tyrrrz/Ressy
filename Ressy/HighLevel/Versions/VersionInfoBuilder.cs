@@ -16,10 +16,15 @@ public class VersionInfoBuilder
     private FileType _fileType = FileType.Application;
     private FileSubType _fileSubType = FileSubType.Unknown;
 
-    private readonly Dictionary<(Language, CodePage), Dictionary<VersionAttributeName, string>> _attributeTables =
-        new();
+    private readonly Dictionary<
+        (Language, CodePage),
+        Dictionary<VersionAttributeName, string>
+    > _attributeTables = new();
 
-    private Dictionary<VersionAttributeName, string> GetAttributeTable(Language language, CodePage codePage) =>
+    private Dictionary<VersionAttributeName, string> GetAttributeTable(
+        Language language,
+        CodePage codePage
+    ) =>
         _attributeTables.TryGetValue((language, codePage), out var table)
             ? table
             : _attributeTables[(language, codePage)] = new();
@@ -102,7 +107,8 @@ public class VersionInfoBuilder
         VersionAttributeName name,
         string value,
         Language language,
-        CodePage codePage)
+        CodePage codePage
+    )
     {
         GetAttributeTable(language, codePage)[name] = value;
         return this;
