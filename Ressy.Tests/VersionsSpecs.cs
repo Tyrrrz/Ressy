@@ -54,7 +54,11 @@ public class VersionsSpecs
                             }
                         )
                     }
-                )
+                ),
+                // Product version is appended by the commit hash, so use more lenient comparison there
+                o =>
+                    o.Using<string>(x => x.Subject.Should().StartWith(x.Expectation))
+                        .When(x => x.Path.EndsWith("Attributes[2].Value"))
             );
     }
 
@@ -206,7 +210,11 @@ public class VersionsSpecs
                             }
                         )
                     }
-                )
+                ),
+                // Product version is appended by the commit hash, so use more lenient comparison there
+                o =>
+                    o.Using<string>(x => x.Subject.Should().StartWith(x.Expectation))
+                        .When(x => x.Path.EndsWith("Attributes[2].Value"))
             );
 
         FileVersionInfo
@@ -215,8 +223,8 @@ public class VersionsSpecs
             .BeEquivalentTo(
                 new
                 {
-                    FileVersion = versionInfo.FileVersion.ToString(4),
-                    ProductVersion = versionInfo.ProductVersion.ToString(4),
+                    FileVersion = versionInfo.GetAttribute(VersionAttributeName.FileVersion),
+                    ProductVersion = versionInfo.GetAttribute(VersionAttributeName.ProductVersion),
                     ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
                     FileDescription = versionInfo.GetAttribute(
                         VersionAttributeName.FileDescription
