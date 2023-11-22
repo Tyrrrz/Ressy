@@ -20,20 +20,22 @@ public class GetVersionInfoCommand : ICommand
         var portableExecutable = new PortableExecutable(FilePath);
         var versionInfo = portableExecutable.GetVersionInfo();
 
-        console.Output.WriteLine(
-            JsonSerializer.Serialize(
-                versionInfo,
-                new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    Converters =
+        console
+            .Output
+            .WriteLine(
+                JsonSerializer.Serialize(
+                    versionInfo,
+                    new JsonSerializerOptions
                     {
-                        new JsonStringEnumConverter(),
-                        new VersionAttributesJsonConverter()
+                        WriteIndented = true,
+                        Converters =
+                        {
+                            new JsonStringEnumConverter(),
+                            new VersionAttributesJsonConverter()
+                        }
                     }
-                }
-            )
-        );
+                )
+            );
 
         return default;
     }

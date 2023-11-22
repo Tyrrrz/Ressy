@@ -17,13 +17,17 @@ public class ListResourcesCommand : ICommand
 
         foreach (var identifier in portableExecutable.GetResourceIdentifiers())
         {
-            console.Output.WriteLine(
-                "{ "
-                    + $"Type: {identifier.Type}, "
-                    + $"Name: {identifier.Name}, "
-                    + $"Language: {identifier.Language}"
-                    + "}"
-            );
+            console
+                .Output
+                .WriteLine(
+                    $$"""
+                    {
+                        "type": "{{identifier.Type}}",
+                        "name": "{{identifier.Name}}",
+                        "language": "{{identifier.Language}}
+                    }
+                    """
+                );
         }
 
         return default;
