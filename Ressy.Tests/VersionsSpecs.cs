@@ -54,11 +54,7 @@ public class VersionsSpecs
                             }
                         )
                     }
-                ),
-                // Product version is appended by the commit hash, so use more lenient comparison there
-                o =>
-                    o.Using<string>(x => x.Subject.Should().StartWith(x.Expectation))
-                        .When(x => x.Path.EndsWith("Attributes[2].Value"))
+                )
             );
     }
 
@@ -210,11 +206,7 @@ public class VersionsSpecs
                             }
                         )
                     }
-                ),
-                // Product version is appended by the commit hash, so use more lenient comparison there
-                o =>
-                    o.Using<string>(x => x.Subject.Should().StartWith(x.Expectation))
-                        .When(x => x.Path.EndsWith("Attributes[2].Value"))
+                )
             );
 
         FileVersionInfo
