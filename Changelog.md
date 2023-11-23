@@ -1,5 +1,9 @@
 # Changelog
 
+> **Important**:
+> This changelog is no longer maintained and will be removed in the future.
+> Going forward, new versions of this package will have the corresponding release notes published on [GitHub Releases](https://githu.com/Tyrrrz/Ressy/releases).
+
 ## v1.0.3 (27-Apr-2023)
 
 - Fixed NuGet packaging issues.
