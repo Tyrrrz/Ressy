@@ -4,24 +4,16 @@ using System.IO;
 namespace Ressy.Utils;
 
 // Allows to temporarily go to a location in a stream and then return back to the original position
-internal class StreamPortal
+internal class StreamPortal(Stream stream, long position)
 {
-    private readonly Stream _stream;
-
-    public long Position { get; }
-
-    public StreamPortal(Stream stream, long position)
-    {
-        _stream = stream;
-        Position = position;
-    }
+    public long Position { get; } = position;
 
     public IDisposable Jump()
     {
-        var oldPosition = _stream.Position;
-        _stream.Seek(Position, SeekOrigin.Begin);
+        var oldPosition = stream.Position;
+        stream.Seek(Position, SeekOrigin.Begin);
 
-        return Disposable.Create(() => _stream.Seek(oldPosition, SeekOrigin.Begin));
+        return Disposable.Create(() => stream.Seek(oldPosition, SeekOrigin.Begin));
     }
 }
 

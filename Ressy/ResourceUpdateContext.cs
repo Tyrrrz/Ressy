@@ -6,12 +6,8 @@ using Ressy.Native;
 
 namespace Ressy;
 
-internal partial class ResourceUpdateContext : IDisposable
+internal partial class ResourceUpdateContext(nint handle) : IDisposable
 {
-    private readonly nint _handle;
-
-    public ResourceUpdateContext(nint handle) => _handle = handle;
-
     [ExcludeFromCodeCoverage]
     ~ResourceUpdateContext() => Dispose();
 
@@ -24,7 +20,7 @@ internal partial class ResourceUpdateContext : IDisposable
         NativeHelpers.ThrowIfError(
             () =>
                 NativeMethods.UpdateResource(
-                    _handle,
+                    handle,
                     typeMarshaled.Handle,
                     nameMarshaled.Handle,
                     (ushort)identifier.Language.Id,
@@ -42,7 +38,7 @@ internal partial class ResourceUpdateContext : IDisposable
         NativeHelpers.ThrowIfError(
             () =>
                 NativeMethods.UpdateResource(
-                    _handle,
+                    handle,
                     typeMarshaled.Handle,
                     nameMarshaled.Handle,
                     (ushort)identifier.Language.Id,
@@ -54,7 +50,7 @@ internal partial class ResourceUpdateContext : IDisposable
 
     public void Dispose()
     {
-        NativeHelpers.LogIfError(() => NativeMethods.EndUpdateResource(_handle, false));
+        NativeHelpers.LogIfError(() => NativeMethods.EndUpdateResource(handle, false));
 
         // This line is CRITICAL!
         // Attempting to finalize the update context twice leads to really

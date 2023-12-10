@@ -2,11 +2,8 @@
 
 namespace Ressy.Native;
 
-internal partial class NativeLibrary : NativeResource
+internal partial class NativeLibrary(nint handle) : NativeResource(handle)
 {
-    public NativeLibrary(nint handle)
-        : base(handle) { }
-
     protected override void Dispose(bool disposing) => NativeMethods.FreeLibrary(Handle);
 }
 

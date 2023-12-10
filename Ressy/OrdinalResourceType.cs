@@ -4,9 +4,9 @@ using Ressy.Native;
 
 namespace Ressy;
 
-internal partial class OrdinalResourceType : ResourceType
+internal partial class OrdinalResourceType(int code) : ResourceType
 {
-    private readonly int _code;
+    private readonly int _code = code;
 
     public override int? Code => _code;
 
@@ -47,8 +47,6 @@ internal partial class OrdinalResourceType : ResourceType
                 : codePortion;
         }
     }
-
-    public OrdinalResourceType(int code) => _code = code;
 
     internal override NativeResource Marshal() => new DummyNativeResource(_code);
 }

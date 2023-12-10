@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Ressy.Utils.Extensions;
 
 namespace Ressy.HighLevel.Icons;
 
 // https://en.wikipedia.org/wiki/ICO_(file_format)#Outline
-internal partial class IconGroup
+internal partial class IconGroup(IReadOnlyList<Icon> icons)
 {
-    public IReadOnlyList<Icon> Icons { get; }
-
-    public IconGroup(IReadOnlyList<Icon> icons) => Icons = icons;
+    public IReadOnlyList<Icon> Icons { get; } = icons;
 }
 
 internal partial class IconGroup

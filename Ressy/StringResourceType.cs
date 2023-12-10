@@ -3,15 +3,13 @@ using Ressy.Native;
 
 namespace Ressy;
 
-internal partial class StringResourceType : ResourceType
+internal partial class StringResourceType(string name) : ResourceType
 {
-    private readonly string _name;
+    private readonly string _name = name;
 
     public override int? Code => null;
 
     public override string Label => _name;
-
-    public StringResourceType(string name) => _name = name;
 
     internal override NativeResource Marshal() => NativeMemory.Create(_name);
 }

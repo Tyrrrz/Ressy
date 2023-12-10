@@ -4,15 +4,13 @@ using Ressy.Native;
 
 namespace Ressy;
 
-internal partial class OrdinalResourceName : ResourceName
+internal partial class OrdinalResourceName(int code) : ResourceName
 {
-    private readonly int _code;
+    private readonly int _code = code;
 
     public override int? Code => _code;
 
     public override string Label => '#' + _code.ToString(CultureInfo.InvariantCulture);
-
-    public OrdinalResourceName(int code) => _code = code;
 
     internal override NativeResource Marshal() => new DummyNativeResource(_code);
 }
