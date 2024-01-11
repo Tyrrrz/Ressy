@@ -12,17 +12,12 @@ namespace Ressy;
 /// <summary>
 /// Portable executable image file.
 /// </summary>
-public class PortableExecutable
+public class PortableExecutable(string filePath)
 {
     /// <summary>
     /// Path to the portable executable image file.
     /// </summary>
-    public string FilePath { get; }
-
-    /// <summary>
-    /// Initializes an instance of <see cref="PortableExecutable" />.
-    /// </summary>
-    public PortableExecutable(string filePath) => FilePath = filePath;
+    public string FilePath { get; } = filePath;
 
     /// <summary>
     /// Gets the identifiers of all existing resources.

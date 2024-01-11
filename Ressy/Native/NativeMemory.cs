@@ -2,11 +2,8 @@
 
 namespace Ressy.Native;
 
-internal partial class NativeMemory : NativeResource
+internal partial class NativeMemory(nint handle) : NativeResource(handle)
 {
-    private NativeMemory(nint handle)
-        : base(handle) { }
-
     protected override void Dispose(bool disposing) => Marshal.FreeHGlobal(Handle);
 }
 

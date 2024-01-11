@@ -6,32 +6,26 @@ namespace Ressy;
 /// <summary>
 /// Identifies a single resource stored in a portable executable image.
 /// </summary>
-public partial class ResourceIdentifier
+public partial class ResourceIdentifier(
+    ResourceType type,
+    ResourceName name,
+    Language language = default
+)
 {
     /// <summary>
     /// Resource type.
     /// </summary>
-    public ResourceType Type { get; }
+    public ResourceType Type { get; } = type;
 
     /// <summary>
     /// Resource name.
     /// </summary>
-    public ResourceName Name { get; }
+    public ResourceName Name { get; } = name;
 
     /// <summary>
     /// Resource language.
     /// </summary>
-    public Language Language { get; }
-
-    /// <summary>
-    /// Initializes an instance of <see cref="ResourceIdentifier" />.
-    /// </summary>
-    public ResourceIdentifier(ResourceType type, ResourceName name, Language language = default)
-    {
-        Type = type;
-        Name = name;
-        Language = language;
-    }
+    public Language Language { get; } = language;
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

@@ -5,17 +5,12 @@ namespace Ressy.HighLevel.Versions;
 /// <summary>
 /// Encapsulates a name of an attribute stored inside a version info resource.
 /// </summary>
-public readonly partial struct VersionAttributeName
+public readonly partial struct VersionAttributeName(string raw)
 {
     /// <summary>
     /// Raw attribute name.
     /// </summary>
-    public string Raw { get; }
-
-    /// <summary>
-    /// Initializes an instance of <see cref="VersionAttributeName" />.
-    /// </summary>
-    public VersionAttributeName(string raw) => Raw = raw;
+    public string Raw { get; } = raw;
 
     /// <inheritdoc />
     public override string ToString() => Raw;

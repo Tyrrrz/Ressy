@@ -5,26 +5,17 @@ namespace Ressy;
 /// <summary>
 /// Resource stored in a portable executable image.
 /// </summary>
-public class Resource
+public class Resource(ResourceIdentifier identifier, byte[] data)
 {
     /// <summary>
     /// Resource identifier.
     /// </summary>
-    public ResourceIdentifier Identifier { get; }
+    public ResourceIdentifier Identifier { get; } = identifier;
 
     /// <summary>
     /// Binary data associated with the resource.
     /// </summary>
-    public byte[] Data { get; }
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="Resource" />.
-    /// </summary>
-    public Resource(ResourceIdentifier identifier, byte[] data)
-    {
-        Identifier = identifier;
-        Data = data;
-    }
+    public byte[] Data { get; } = data;
 
     /// <summary>
     /// Decodes resource binary data as a text string.

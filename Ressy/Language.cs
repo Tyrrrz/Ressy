@@ -8,17 +8,12 @@ namespace Ressy;
 /// <summary>
 /// Language identifier that specifies the locale of a resource or the text contained within it.
 /// </summary>
-public readonly partial struct Language
+public readonly partial struct Language(int id)
 {
     /// <summary>
     /// Language ID.
     /// </summary>
-    public int Id { get; }
-
-    /// <summary>
-    /// Initializes an instance of <see cref="Language" />.
-    /// </summary>
-    public Language(int id) => Id = id;
+    public int Id { get; } = id;
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

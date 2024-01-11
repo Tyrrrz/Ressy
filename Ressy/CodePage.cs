@@ -7,17 +7,12 @@ namespace Ressy;
 /// <summary>
 /// Code page identifier that specifies the text encoding of a resource.
 /// </summary>
-public readonly partial struct CodePage
+public readonly partial struct CodePage(int id)
 {
     /// <summary>
     /// Codepage ID.
     /// </summary>
-    public int Id { get; }
-
-    /// <summary>
-    /// Initializes an instance of <see cref="CodePage" />.
-    /// </summary>
-    public CodePage(int id) => Id = id;
+    public int Id { get; } = id;
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

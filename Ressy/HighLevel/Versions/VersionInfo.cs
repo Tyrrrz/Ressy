@@ -9,64 +9,50 @@ namespace Ressy.HighLevel.Versions;
 /// Version information associated with a portable executable file.
 /// </summary>
 // https://docs.microsoft.com/en-us/windows/win32/menurc/vs-versioninfo
-public partial class VersionInfo
+public partial class VersionInfo(
+    Version fileVersion,
+    Version productVersion,
+    FileFlags fileFlags,
+    FileOperatingSystem fileOperatingSystem,
+    FileType fileType,
+    FileSubType fileSubType,
+    IReadOnlyList<VersionAttributeTable> attributeTables
+)
 {
     /// <summary>
     /// File version.
     /// </summary>
-    public Version FileVersion { get; }
+    public Version FileVersion { get; } = fileVersion;
 
     /// <summary>
     /// Product version.
     /// </summary>
-    public Version ProductVersion { get; }
+    public Version ProductVersion { get; } = productVersion;
 
     /// <summary>
     /// File flags.
     /// </summary>
-    public FileFlags FileFlags { get; }
+    public FileFlags FileFlags { get; } = fileFlags;
 
     /// <summary>
     /// File's target operating system.
     /// </summary>
-    public FileOperatingSystem FileOperatingSystem { get; }
+    public FileOperatingSystem FileOperatingSystem { get; } = fileOperatingSystem;
 
     /// <summary>
     /// File type.
     /// </summary>
-    public FileType FileType { get; }
+    public FileType FileType { get; } = fileType;
 
     /// <summary>
     /// File sub-type.
     /// </summary>
-    public FileSubType FileSubType { get; }
+    public FileSubType FileSubType { get; } = fileSubType;
 
     /// <summary>
     /// Version attribute tables.
     /// </summary>
-    public IReadOnlyList<VersionAttributeTable> AttributeTables { get; }
-
-    /// <summary>
-    /// Initializes an instance of <see cref="VersionInfo" />.
-    /// </summary>
-    public VersionInfo(
-        Version fileVersion,
-        Version productVersion,
-        FileFlags fileFlags,
-        FileOperatingSystem fileOperatingSystem,
-        FileType fileType,
-        FileSubType fileSubType,
-        IReadOnlyList<VersionAttributeTable> attributeTables
-    )
-    {
-        FileVersion = fileVersion;
-        ProductVersion = productVersion;
-        FileFlags = fileFlags;
-        FileOperatingSystem = fileOperatingSystem;
-        FileType = fileType;
-        FileSubType = fileSubType;
-        AttributeTables = attributeTables;
-    }
+    public IReadOnlyList<VersionAttributeTable> AttributeTables { get; } = attributeTables;
 
     /// <summary>
     /// Gets the value of the specified attribute.
