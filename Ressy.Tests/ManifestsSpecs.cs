@@ -31,15 +31,15 @@ public class ManifestsSpecs
         const string manifest =
             // lang=xml
             """
-            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-            <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-                <assemblyIdentity
-                    name="MyAssembly"
-                    processorArchitecture="x86"
-                    version="1.0.0.0"
-                    type="win32" />
-            </assembly>
-            """;
+                <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+                    <assemblyIdentity
+                        name="MyAssembly"
+                        processorArchitecture="x86"
+                        version="1.0.0.0"
+                        type="win32" />
+                </assembly>
+                """;
 
         using var file = TempFile.Create();
         File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
