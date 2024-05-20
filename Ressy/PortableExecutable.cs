@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Ressy.Native;
+using NativeLibrary = Ressy.Native.NativeLibrary;
 
 // ReSharper disable AccessToDisposedClosure
 
