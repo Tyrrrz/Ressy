@@ -27,13 +27,12 @@ public class WritingSpecs
         portableExecutable
             .GetResourceIdentifiers()
             .Should()
-            .ContainSingle(
-                r =>
-                    r.Type.Code == identifier.Type.Code
-                    && r.Type.Label == identifier.Type.Label
-                    && r.Name.Code == identifier.Name.Code
-                    && r.Name.Label == identifier.Name.Label
-                    && r.Language.Id == identifier.Language.Id
+            .ContainSingle(r =>
+                r.Type.Code == identifier.Type.Code
+                && r.Type.Label == identifier.Type.Label
+                && r.Name.Code == identifier.Name.Code
+                && r.Name.Label == identifier.Name.Label
+                && r.Language.Id == identifier.Language.Id
             );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
@@ -61,13 +60,12 @@ public class WritingSpecs
         portableExecutable
             .GetResourceIdentifiers()
             .Should()
-            .ContainSingle(
-                r =>
-                    r.Type.Code == identifier.Type.Code
-                    && r.Type.Label == identifier.Type.Label
-                    && r.Name.Code == identifier.Name.Code
-                    && r.Name.Label == identifier.Name.Label
-                    && r.Language.Id == identifier.Language.Id
+            .ContainSingle(r =>
+                r.Type.Code == identifier.Type.Code
+                && r.Type.Label == identifier.Type.Label
+                && r.Name.Code == identifier.Name.Code
+                && r.Name.Label == identifier.Name.Label
+                && r.Language.Id == identifier.Language.Id
             );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
@@ -95,13 +93,12 @@ public class WritingSpecs
         portableExecutable
             .GetResourceIdentifiers()
             .Should()
-            .ContainSingle(
-                r =>
-                    r.Type.Code == identifier.Type.Code
-                    && r.Type.Label == identifier.Type.Label
-                    && r.Name.Code == identifier.Name.Code
-                    && r.Name.Label == identifier.Name.Label
-                    && r.Language.Id == identifier.Language.Id
+            .ContainSingle(r =>
+                r.Type.Code == identifier.Type.Code
+                && r.Type.Label == identifier.Type.Label
+                && r.Name.Code == identifier.Name.Code
+                && r.Name.Label == identifier.Name.Label
+                && r.Language.Id == identifier.Language.Id
             );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
@@ -129,13 +126,12 @@ public class WritingSpecs
         portableExecutable
             .GetResourceIdentifiers()
             .Should()
-            .ContainSingle(
-                r =>
-                    r.Type.Code == identifier.Type.Code
-                    && r.Type.Label == identifier.Type.Label
-                    && r.Name.Code == identifier.Name.Code
-                    && r.Name.Label == identifier.Name.Label
-                    && r.Language.Id == identifier.Language.Id
+            .ContainSingle(r =>
+                r.Type.Code == identifier.Type.Code
+                && r.Type.Label == identifier.Type.Label
+                && r.Name.Code == identifier.Name.Code
+                && r.Name.Label == identifier.Name.Label
+                && r.Language.Id == identifier.Language.Id
             );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
@@ -163,13 +159,12 @@ public class WritingSpecs
         portableExecutable
             .GetResourceIdentifiers()
             .Should()
-            .ContainSingle(
-                r =>
-                    r.Type.Code == identifier.Type.Code
-                    && r.Type.Label == identifier.Type.Label
-                    && r.Name.Code == identifier.Name.Code
-                    && r.Name.Label == identifier.Name.Label
-                    && r.Language.Id == identifier.Language.Id
+            .ContainSingle(r =>
+                r.Type.Code == identifier.Type.Code
+                && r.Type.Label == identifier.Type.Label
+                && r.Name.Code == identifier.Name.Code
+                && r.Name.Label == identifier.Name.Label
+                && r.Language.Id == identifier.Language.Id
             );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
@@ -198,13 +193,12 @@ public class WritingSpecs
         portableExecutable
             .GetResourceIdentifiers()
             .Should()
-            .ContainSingle(
-                r =>
-                    r.Type.Code == identifier.Type.Code
-                    && r.Type.Label == identifier.Type.Label
-                    && r.Name.Code == identifier.Name.Code
-                    && r.Name.Label == identifier.Name.Label
-                    && r.Language.Id == identifier.Language.Id
+            .ContainSingle(r =>
+                r.Type.Code == identifier.Type.Code
+                && r.Type.Label == identifier.Type.Label
+                && r.Name.Code == identifier.Name.Code
+                && r.Name.Label == identifier.Name.Label
+                && r.Language.Id == identifier.Language.Id
             );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
@@ -228,13 +222,12 @@ public class WritingSpecs
         portableExecutable
             .GetResourceIdentifiers()
             .Should()
-            .ContainSingle(
-                r =>
-                    r.Type.Code == identifier.Type.Code
-                    && r.Type.Label == identifier.Type.Label
-                    && r.Name.Code == identifier.Name.Code
-                    && r.Name.Label == identifier.Name.Label
-                    && r.Language.Id == identifier.Language.Id
+            .ContainSingle(r =>
+                r.Type.Code == identifier.Type.Code
+                && r.Type.Label == identifier.Type.Label
+                && r.Name.Code == identifier.Name.Code
+                && r.Name.Label == identifier.Name.Label
+                && r.Language.Id == identifier.Language.Id
             );
 
         portableExecutable.GetResource(identifier).Data.Should().Equal(1, 2, 3, 4, 5);
@@ -258,13 +251,12 @@ public class WritingSpecs
         portableExecutable
             .GetResourceIdentifiers()
             .Should()
-            .NotContain(
-                r =>
-                    r.Type.Code == identifier.Type.Code
-                    && r.Type.Label == identifier.Type.Label
-                    && r.Name.Code == identifier.Name.Code
-                    && r.Name.Label == identifier.Name.Label
-                    && r.Language.Id == identifier.Language.Id
+            .NotContain(r =>
+                r.Type.Code == identifier.Type.Code
+                && r.Type.Label == identifier.Type.Label
+                && r.Name.Code == identifier.Name.Code
+                && r.Name.Label == identifier.Name.Label
+                && r.Language.Id == identifier.Language.Id
             );
     }
 

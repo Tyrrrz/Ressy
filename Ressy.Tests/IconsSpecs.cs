@@ -114,10 +114,8 @@ public class IconsSpecs
         portableExecutable
             .GetResourceIdentifiers()
             .Should()
-            .NotContain(
-                r =>
-                    r.Type.Code == ResourceType.IconGroup.Code
-                    || r.Type.Code == ResourceType.Icon.Code
+            .NotContain(r =>
+                r.Type.Code == ResourceType.IconGroup.Code || r.Type.Code == ResourceType.Icon.Code
             );
     }
 }

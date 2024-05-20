@@ -163,14 +163,13 @@ public class VersionsSpecs
         var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
-        portableExecutable.SetVersionInfo(
-            v =>
-                v.SetFileVersion(new Version(4, 3, 2, 1))
-                    .SetFileOperatingSystem(
-                        FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT
-                    )
-                    .SetAttribute(VersionAttributeName.ProductName, "ProductTest")
-                    .SetAttribute(VersionAttributeName.CompanyName, "CompanyTest")
+        portableExecutable.SetVersionInfo(v =>
+            v.SetFileVersion(new Version(4, 3, 2, 1))
+                .SetFileOperatingSystem(
+                    FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT
+                )
+                .SetAttribute(VersionAttributeName.ProductName, "ProductTest")
+                .SetAttribute(VersionAttributeName.CompanyName, "CompanyTest")
         );
 
         // Assert
