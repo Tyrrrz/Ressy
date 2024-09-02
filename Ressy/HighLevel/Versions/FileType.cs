@@ -38,5 +38,5 @@ public enum FileType
     /// <summary>
     /// File contains a virtual device.
     /// </summary>
-    VirtualDevice = 0x00000005
+    VirtualDevice = 0x00000005,
 }

@@ -39,7 +39,7 @@ internal partial class OrdinalResourceType(int code) : ResourceType
                 22 => "ANIICON",
                 23 => "HTML",
                 24 => "MANIFEST",
-                _ => null
+                _ => null,
             };
 
             return !string.IsNullOrWhiteSpace(standardTypePortion)

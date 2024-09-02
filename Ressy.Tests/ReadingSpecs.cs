@@ -24,8 +24,7 @@ public class ReadingSpecs
         identifiers
             .Should()
             .BeEquivalentTo(
-                new[]
-                {
+                [
                     // -- RT_ICON/1/Neutral
                     new ResourceIdentifier(
                         ResourceType.Icon,
@@ -75,8 +74,8 @@ public class ReadingSpecs
                         ResourceType.Manifest,
                         ResourceName.FromCode(1),
                         Language.Neutral
-                    )
-                }
+                    ),
+                ]
             );
     }
 

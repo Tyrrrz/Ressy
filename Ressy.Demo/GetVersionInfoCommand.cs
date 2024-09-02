@@ -29,8 +29,8 @@ public class GetVersionInfoCommand : ICommand
                     Converters =
                     {
                         new JsonStringEnumConverter(),
-                        new VersionAttributesJsonConverter()
-                    }
+                        new VersionAttributesJsonConverter(),
+                    },
                 }
             )
         );

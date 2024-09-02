@@ -43,5 +43,5 @@ public enum FileFlags
     /// File was built by the original company using standard release procedures
     /// but is a variation of the normal file of the same version number.
     /// </summary>
-    SpecialBuild = 0x00000020
+    SpecialBuild = 0x00000020,
 }

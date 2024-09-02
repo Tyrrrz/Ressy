@@ -78,5 +78,5 @@ public enum FileSubType
     /// <summary>
     /// File contains a vector font.
     /// </summary>
-    FontVector = 0x00000002
+    FontVector = 0x00000002,
 }

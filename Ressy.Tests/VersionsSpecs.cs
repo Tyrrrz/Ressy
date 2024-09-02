@@ -34,8 +34,7 @@ public class VersionsSpecs
                     FileOperatingSystem.Windows32,
                     FileType.Application,
                     FileSubType.Unknown,
-                    new[]
-                    {
+                    [
                         new VersionAttributeTable(
                             Language.Neutral,
                             CodePage.Unicode,
@@ -50,10 +49,10 @@ public class VersionsSpecs
                                 [VersionAttributeName.Comments] = "TestComments",
                                 [VersionAttributeName.LegalCopyright] = "TestCopyright",
                                 [VersionAttributeName.InternalName] = "Ressy.Tests.Dummy.dll",
-                                [VersionAttributeName.OriginalFilename] = "Ressy.Tests.Dummy.dll"
+                                [VersionAttributeName.OriginalFilename] = "Ressy.Tests.Dummy.dll",
                             }
-                        )
-                    }
+                        ),
+                    ]
                 )
             );
     }
@@ -148,7 +147,7 @@ public class VersionsSpecs
                     ),
                     CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
                     Comments = "",
-                    LegalCopyright = ""
+                    LegalCopyright = "",
                 }
             );
     }
@@ -185,8 +184,7 @@ public class VersionsSpecs
                     FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT,
                     FileType.Application,
                     FileSubType.Unknown,
-                    new[]
-                    {
+                    [
                         new VersionAttributeTable(
                             Language.Neutral,
                             CodePage.Unicode,
@@ -201,10 +199,10 @@ public class VersionsSpecs
                                 [VersionAttributeName.Comments] = "TestComments",
                                 [VersionAttributeName.LegalCopyright] = "TestCopyright",
                                 [VersionAttributeName.InternalName] = "Ressy.Tests.Dummy.dll",
-                                [VersionAttributeName.OriginalFilename] = "Ressy.Tests.Dummy.dll"
+                                [VersionAttributeName.OriginalFilename] = "Ressy.Tests.Dummy.dll",
                             }
-                        )
-                    }
+                        ),
+                    ]
                 )
             );
 
@@ -222,7 +220,7 @@ public class VersionsSpecs
                     ),
                     CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
                     Comments = versionInfo.GetAttribute(VersionAttributeName.Comments),
-                    LegalCopyright = versionInfo.GetAttribute(VersionAttributeName.LegalCopyright)
+                    LegalCopyright = versionInfo.GetAttribute(VersionAttributeName.LegalCopyright),
                 }
             );
     }
@@ -257,7 +255,7 @@ public class VersionsSpecs
                     FileDescription = default(string),
                     CompanyName = default(string),
                     Comments = default(string),
-                    LegalCopyright = default(string)
+                    LegalCopyright = default(string),
                 }
             );
     }

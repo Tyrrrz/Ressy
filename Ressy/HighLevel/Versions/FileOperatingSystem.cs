@@ -53,5 +53,5 @@ public enum FileOperatingSystem
     /// <summary>
     /// File was designed for 32-bit Presentation Manager.
     /// </summary>
-    PM32 = 0x00000003
+    PM32 = 0x00000003,
 }

@@ -21,7 +21,7 @@ public static class VersionExtensions
         {
             ".EXE" => FileType.Application,
             ".DLL" => FileType.DynamicallyLinkedLibrary,
-            _ => FileType.Unknown
+            _ => FileType.Unknown,
         };
 
     private static ResourceIdentifier? TryGetVersionInfoResourceIdentifier(

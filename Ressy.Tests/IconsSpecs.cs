@@ -30,8 +30,7 @@ public class IconsSpecs
             .GetResourceIdentifiers()
             .Should()
             .Contain(
-                new[]
-                {
+                [
                     new ResourceIdentifier(
                         ResourceType.IconGroup,
                         ResourceName.FromCode(1),
@@ -61,8 +60,8 @@ public class IconsSpecs
                         ResourceType.Icon,
                         ResourceName.FromCode(5),
                         Language.Neutral
-                    )
-                }
+                    ),
+                ]
             );
 
         using var sourceIcon = new Icon(iconFilePath);
