@@ -1,5 +1,5 @@
 using System.IO;
-using Ressy.Utils.Extensions;
+using System.Linq;
 
 namespace Ressy.HighLevel.Icons;
 
@@ -44,10 +44,10 @@ public static class IconExtensions
         portableExecutable.UpdateResources(ctx =>
         {
             // Icon resources (written as-is)
-            foreach (var (icon, index) in iconGroup.Icons.WithIndex())
+            foreach (var (i, icon) in iconGroup.Icons.Index())
             {
                 ctx.Set(
-                    new ResourceIdentifier(ResourceType.Icon, ResourceName.FromCode(index + 1)),
+                    new ResourceIdentifier(ResourceType.Icon, ResourceName.FromCode(i + 1)),
                     icon.Data
                 );
             }
@@ -63,7 +63,7 @@ public static class IconExtensions
                 writer.Write((ushort)iconGroup.Icons.Count);
 
                 // Icon directory
-                foreach (var (icon, index) in iconGroup.Icons.WithIndex())
+                foreach (var (i, icon) in iconGroup.Icons.Index())
                 {
                     writer.Write(icon.Width);
                     writer.Write(icon.Height);
@@ -72,7 +72,7 @@ public static class IconExtensions
                     writer.Write(icon.ColorPlanes);
                     writer.Write(icon.BitsPerPixel);
                     writer.Write((uint)icon.Data.Length);
-                    writer.Write((ushort)(index + 1));
+                    writer.Write((ushort)(i + 1));
                 }
 
                 ctx.Set(
