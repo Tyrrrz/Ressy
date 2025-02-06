@@ -136,7 +136,7 @@ portableExecutable.SetResource(
         ResourceName.FromCode(1),
         new Language(1033)
     ),
-    new byte[] { 0x01, 0x02, 0x03 }
+    [0x01, 0x02, 0x03]
 );
 ```
 
