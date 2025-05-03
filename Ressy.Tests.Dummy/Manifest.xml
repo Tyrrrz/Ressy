@@ -12,27 +12,28 @@
       <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}" />
     </application>
   </compatibility>
-  <assemblyIdentity type="win32"
-                    name="myOrganization.myDivision.mySampleApp"
-                    version="6.0.0.0"
-                    processorArchitecture="x86"
-                    publicKeyToken="0000000000000000"
+  <assemblyIdentity
+    type="win32"
+    name="myOrganization.myDivision.mySampleApp"
+    version="6.0.0.0"
+    processorArchitecture="x86"
+    publicKeyToken="0000000000000000"
   />
   <dependency>
     <dependentAssembly>
       <assemblyIdentity
-          type="win32"
-          name="Microsoft.Windows.Common-Controls"
-          version="6.0.0.0"
-          processorArchitecture="*"
-          publicKeyToken="6595b64144ccf1df"
-          language="*"
+        type="win32"
+        name="Microsoft.Windows.Common-Controls"
+        version="6.0.0.0"
+        processorArchitecture="*"
+        publicKeyToken="6595b64144ccf1df"
+        language="*"
       />
     </dependentAssembly>
   </dependency>
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
-      <dpiAware  xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true</dpiAware>
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true</dpiAware>
     </windowsSettings>
   </application>
 </assembly>
