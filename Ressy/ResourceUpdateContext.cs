@@ -17,16 +17,15 @@ internal partial class ResourceUpdateContext(nint handle) : IDisposable
         using var nameMarshaled = identifier.Name.Marshal();
         using var dataMemory = NativeMemory.Create(data);
 
-        NativeHelpers.ThrowIfError(
-            () =>
-                NativeMethods.UpdateResource(
-                    handle,
-                    typeMarshaled.Handle,
-                    nameMarshaled.Handle,
-                    (ushort)identifier.Language.Id,
-                    dataMemory.Handle,
-                    (uint)data.Length
-                )
+        NativeHelpers.ThrowIfError(() =>
+            NativeMethods.UpdateResource(
+                handle,
+                typeMarshaled.Handle,
+                nameMarshaled.Handle,
+                (ushort)identifier.Language.Id,
+                dataMemory.Handle,
+                (uint)data.Length
+            )
         );
     }
 
@@ -35,16 +34,15 @@ internal partial class ResourceUpdateContext(nint handle) : IDisposable
         using var typeMarshaled = identifier.Type.Marshal();
         using var nameMarshaled = identifier.Name.Marshal();
 
-        NativeHelpers.ThrowIfError(
-            () =>
-                NativeMethods.UpdateResource(
-                    handle,
-                    typeMarshaled.Handle,
-                    nameMarshaled.Handle,
-                    (ushort)identifier.Language.Id,
-                    0,
-                    0
-                )
+        NativeHelpers.ThrowIfError(() =>
+            NativeMethods.UpdateResource(
+                handle,
+                typeMarshaled.Handle,
+                nameMarshaled.Handle,
+                (ushort)identifier.Language.Id,
+                0,
+                0
+            )
         );
     }
 
@@ -66,8 +64,8 @@ internal partial class ResourceUpdateContext
         bool deleteExistingResources = false
     )
     {
-        var handle = NativeHelpers.ThrowIfError(
-            () => NativeMethods.BeginUpdateResource(imageFilePath, deleteExistingResources)
+        var handle = NativeHelpers.ThrowIfError(() =>
+            NativeMethods.BeginUpdateResource(imageFilePath, deleteExistingResources)
         );
 
         return new ResourceUpdateContext(handle);

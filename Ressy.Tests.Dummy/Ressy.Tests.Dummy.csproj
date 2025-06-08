@@ -1,21 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
-
     <!-- Don't add git hash to the product version, to keep it deterministic for tests -->
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
-
   <!-- These properties affect the contained resources -->
   <PropertyGroup>
     <!-- Icon and icon group resources -->
     <ApplicationIcon>Icon.ico</ApplicationIcon>
-
     <!-- Manifest resource -->
     <ApplicationManifest>Manifest.xml</ApplicationManifest>
-
     <!-- Version info resource -->
     <AssemblyVersion>6.9.6.9</AssemblyVersion>
     <FileVersion>1.2.3.4</FileVersion>
@@ -26,9 +21,7 @@
     <Description>TestComments</Description>
     <Copyright>TestCopyright</Copyright>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="CSharpier.MsBuild" Version="1.0.2" PrivateAssets="all" />
   </ItemGroup>
-
 </Project>
