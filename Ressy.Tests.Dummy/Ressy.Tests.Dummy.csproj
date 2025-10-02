@@ -22,6 +22,6 @@
     <Copyright>TestCopyright</Copyright>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CSharpier.MsBuild" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="CSharpier.MsBuild" Version="1.1.2" PrivateAssets="all" />
   </ItemGroup>
 </Project>
