@@ -149,7 +149,7 @@ public partial class VersionInfo
         ReadFixedFileInfo(reader, builder);
 
         // Optional StringFileInfo and VarInfo, in any order
-        while (!reader.IsEndOfStream())
+        while (!reader.IsEndOfStream)
         {
             // Padding
             reader.SkipPadding();

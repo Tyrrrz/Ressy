@@ -29,40 +29,38 @@ public class IconsSpecs
         portableExecutable
             .GetResourceIdentifiers()
             .Should()
-            .Contain(
-                [
-                    new ResourceIdentifier(
-                        ResourceType.IconGroup,
-                        ResourceName.FromCode(1),
-                        Language.Neutral
-                    ),
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(1),
-                        Language.Neutral
-                    ),
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(2),
-                        Language.Neutral
-                    ),
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(3),
-                        Language.Neutral
-                    ),
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(4),
-                        Language.Neutral
-                    ),
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(5),
-                        Language.Neutral
-                    ),
-                ]
-            );
+            .Contain([
+                new ResourceIdentifier(
+                    ResourceType.IconGroup,
+                    ResourceName.FromCode(1),
+                    Language.Neutral
+                ),
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(1),
+                    Language.Neutral
+                ),
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(2),
+                    Language.Neutral
+                ),
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(3),
+                    Language.Neutral
+                ),
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(4),
+                    Language.Neutral
+                ),
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(5),
+                    Language.Neutral
+                ),
+            ]);
 
         using var sourceIcon = new Icon(iconFilePath);
         using var actualIcon = Icon.ExtractAssociatedIcon(portableExecutable.FilePath);

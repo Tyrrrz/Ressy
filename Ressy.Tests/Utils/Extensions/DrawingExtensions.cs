@@ -6,13 +6,16 @@ namespace Ressy.Tests.Utils.Extensions;
 
 internal static class DrawingExtensions
 {
-    public static byte[] GetData(this Bitmap bitmap, ImageFormat format)
+    extension(Bitmap bitmap)
     {
-        using var stream = new MemoryStream();
-        bitmap.Save(stream, format);
+        public byte[] GetData(ImageFormat format)
+        {
+            using var stream = new MemoryStream();
+            bitmap.Save(stream, format);
 
-        return stream.ToArray();
+            return stream.ToArray();
+        }
+
+        public byte[] GetData() => bitmap.GetData(ImageFormat.Bmp);
     }
-
-    public static byte[] GetData(this Bitmap bitmap) => bitmap.GetData(ImageFormat.Bmp);
 }

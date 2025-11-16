@@ -5,49 +5,51 @@ namespace Ressy.Utils.Extensions;
 
 internal static class BinaryReaderExtensions
 {
-    public static bool IsEndOfStream(this BinaryReader reader) =>
-        reader.BaseStream.Position >= reader.BaseStream.Length;
-
-    public static void SkipPadding(this BinaryReader reader, int boundaryBits = 32)
+    extension(BinaryReader reader)
     {
-        while (!reader.IsEndOfStream() && reader.BaseStream.Position * 8 % boundaryBits != 0)
-        {
-            // Read a character so that it takes up either 1 or 2 bytes,
-            // depending on the encoding of the stream.
-            _ = reader.ReadChar();
-        }
-    }
+        public bool IsEndOfStream => reader.BaseStream.Position >= reader.BaseStream.Length;
 
-    public static void SkipZeroes(this BinaryReader reader, long? maxSkipLength = null)
-    {
-        var endPosition = maxSkipLength is not null
-            ? reader.BaseStream.Position + maxSkipLength
-            : reader.BaseStream.Length;
-
-        while (reader.BaseStream.Position < endPosition)
+        public void SkipPadding(int boundaryBits = 32)
         {
-            if (reader.ReadByte() != 0)
+            while (!reader.IsEndOfStream && reader.BaseStream.Position * 8 % boundaryBits != 0)
             {
-                // Go back to non-zero byte
-                reader.BaseStream.Seek(-1, SeekOrigin.Current);
-                return;
+                // Read a character so that it takes up either 1 or 2 bytes,
+                // depending on the encoding of the stream.
+                _ = reader.ReadChar();
             }
         }
-    }
 
-    public static string ReadNullTerminatedString(this BinaryReader reader)
-    {
-        var buffer = new StringBuilder();
-
-        while (true)
+        public void SkipZeroes(long? maxSkipLength = null)
         {
-            var c = reader.ReadChar();
-            if (c == '\0')
-                break;
+            var endPosition = maxSkipLength is not null
+                ? reader.BaseStream.Position + maxSkipLength
+                : reader.BaseStream.Length;
 
-            buffer.Append(c);
+            while (reader.BaseStream.Position < endPosition)
+            {
+                if (reader.ReadByte() != 0)
+                {
+                    // Go back to non-zero byte
+                    reader.BaseStream.Seek(-1, SeekOrigin.Current);
+                    return;
+                }
+            }
         }
 
-        return buffer.ToString();
+        public string ReadNullTerminatedString()
+        {
+            var buffer = new StringBuilder();
+
+            while (true)
+            {
+                var c = reader.ReadChar();
+                if (c == '\0')
+                    break;
+
+                buffer.Append(c);
+            }
+
+            return buffer.ToString();
+        }
     }
 }

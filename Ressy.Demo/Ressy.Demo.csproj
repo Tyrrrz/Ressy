@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CliFx" Version="2.3.6" />
-    <PackageReference Include="CSharpier.MsBuild" Version="1.1.2" PrivateAssets="all" />
+    <PackageReference Include="CSharpier.MsBuild" Version="1.2.1" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ressy\Ressy.csproj" />

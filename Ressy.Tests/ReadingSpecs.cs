@@ -23,60 +23,58 @@ public class ReadingSpecs
         // Assert
         identifiers
             .Should()
-            .BeEquivalentTo(
-                [
-                    // -- RT_ICON/1/Neutral
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(1),
-                        Language.Neutral
-                    ),
-                    // -- RT_ICON/2/Neutral
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(2),
-                        Language.Neutral
-                    ),
-                    // -- RT_ICON/3/Neutral
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(3),
-                        Language.Neutral
-                    ),
-                    // -- RT_ICON/4/Neutral
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(4),
-                        Language.Neutral
-                    ),
-                    // -- RT_ICON/5/Neutral
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(5),
-                        Language.Neutral
-                    ),
-                    // -- RT_ICON/6/Neutral
-                    new ResourceIdentifier(
-                        ResourceType.Icon,
-                        ResourceName.FromCode(6),
-                        Language.Neutral
-                    ),
-                    // -- RT_GROUP_ICON/32512/Neutral
-                    new ResourceIdentifier(
-                        ResourceType.IconGroup,
-                        ResourceName.FromCode(32512),
-                        Language.Neutral
-                    ),
-                    // -- RT_VERSION/1/Neutral
-                    new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1)),
-                    // -- RT_MANIFEST/1/Neutral
-                    new ResourceIdentifier(
-                        ResourceType.Manifest,
-                        ResourceName.FromCode(1),
-                        Language.Neutral
-                    ),
-                ]
-            );
+            .BeEquivalentTo([
+                // -- RT_ICON/1/Neutral
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(1),
+                    Language.Neutral
+                ),
+                // -- RT_ICON/2/Neutral
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(2),
+                    Language.Neutral
+                ),
+                // -- RT_ICON/3/Neutral
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(3),
+                    Language.Neutral
+                ),
+                // -- RT_ICON/4/Neutral
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(4),
+                    Language.Neutral
+                ),
+                // -- RT_ICON/5/Neutral
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(5),
+                    Language.Neutral
+                ),
+                // -- RT_ICON/6/Neutral
+                new ResourceIdentifier(
+                    ResourceType.Icon,
+                    ResourceName.FromCode(6),
+                    Language.Neutral
+                ),
+                // -- RT_GROUP_ICON/32512/Neutral
+                new ResourceIdentifier(
+                    ResourceType.IconGroup,
+                    ResourceName.FromCode(32512),
+                    Language.Neutral
+                ),
+                // -- RT_VERSION/1/Neutral
+                new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1)),
+                // -- RT_MANIFEST/1/Neutral
+                new ResourceIdentifier(
+                    ResourceType.Manifest,
+                    ResourceName.FromCode(1),
+                    Language.Neutral
+                ),
+            ]);
     }
 
     [Fact]
