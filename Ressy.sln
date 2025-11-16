@@ -12,6 +12,8 @@ ProjectSection(SolutionItems) = preProject
 	Directory.Build.props = Directory.Build.props
 	License.txt = License.txt
 	Readme.md = Readme.md
+	global.json = global.json
+	NuGet.config = NuGet.config
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ressy.Demo", "Ressy.Demo\Ressy.Demo.csproj", "{A228A88A-A378-4E30-B873-9953D54F892F}"
