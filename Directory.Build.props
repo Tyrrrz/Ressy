@@ -22,4 +22,13 @@
     <EnableAotAnalyzer>false</EnableAotAnalyzer>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <Authors>$(Company)</Authors>
+    <Description>Library for managing native resources stored in portable executable images (i.e. EXE and DLL files)</Description>
+    <PackageTags>pe portable executable native resources win32 exe dll editor</PackageTags>
+    <PackageProjectUrl>https://github.com/Tyrrrz/Ressy</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/Tyrrrz/Ressy/releases</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
 </Project>

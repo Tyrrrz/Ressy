@@ -5,6 +5,7 @@
     <!-- Don't add git hash to the product version, to keep it deterministic for tests -->
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
+
   <!-- These properties affect the contained resources -->
   <PropertyGroup>
     <!-- Icon and icon group resources -->
@@ -21,6 +22,7 @@
     <Description>TestComments</Description>
     <Copyright>TestCopyright</Copyright>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CSharpier.MsBuild" Version="1.2.1" PrivateAssets="all" />
   </ItemGroup>
