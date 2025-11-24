@@ -37,7 +37,7 @@ To learn more about the war and how you can help, [click here](https://tyrrrz.me
 
 - 📦 [NuGet](https://nuget.org/packages/Ressy): `dotnet add package Ressy`
 
-> **Warning**:
+> [!WARNING]
 > This library relies on the Windows API and, as such, works only on Windows.
 
 ## Usage
@@ -194,7 +194,7 @@ var manifest = portableExecutable.GetManifest();
 // var manifest = portableExecutable.TryGetManifest();
 ```
 
-> **Note**:
+> [!NOTE]
 > If there are multiple manifest resources, this method retrieves the first one it finds, giving preference to resources with lower ordinal name (ID) and in the neutral language.
 
 ##### Set the manifest
@@ -241,7 +241,7 @@ var portableExecutable = new PortableExecutable("some_app.exe");
 portableExecutable.SetIcon("new_icon.ico");
 ```
 
-> **Warning**:
+> [!WARNING]
 > Calling this method does not remove the existing icon and icon group resources, except for those that are overwritten directly.
 > If you want to clean out redundant icon resources, call the `RemoveIcon()` method first.
 
@@ -325,7 +325,7 @@ Returned object should contain data similar to this:
 }
 ```
 
-> **Note**:
+> [!NOTE]
 > If there are multiple version info resources, this method retrieves the first one it finds, giving preference to resources with lower ordinal name (ID) and in the neutral language.
 
 When working with version info resources that include multiple attribute tables (bound to different language and code page pairs), you can use the `GetAttribute(...)` method to query a specific attribute.
@@ -377,7 +377,7 @@ portableExecutable.SetVersionInfo(v => v
 );
 ```
 
-> **Note**:
+> [!NOTE]
 > When using the `SetAttribute(...)` method on `VersionInfoBuilder`, you can optionally specify the language and code page of the table that you want to add the attribute to.
 > If you choose to omit these parameters, **Ressy** will set the attribute in all attribute tables.
 > In case there are no existing attribute tables, this method creates a new one bound to the neutral language and the Unicode code page.
