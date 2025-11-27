@@ -23,7 +23,7 @@ internal partial class StringResourceType : IEquatable<StringResourceType>
         if (ReferenceEquals(this, other))
             return true;
 
-        return StringComparer.Ordinal.Equals(_name, other._name);
+        return string.Equals(_name, other._name, StringComparison.Ordinal);
     }
 
     public override bool Equals(object? obj)
@@ -38,5 +38,5 @@ internal partial class StringResourceType : IEquatable<StringResourceType>
         return Equals((StringResourceType)obj);
     }
 
-    public override int GetHashCode() => StringComparer.Ordinal.GetHashCode(_name);
+    public override int GetHashCode() => _name.GetHashCode(StringComparison.Ordinal);
 }
