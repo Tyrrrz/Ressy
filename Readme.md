@@ -20,7 +20,7 @@
 </p>
 
 **Ressy** is a library for managing native resources stored in portable executable images (i.e. EXE and DLL files).
-It offers a high-level abstraction model for working with the [resource functions](https://docs.microsoft.com/en-us/windows/win32/menurc/resources-functions) provided by the Windows API.
+It offers a high-level abstraction model for working with the [resource functions](https://learn.microsoft.com/windows/win32/menurc/resources-functions) provided by the Windows API.
 
 ## Terms of use<sup>[[?]](https://github.com/Tyrrrz/.github/blob/master/docs/why-so-political.md)</sup>
 
@@ -177,7 +177,7 @@ portableExecutable.ClearResources();
 A manifest resource (type `24`) contains XML data that identifies and describes native assemblies that the application should bind to at run-time.
 It may also contain other information, such as application settings, requested execution level, and more.
 
-To learn more about application manifests, see [this article](https://docs.microsoft.com/en-us/windows/win32/sbscs/application-manifests).
+To learn more about application manifests, see [this article](https://learn.microsoft.com/windows/win32/sbscs/application-manifests).
 
 ##### Retrieve the manifest
 

@@ -46,7 +46,7 @@ public partial class ResourceType
         handle < 0x10000 ? FromCode((int)handle) : FromString(NativeHelpers.GetString(handle));
 }
 
-// https://docs.microsoft.com/en-us/windows/win32/menurc/resource-types
+// https://learn.microsoft.com/windows/win32/menurc/resource-types
 public partial class ResourceType
 {
     /// <summary>

@@ -30,7 +30,7 @@ public partial struct Language
     /// <summary>
     /// Creates a language identifier from a culture descriptor.
     /// </summary>
-    // https://docs.microsoft.com/en-us/windows/win32/intl/locale-identifiers
+    // https://learn.microsoft.com/windows/win32/intl/locale-identifiers
     public static Language FromCultureInfo(CultureInfo cultureInfo)
     {
         var (_, languageId) = BitPack.Split(cultureInfo.LCID);

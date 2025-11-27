@@ -8,7 +8,7 @@ namespace Ressy.HighLevel.Versions;
 /// <summary>
 /// Version information associated with a portable executable file.
 /// </summary>
-// https://docs.microsoft.com/en-us/windows/win32/menurc/vs-versioninfo
+// https://learn.microsoft.com/windows/win32/menurc/vs-versioninfo
 public partial class VersionInfo(
     Version fileVersion,
     Version productVersion,

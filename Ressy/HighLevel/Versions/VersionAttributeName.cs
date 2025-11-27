@@ -29,7 +29,7 @@ public partial struct VersionAttributeName
     public static implicit operator string(VersionAttributeName name) => name.Raw;
 }
 
-// https://docs.microsoft.com/en-us/windows/win32/menurc/string-str#members
+// https://learn.microsoft.com/windows/win32/menurc/string-str#members
 public partial struct VersionAttributeName
 {
     /// <summary>
