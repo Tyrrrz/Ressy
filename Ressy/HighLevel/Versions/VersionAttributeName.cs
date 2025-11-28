@@ -113,7 +113,8 @@ public partial struct VersionAttributeName
 public partial struct VersionAttributeName : IEquatable<VersionAttributeName>
 {
     /// <inheritdoc />
-    public bool Equals(VersionAttributeName other) => string.Equals(Raw, other.Raw, StringComparison.Ordinal);
+    public bool Equals(VersionAttributeName other) =>
+        string.Equals(Raw, other.Raw, StringComparison.Ordinal);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj is VersionAttributeName other && Equals(other);
