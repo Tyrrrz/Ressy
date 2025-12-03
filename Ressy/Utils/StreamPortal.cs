@@ -19,9 +19,10 @@ internal class StreamPortal(Stream stream, long position)
 
 internal static class StreamPortalExtensions
 {
-    public static StreamPortal CreatePortal(this Stream stream, long position) =>
-        new(stream, position);
+    extension(Stream stream)
+    {
+        public StreamPortal CreatePortal(long position) => new(stream, position);
 
-    public static StreamPortal CreatePortal(this Stream stream) =>
-        stream.CreatePortal(stream.Position);
+        public StreamPortal CreatePortal() => stream.CreatePortal(stream.Position);
+    }
 }
