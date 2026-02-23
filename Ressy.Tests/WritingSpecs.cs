@@ -15,7 +15,7 @@ public class WritingSpecs
         var identifier = new ResourceIdentifier(ResourceType.FromCode(6), ResourceName.FromCode(7));
 
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
@@ -48,7 +48,7 @@ public class WritingSpecs
         );
 
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
@@ -81,7 +81,7 @@ public class WritingSpecs
         );
 
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
@@ -114,7 +114,7 @@ public class WritingSpecs
         );
 
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
@@ -147,7 +147,7 @@ public class WritingSpecs
         );
 
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
@@ -181,7 +181,7 @@ public class WritingSpecs
         );
 
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.ClearResources();
@@ -211,7 +211,7 @@ public class WritingSpecs
         var identifier = new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 
@@ -240,7 +240,7 @@ public class WritingSpecs
         var identifier = new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 
@@ -265,7 +265,7 @@ public class WritingSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ressy.Native;
 
 namespace Ressy;
 
@@ -19,11 +18,6 @@ public abstract partial class ResourceName
     /// </summary>
     public abstract string Label { get; }
 
-    /// <summary>
-    /// Marshals the value of this resource name to native memory for use with the Windows API.
-    /// </summary>
-    internal abstract NativeResource Marshal();
-
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public override string ToString() => Label;
@@ -40,7 +34,4 @@ public partial class ResourceName
     /// Creates a non-ordinal resource name from a string.
     /// </summary>
     public static ResourceName FromString(string name) => new StringResourceName(name);
-
-    internal static ResourceName FromHandle(nint handle) =>
-        handle < 0x10000 ? FromCode((int)handle) : FromString(NativeHelpers.GetString(handle));
 }

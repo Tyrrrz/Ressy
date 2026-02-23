@@ -16,7 +16,7 @@ public class VersionsSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 
@@ -122,7 +122,7 @@ public class VersionsSpecs
             .Build();
 
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveVersionInfo();
@@ -157,7 +157,7 @@ public class VersionsSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 
@@ -230,7 +230,7 @@ public class VersionsSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(DummyPeFile.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 

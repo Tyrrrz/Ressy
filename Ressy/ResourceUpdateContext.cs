@@ -1,58 +1,46 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Ressy.Native;
-
-// ReSharper disable AccessToDisposedClosure
+using Ressy.PE;
 
 namespace Ressy;
 
-internal partial class ResourceUpdateContext(nint handle) : IDisposable
+internal partial class ResourceUpdateContext : IDisposable
 {
+    private readonly string _filePath;
+    private readonly Dictionary<ResourceIdentifier, byte[]> _resources;
+    private bool _disposed;
+
+    private ResourceUpdateContext(string filePath, Dictionary<ResourceIdentifier, byte[]> resources)
+    {
+        _filePath = filePath;
+        _resources = resources;
+    }
+
     [ExcludeFromCodeCoverage]
     ~ResourceUpdateContext() => Dispose();
 
-    public void Set(ResourceIdentifier identifier, byte[] data)
-    {
-        using var typeMarshaled = identifier.Type.Marshal();
-        using var nameMarshaled = identifier.Name.Marshal();
-        using var dataMemory = NativeMemory.Create(data);
+    public void Set(ResourceIdentifier identifier, byte[] data) => _resources[identifier] = data;
 
-        NativeHelpers.ThrowIfError(() =>
-            NativeMethods.UpdateResource(
-                handle,
-                typeMarshaled.Handle,
-                nameMarshaled.Handle,
-                (ushort)identifier.Language.Id,
-                dataMemory.Handle,
-                (uint)data.Length
-            )
-        );
-    }
-
-    public void Remove(ResourceIdentifier identifier)
-    {
-        using var typeMarshaled = identifier.Type.Marshal();
-        using var nameMarshaled = identifier.Name.Marshal();
-
-        NativeHelpers.ThrowIfError(() =>
-            NativeMethods.UpdateResource(
-                handle,
-                typeMarshaled.Handle,
-                nameMarshaled.Handle,
-                (ushort)identifier.Language.Id,
-                0,
-                0
-            )
-        );
-    }
+    public void Remove(ResourceIdentifier identifier) => _resources.Remove(identifier);
 
     public void Dispose()
     {
-        NativeHelpers.LogIfError(() => NativeMethods.EndUpdateResource(handle, false));
+        if (_disposed)
+            return;
 
-        // This line is CRITICAL!
-        // Attempting to finalize the update context twice leads to really
-        // weird errors when calling other resource-related methods later.
+        _disposed = true;
+        // Write the complete desired state directly; deleteExisting=true avoids re-reading the file
+        PeFile.UpdateResources(
+            _filePath,
+            existing =>
+            {
+                foreach (var kv in _resources)
+                    existing[kv.Key] = kv.Value;
+            },
+            deleteExisting: true
+        );
+
         GC.SuppressFinalize(this);
     }
 }
@@ -60,14 +48,18 @@ internal partial class ResourceUpdateContext(nint handle) : IDisposable
 internal partial class ResourceUpdateContext
 {
     public static ResourceUpdateContext Create(
-        string imageFilePath,
+        string filePath,
         bool deleteExistingResources = false
     )
     {
-        var handle = NativeHelpers.ThrowIfError(() =>
-            NativeMethods.BeginUpdateResource(imageFilePath, deleteExistingResources)
-        );
+        var resources = new Dictionary<ResourceIdentifier, byte[]>();
 
-        return new ResourceUpdateContext(handle);
+        if (!deleteExistingResources)
+        {
+            foreach (var (id, data) in PeFile.ReadResources(filePath))
+                resources[id] = data;
+        }
+
+        return new ResourceUpdateContext(filePath, resources);
     }
 }
