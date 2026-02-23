@@ -77,7 +77,7 @@ public class StringTablesSpecs
     }
 
     [Fact]
-    public void I_can_get_a_string_that_does_not_exist()
+    public void I_can_try_to_get_a_string_that_does_not_exist_and_receive_null_instead()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -103,16 +103,16 @@ public class StringTablesSpecs
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveStringTable();
 
-        var englishLanguage = new Language(1033);
-        var frenchLanguage = new Language(1036);
+        var english = new Language(1033);
+        var french = new Language(1036);
 
         // Act
-        portableExecutable.SetString(1, "Hello", englishLanguage);
-        portableExecutable.SetString(1, "Bonjour", frenchLanguage);
+        portableExecutable.SetString(1, "Hello", english);
+        portableExecutable.SetString(1, "Bonjour", french);
 
         // Assert
-        portableExecutable.GetString(1, englishLanguage).Should().Be("Hello");
-        portableExecutable.GetString(1, frenchLanguage).Should().Be("Bonjour");
+        portableExecutable.GetString(1, english).Should().Be("Hello");
+        portableExecutable.GetString(1, french).Should().Be("Bonjour");
     }
 
     [Fact]
