@@ -60,6 +60,9 @@ public class VersionsSpecs
     [Fact]
     public void I_can_get_the_version_info_of_Notepad()
     {
+        if (!OperatingSystem.IsWindows())
+            return;
+
         // Arrange
         var portableExecutable = new PortableExecutable(
             Path.Combine(
@@ -85,14 +88,20 @@ public class VersionsSpecs
     [Fact]
     public void I_can_get_the_version_info_of_InternetExplorer()
     {
-        // Arrange
-        var portableExecutable = new PortableExecutable(
-            Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                "Internet Explorer",
-                "iexplore.exe"
-            )
+        if (!OperatingSystem.IsWindows())
+            return;
+
+        var iePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+            "Internet Explorer",
+            "iexplore.exe"
         );
+
+        if (!File.Exists(iePath))
+            return;
+
+        // Arrange
+        var portableExecutable = new PortableExecutable(iePath);
 
         // Act
         var versionInfo = portableExecutable.GetVersionInfo();
@@ -133,23 +142,26 @@ public class VersionsSpecs
         // Assert
         portableExecutable.GetVersionInfo().Should().BeEquivalentTo(versionInfo);
 
-        FileVersionInfo
-            .GetVersionInfo(portableExecutable.FilePath)
-            .Should()
-            .BeEquivalentTo(
-                new
-                {
-                    FileVersion = versionInfo.FileVersion.ToString(4),
-                    ProductVersion = versionInfo.ProductVersion.ToString(4),
-                    ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
-                    FileDescription = versionInfo.GetAttribute(
-                        VersionAttributeName.FileDescription
-                    ),
-                    CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
-                    Comments = "",
-                    LegalCopyright = "",
-                }
-            );
+        if (OperatingSystem.IsWindows())
+        {
+            FileVersionInfo
+                .GetVersionInfo(portableExecutable.FilePath)
+                .Should()
+                .BeEquivalentTo(
+                    new
+                    {
+                        FileVersion = versionInfo.FileVersion.ToString(4),
+                        ProductVersion = versionInfo.ProductVersion.ToString(4),
+                        ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
+                        FileDescription = versionInfo.GetAttribute(
+                            VersionAttributeName.FileDescription
+                        ),
+                        CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
+                        Comments = "",
+                        LegalCopyright = "",
+                    }
+                );
+        }
     }
 
     [Fact]
@@ -206,23 +218,30 @@ public class VersionsSpecs
                 )
             );
 
-        FileVersionInfo
-            .GetVersionInfo(portableExecutable.FilePath)
-            .Should()
-            .BeEquivalentTo(
-                new
-                {
-                    FileVersion = versionInfo.GetAttribute(VersionAttributeName.FileVersion),
-                    ProductVersion = versionInfo.GetAttribute(VersionAttributeName.ProductVersion),
-                    ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
-                    FileDescription = versionInfo.GetAttribute(
-                        VersionAttributeName.FileDescription
-                    ),
-                    CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
-                    Comments = versionInfo.GetAttribute(VersionAttributeName.Comments),
-                    LegalCopyright = versionInfo.GetAttribute(VersionAttributeName.LegalCopyright),
-                }
-            );
+        if (OperatingSystem.IsWindows())
+        {
+            FileVersionInfo
+                .GetVersionInfo(portableExecutable.FilePath)
+                .Should()
+                .BeEquivalentTo(
+                    new
+                    {
+                        FileVersion = versionInfo.GetAttribute(VersionAttributeName.FileVersion),
+                        ProductVersion = versionInfo.GetAttribute(
+                            VersionAttributeName.ProductVersion
+                        ),
+                        ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
+                        FileDescription = versionInfo.GetAttribute(
+                            VersionAttributeName.FileDescription
+                        ),
+                        CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
+                        Comments = versionInfo.GetAttribute(VersionAttributeName.Comments),
+                        LegalCopyright = versionInfo.GetAttribute(
+                            VersionAttributeName.LegalCopyright
+                        ),
+                    }
+                );
+        }
     }
 
     [Fact]
@@ -243,20 +262,23 @@ public class VersionsSpecs
             .Should()
             .NotContain(r => r.Type.Code == ResourceType.Version.Code);
 
-        FileVersionInfo
-            .GetVersionInfo(portableExecutable.FilePath)
-            .Should()
-            .BeEquivalentTo(
-                new
-                {
-                    FileVersion = default(string),
-                    ProductVersion = default(string),
-                    ProductName = default(string),
-                    FileDescription = default(string),
-                    CompanyName = default(string),
-                    Comments = default(string),
-                    LegalCopyright = default(string),
-                }
-            );
+        if (OperatingSystem.IsWindows())
+        {
+            FileVersionInfo
+                .GetVersionInfo(portableExecutable.FilePath)
+                .Should()
+                .BeEquivalentTo(
+                    new
+                    {
+                        FileVersion = default(string),
+                        ProductVersion = default(string),
+                        ProductName = default(string),
+                        FileDescription = default(string),
+                        CompanyName = default(string),
+                        Comments = default(string),
+                        LegalCopyright = default(string),
+                    }
+                );
+        }
     }
 }

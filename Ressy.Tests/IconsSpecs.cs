@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.IO;
 using FluentAssertions;
@@ -62,10 +63,13 @@ public class IconsSpecs
                 ),
             ]);
 
-        using var sourceIcon = new Icon(iconFilePath);
-        using var actualIcon = Icon.ExtractAssociatedIcon(portableExecutable.FilePath);
-        actualIcon.Should().NotBeNull();
-        actualIcon?.ToBitmap().GetData().Should().Equal(sourceIcon.ToBitmap().GetData());
+        if (OperatingSystem.IsWindows())
+        {
+            using var sourceIcon = new Icon(iconFilePath);
+            using var actualIcon = Icon.ExtractAssociatedIcon(portableExecutable.FilePath);
+            actualIcon.Should().NotBeNull();
+            actualIcon?.ToBitmap().GetData().Should().Equal(sourceIcon.ToBitmap().GetData());
+        }
     }
 
     [Fact(Skip = "Takes a long time and doesn't seem to reproduce the issue when running on CI")]
