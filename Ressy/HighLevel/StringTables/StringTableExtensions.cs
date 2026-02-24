@@ -44,8 +44,7 @@ public static class StringTableExtensions
                 if (resource is null)
                     continue;
 
-                var blockId = identifier.Name.Code.Value;
-                var baseStringId = (blockId - 1) * StringTable.BlockSize;
+                var baseStringId = (identifier.Name.Code.Value - 1) * StringTable.BlockSize;
                 var blockStrings = StringTable.Deserialize(resource.Data);
 
                 for (var i = 0; i < StringTable.BlockSize; i++)
@@ -95,7 +94,7 @@ public static class StringTableExtensions
                 .Where(r => language is null || r.Language.Id == language.Value.Id);
 
             if (language is null)
-                candidates = candidates.OrderBy(r => r.Language.Id == Language.Neutral.Id ? 0 : 1);
+                candidates = candidates.OrderBy(r => r.Language.Id != Language.Neutral.Id);
 
             var identifier = candidates.FirstOrDefault();
             if (identifier is null)
@@ -190,28 +189,16 @@ public static class StringTableExtensions
                 );
 
             var targetLanguage = language ?? Language.Neutral;
-            var blockId = StringTable.GetBlockId(stringId);
-            var blockIndex = StringTable.GetBlockIndex(stringId);
 
-            var identifier = new ResourceIdentifier(
-                ResourceType.String,
-                ResourceName.FromCode(blockId),
-                targetLanguage
-            );
+            var strings =
+                portableExecutable
+                    .TryGetStringTable(targetLanguage)
+                    ?.ToDictionary(kv => kv.Key, kv => kv.Value)
+                ?? new Dictionary<int, string>();
 
-            // Load existing block data or start with empty entries
-            var strings = Enumerable.Repeat(string.Empty, StringTable.BlockSize).ToArray();
+            strings[stringId] = value;
 
-            var existingResource = portableExecutable.TryGetResource(identifier);
-            if (existingResource is not null)
-            {
-                var existingStrings = StringTable.Deserialize(existingResource.Data);
-                Array.Copy(existingStrings, strings, StringTable.BlockSize);
-            }
-
-            strings[blockIndex] = value;
-
-            portableExecutable.SetResource(identifier, StringTable.Serialize(strings));
+            portableExecutable.SetStringTable(new StringTable(strings), targetLanguage);
         }
     }
 }
