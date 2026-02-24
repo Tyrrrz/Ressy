@@ -398,15 +398,16 @@ portableExecutable.RemoveVersionInfo();
 
 #### String table resources
 
-String table resources (type `6`) store localized strings that can be loaded by the application at runtime using the `LoadString` Windows API function.
-Each string is identified by a unique integer ID.
+String table resources (type `6`) store localized strings that can be loaded by the application at run-time using the `LoadString(...)` Windows API function.
+Each string is identified by a unique integer ID and stored in a specific block of 16 strings.
 
 > [!NOTE]
 > To learn more about string table resources, see [this article](https://learn.microsoft.com/windows/win32/menurc/stringtable-resource).
 
 ##### Retrieve strings
 
-To get the string table resource, call the `GetStringTable()` extension method. This returns a `StringTable` object that contains the strings mapped to their IDs:
+To get the string table resource, call the `GetStringTable()` extension method.
+This returns a `StringTable` object that provides a unified view over all string blocks stored in the PE file:
 
 ```csharp
 using Ressy;
@@ -415,11 +416,12 @@ using Ressy.HighLevel.StringTables;
 var portableExecutable = new PortableExecutable("some_app.exe");
 
 var stringTable = portableExecutable.GetStringTable();
+
 // stringTable.Strings[1] => "Hello, World!"
 // stringTable.Strings[100] => "Some other string"
 ```
 
-To retrieve a specific string by its ID, call `GetString(...)` or `TryGetString(...)` on the returned `StringTable` object:
+To retrieve a specific string by its ID, call `GetString(...)` on the returned `StringTable` object:
 
 ```csharp
 using Ressy;
@@ -439,7 +441,8 @@ var str = stringTable.GetString(1);
 
 ##### Set the string table
 
-To replace the entire string table with a new set of strings, call the `SetStringTable(...)` extension method with a `StringTable` object:
+To replace the entire string table with a new set of strings, call the `SetStringTable(...)` extension method with a `StringTable` object.
+You can use the `StringTableBuilder` class to simplify the creation of a new `StringTable` instance:
 
 ```csharp
 using System.Collections.Generic;
@@ -449,13 +452,10 @@ using Ressy.HighLevel.StringTables;
 var portableExecutable = new PortableExecutable("some_app.exe");
 
 portableExecutable.SetStringTable(
-    new StringTable(
-        new Dictionary<int, string>
-        {
-            [1] = "Hello, World!",
-            [100] = "Some other string",
-        }
-    )
+    new StringTableBuilder()
+        .SetString(1, "Hello, World!")
+        .SetString(100, "Some other string")
+        .Build()
 );
 ```
 
