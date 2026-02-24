@@ -439,7 +439,27 @@ var str = stringTable.GetString(1);
 
 ##### Set the string table
 
-To add new strings or modify existing ones while preserving the rest, call the `SetStringTable(...)` extension method with a builder:
+To replace the entire string table with a new set of strings, call the `SetStringTable(...)` extension method with a `StringTable` object:
+
+```csharp
+using System.Collections.Generic;
+using Ressy;
+using Ressy.HighLevel.StringTables;
+
+var portableExecutable = new PortableExecutable("some_app.exe");
+
+portableExecutable.SetStringTable(
+    new StringTable(
+        new Dictionary<int, string>
+        {
+            [1] = "Hello, World!",
+            [100] = "Some other string",
+        }
+    )
+);
+```
+
+To add new strings or modify existing ones while preserving the rest, call the `SetStringTable(...)` extension method with a builder delegate:
 
 ```csharp
 using Ressy;
