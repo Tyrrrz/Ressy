@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Ressy.HighLevel.StringTables;
 
-internal partial class StringTable
+public partial class StringTable
 {
     internal static byte[] Serialize(string[] strings)
     {

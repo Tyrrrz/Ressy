@@ -37,7 +37,7 @@ public static class StringTableExtensions
                 .FirstOrDefault();
 
         /// <summary>
-        /// Gets all strings from the string table resources as a dictionary mapping string IDs to values.
+        /// Gets all strings from the string table resources.
         /// Returns <c>null</c> if no string table resources exist.
         /// </summary>
         /// <remarks>
@@ -45,7 +45,7 @@ public static class StringTableExtensions
         /// all available string table resources, giving preference to resources in the neutral language
         /// when multiple languages contain the same string ID.
         /// </remarks>
-        public IReadOnlyDictionary<int, string>? TryGetStringTable(Language? language = null)
+        public StringTable? TryGetStringTable(Language? language = null)
         {
             if (portableExecutable.TryGetStringTableResourceIdentifier(language) is null)
                 return null;
@@ -81,18 +81,18 @@ public static class StringTableExtensions
                 }
             }
 
-            return result;
+            return new StringTable(result);
         }
 
         /// <summary>
-        /// Gets all strings from the string table resources as a dictionary mapping string IDs to values.
+        /// Gets all strings from the string table resources.
         /// </summary>
         /// <remarks>
         /// If <paramref name="language" /> is not specified, this method retrieves strings from
         /// all available string table resources, giving preference to resources in the neutral language
         /// when multiple languages contain the same string ID.
         /// </remarks>
-        public IReadOnlyDictionary<int, string> GetStringTable(Language? language = null) =>
+        public StringTable GetStringTable(Language? language = null) =>
             portableExecutable.TryGetStringTable(language)
             ?? throw new InvalidOperationException("String table resource does not exist.");
 
@@ -175,14 +175,11 @@ public static class StringTableExtensions
         /// Consider calling <see cref="RemoveStringTable" /> first to remove redundant
         /// string table resources left over from any previous string table.
         /// </remarks>
-        public void SetStringTable(
-            IReadOnlyDictionary<int, string> strings,
-            Language? language = null
-        )
+        public void SetStringTable(StringTable stringTable, Language? language = null)
         {
             var targetLanguage = language ?? Language.Neutral;
 
-            var blocks = strings.GroupBy(kv => StringTable.GetBlockId(kv.Key));
+            var blocks = stringTable.GroupBy(kv => StringTable.GetBlockId(kv.Key));
 
             portableExecutable.UpdateResources(ctx =>
             {

@@ -406,7 +406,7 @@ Each string is identified by a unique integer ID.
 
 ##### Retrieve strings
 
-To get the string table resource, call the `GetStringTable()` extension method. This returns a dictionary mapping string IDs to their values:
+To get the string table resource, call the `GetStringTable()` extension method. This returns a `StringTable` object that contains the strings mapped to their IDs:
 
 ```csharp
 using Ressy;
@@ -414,9 +414,9 @@ using Ressy.HighLevel.StringTables;
 
 var portableExecutable = new PortableExecutable("some_app.exe");
 
-var strings = portableExecutable.GetStringTable();
-// strings[1] => "Hello, World!"
-// strings[100] => "Some other string"
+var stringTable = portableExecutable.GetStringTable();
+// stringTable[1] => "Hello, World!"
+// stringTable[100] => "Some other string"
 ```
 
 To retrieve a specific string by its ID, call `GetString(...)` or `TryGetString(...)`:
@@ -446,11 +446,11 @@ using Ressy.HighLevel.StringTables;
 
 var portableExecutable = new PortableExecutable("some_app.exe");
 
-portableExecutable.SetStringTable(new Dictionary<int, string>
+portableExecutable.SetStringTable(new StringTable(new Dictionary<int, string>
 {
     [1] = "Hello, World!",
     [100] = "Some other string",
-});
+}));
 ```
 
 > [!NOTE]

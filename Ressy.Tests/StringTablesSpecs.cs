@@ -28,7 +28,9 @@ public class StringTablesSpecs
         // Assert
         stringTable
             .Should()
-            .BeEquivalentTo(new Dictionary<int, string> { [1] = "First", [2] = "Second" });
+            .BeEquivalentTo(
+                new StringTable(new Dictionary<int, string> { [1] = "First", [2] = "Second" })
+            );
     }
 
     [Fact]
@@ -115,12 +117,14 @@ public class StringTablesSpecs
 
         // Act
         portableExecutable.SetStringTable(
-            new Dictionary<int, string>
-            {
-                [1] = "First",
-                [2] = "Second",
-                [100] = "OneHundred",
-            }
+            new StringTable(
+                new Dictionary<int, string>
+                {
+                    [1] = "First",
+                    [2] = "Second",
+                    [100] = "OneHundred",
+                }
+            )
         );
 
         // Assert
@@ -128,12 +132,14 @@ public class StringTablesSpecs
             .GetStringTable()
             .Should()
             .BeEquivalentTo(
-                new Dictionary<int, string>
-                {
-                    [1] = "First",
-                    [2] = "Second",
-                    [100] = "OneHundred",
-                }
+                new StringTable(
+                    new Dictionary<int, string>
+                    {
+                        [1] = "First",
+                        [2] = "Second",
+                        [100] = "OneHundred",
+                    }
+                )
             );
     }
 
@@ -152,10 +158,13 @@ public class StringTablesSpecs
 
         // Act
         portableExecutable.SetStringTable(
-            new Dictionary<int, string> { [1] = "Hello", [2] = "Goodbye" },
+            new StringTable(new Dictionary<int, string> { [1] = "Hello", [2] = "Goodbye" }),
             english
         );
-        portableExecutable.SetStringTable(new Dictionary<int, string> { [1] = "Bonjour" }, french);
+        portableExecutable.SetStringTable(
+            new StringTable(new Dictionary<int, string> { [1] = "Bonjour" }),
+            french
+        );
 
         // Assert
         portableExecutable
@@ -232,13 +241,15 @@ public class StringTablesSpecs
             .GetStringTable()
             .Should()
             .BeEquivalentTo(
-                new Dictionary<int, string>
-                {
-                    [1] = "First",
-                    [2] = "Second",
-                    [100] = "OneHundred",
-                    [1000] = "OneThousand",
-                }
+                new StringTable(
+                    new Dictionary<int, string>
+                    {
+                        [1] = "First",
+                        [2] = "Second",
+                        [100] = "OneHundred",
+                        [1000] = "OneThousand",
+                    }
+                )
             );
     }
 
