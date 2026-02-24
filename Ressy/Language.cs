@@ -28,6 +28,11 @@ public partial struct Language
     public static Language Neutral { get; } = new(0);
 
     /// <summary>
+    /// English language.
+    /// </summary>
+    public static Language English { get; } = new(1033);
+
+    /// <summary>
     /// Creates a language identifier from a culture descriptor.
     /// </summary>
     // https://learn.microsoft.com/windows/win32/intl/locale-identifiers
