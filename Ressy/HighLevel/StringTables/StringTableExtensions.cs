@@ -69,12 +69,15 @@ public static class StringTableExtensions
                 .Where(r => r.Type.Code == ResourceType.String.Code)
                 .Where(r => language is null || r.Language.Id == language.Value.Id);
 
-            // Group by block ID and prefer neutral language entries
+            // Group by block ID and, when no specific language is requested,
+            // prefer entries in the neutral language.
             var neutralLanguageId = Language.Neutral.Id;
             var blockGroups = identifiers
                 .Where(r => r.Name.Code is not null)
                 .GroupBy(r => r.Name.Code!.Value)
-                .Select(g => g.OrderBy(r => r.Language.Id == neutralLanguageId ? 0 : 1).First());
+                .Select(g => language is null
+                    ? g.OrderBy(r => r.Language.Id == neutralLanguageId ? 0 : 1).First()
+                    : g.First());
 
             var result = new Dictionary<int, string>();
 
