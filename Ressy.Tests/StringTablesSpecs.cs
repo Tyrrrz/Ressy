@@ -154,6 +154,7 @@ public class StringTablesSpecs
         portableExecutable.RemoveStringTable();
 
         portableExecutable.SetString(1, "Hello, World!");
+        portableExecutable.SetString(2, "OldGoodbye");
 
         // Act
         portableExecutable.SetStringTable(b => b.SetString(2, "Goodbye, World!"));

@@ -11,16 +11,6 @@ public class StringTableBuilder
     private readonly Dictionary<int, string> _strings = new();
 
     /// <summary>
-    /// Copies all data from an existing <see cref="StringTable" /> instance.
-    /// </summary>
-    public StringTableBuilder SetAll(StringTable existing)
-    {
-        foreach (var (key, value) in existing.Strings)
-            _strings[key] = value;
-        return this;
-    }
-
-    /// <summary>
     /// Sets the string with the specified ID.
     /// </summary>
     public StringTableBuilder SetString(int stringId, string value)
@@ -34,6 +24,17 @@ public class StringTableBuilder
         }
 
         _strings[stringId] = value;
+        return this;
+    }
+
+    /// <summary>
+    /// Copies all data from an existing <see cref="StringTable" /> instance.
+    /// </summary>
+    public StringTableBuilder SetAll(StringTable existing)
+    {
+        foreach (var (key, value) in existing.Strings)
+            _strings[key] = value;
+
         return this;
     }
 
