@@ -32,7 +32,7 @@ public class StringTablesSpecs
     }
 
     [Fact]
-    public void I_can_get_the_string_table_for_a_specific_language()
+    public void I_can_get_the_string_table_in_a_specific_language()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -79,7 +79,7 @@ public class StringTablesSpecs
     }
 
     [Fact]
-    public void I_can_get_a_string_from_the_string_table_for_a_specific_language()
+    public void I_can_get_a_string_from_the_string_table_in_a_specific_language()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -138,7 +138,7 @@ public class StringTablesSpecs
     }
 
     [Fact]
-    public void I_can_set_the_string_table_for_a_specific_language()
+    public void I_can_set_the_string_table_in_a_specific_language()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -190,7 +190,7 @@ public class StringTablesSpecs
     }
 
     [Fact]
-    public void I_can_add_a_string_to_the_string_table_for_a_specific_language()
+    public void I_can_add_a_string_to_the_string_table_in_a_specific_language()
     {
         // Arrange
         using var file = TempFile.Create();
