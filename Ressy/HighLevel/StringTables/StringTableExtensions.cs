@@ -19,20 +19,17 @@ public static class StringTableExtensions
         /// </summary>
         /// <remarks>
         /// If <paramref name="language" /> is specified, retrieves only blocks in that language.
-        /// If <paramref name="language" /> is not specified, retrieves and merges blocks from all
-        /// available languages, giving preference to resources in the neutral language when
-        /// multiple languages contain the same string ID.
+        /// If <paramref name="language" /> is not specified, retrieves blocks in the neutral language.
         /// </remarks>
         public StringTable? TryGetStringTable(Language? language = null)
         {
+            var targetLanguage = language ?? Language.Neutral;
+
             var blockIdentifiers = portableExecutable
                 .GetResourceIdentifiers()
-                .Where(r => r.Type.Code == ResourceType.String.Code)
-                .Where(r => language is null || r.Language.Id == language.Value.Id)
-                .GroupBy(r => r.Name.Code)
-                // No-op when a specific language is requested (all entries have the same language),
-                // but prefers neutral language when no language is specified.
-                .Select(g => g.OrderBy(r => r.Language.Id != Language.Neutral.Id).First());
+                .Where(r =>
+                    r.Type.Code == ResourceType.String.Code && r.Language.Id == targetLanguage.Id
+                );
 
             var strings = new Dictionary<int, string>();
 
@@ -63,9 +60,7 @@ public static class StringTableExtensions
         /// </summary>
         /// <remarks>
         /// If <paramref name="language" /> is specified, retrieves only blocks in that language.
-        /// If <paramref name="language" /> is not specified, retrieves and merges blocks from all
-        /// available languages, giving preference to resources in the neutral language when
-        /// multiple languages contain the same string ID.
+        /// If <paramref name="language" /> is not specified, retrieves blocks in the neutral language.
         /// </remarks>
         public StringTable GetStringTable(Language? language = null) =>
             portableExecutable.TryGetStringTable(language)
@@ -76,8 +71,8 @@ public static class StringTableExtensions
         /// Returns <c>null</c> if the string doesn't exist.
         /// </summary>
         /// <remarks>
-        /// If <paramref name="language" /> is not specified, this method gives preference
-        /// to resources in the neutral language.
+        /// If <paramref name="language" /> is not specified, this method looks for the string
+        /// in the neutral language.
         /// </remarks>
         public string? TryGetString(int stringId, Language? language = null)
         {
@@ -92,11 +87,15 @@ public static class StringTableExtensions
             var blockId = StringTable.GetBlockId(stringId);
             var blockIndex = StringTable.GetBlockIndex(stringId);
 
+            var targetLanguage = language ?? Language.Neutral;
+
             var identifier = portableExecutable
                 .GetResourceIdentifiers()
-                .Where(r => r.Type.Code == ResourceType.String.Code && r.Name.Code == blockId)
-                .Where(r => language is null || r.Language.Id == language.Value.Id)
-                .OrderBy(r => r.Language.Id != Language.Neutral.Id)
+                .Where(r =>
+                    r.Type.Code == ResourceType.String.Code
+                    && r.Name.Code == blockId
+                    && r.Language.Id == targetLanguage.Id
+                )
                 .FirstOrDefault();
 
             if (identifier is null)
@@ -116,8 +115,8 @@ public static class StringTableExtensions
         /// Gets the string with the specified ID from the string table resources.
         /// </summary>
         /// <remarks>
-        /// If <paramref name="language" /> is not specified, this method gives preference
-        /// to resources in the neutral language.
+        /// If <paramref name="language" /> is not specified, this method looks for the string
+        /// in the neutral language.
         /// </remarks>
         public string GetString(int stringId, Language? language = null) =>
             portableExecutable.TryGetString(stringId, language)
@@ -160,7 +159,10 @@ public static class StringTableExtensions
             {
                 foreach (var block in blocks)
                 {
-                    // Use string.Empty (not null) for absent entries, as Serialize expects non-null strings.
+                    // Use Enumerable.Repeat(string.Empty, BlockSize) rather than new string[BlockSize]:
+                    // (1) new string[BlockSize] produces null elements, which Serialize does not accept.
+                    // (2) The block must always contain exactly BlockSize entries, with string.Empty
+                    //     representing absent string IDs.
                     var blockData = Enumerable
                         .Repeat(string.Empty, StringTable.BlockSize)
                         .ToArray();
@@ -181,6 +183,27 @@ public static class StringTableExtensions
         }
 
         /// <summary>
+        /// Modifies string table resources using the specified builder configuration.
+        /// If string table resources already exist, uses them as the base.
+        /// </summary>
+        /// <remarks>
+        /// Consider calling <see cref="RemoveStringTable" /> first to remove redundant
+        /// string table resources.
+        /// </remarks>
+        public void SetStringTable(Action<StringTableBuilder> modify, Language? language = null)
+        {
+            var builder = new StringTableBuilder();
+
+            var existing = portableExecutable.TryGetStringTable(language);
+            if (existing is not null)
+                builder.SetAll(existing);
+
+            modify(builder);
+
+            portableExecutable.SetStringTable(builder.Build(), language);
+        }
+
+        /// <summary>
         /// Adds or overwrites a string in the string table resource with the specified ID and value.
         /// </summary>
         public void SetString(int stringId, string value, Language? language = null)
@@ -193,14 +216,7 @@ public static class StringTableExtensions
                 );
             }
 
-            var targetLanguage = language ?? Language.Neutral;
-
-            portableExecutable.SetStringTable(
-                new StringTableBuilder(portableExecutable.TryGetStringTable(targetLanguage))
-                    .SetString(stringId, value)
-                    .Build(),
-                targetLanguage
-            );
+            portableExecutable.SetStringTable(b => b.SetString(stringId, value), language);
         }
     }
 }

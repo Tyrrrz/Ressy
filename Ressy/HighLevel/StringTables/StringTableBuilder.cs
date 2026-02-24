@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Ressy.HighLevel.StringTables;
 
@@ -9,22 +8,16 @@ namespace Ressy.HighLevel.StringTables;
 /// </summary>
 public class StringTableBuilder
 {
-    private readonly Dictionary<int, string> _strings;
+    private readonly Dictionary<int, string> _strings = new();
 
     /// <summary>
-    /// Initializes a new instance of <see cref="StringTableBuilder" />.
+    /// Copies all data from an existing <see cref="StringTable" /> instance.
     /// </summary>
-    public StringTableBuilder() => _strings = new Dictionary<int, string>();
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="StringTableBuilder" /> with data from an
-    /// existing <see cref="StringTable" />.
-    /// </summary>
-    public StringTableBuilder(StringTable? existing)
+    public StringTableBuilder SetAll(StringTable existing)
     {
-        _strings = existing is not null
-            ? existing.Strings.ToDictionary(kv => kv.Key, kv => kv.Value)
-            : new Dictionary<int, string>();
+        foreach (var (key, value) in existing.Strings)
+            _strings[key] = value;
+        return this;
     }
 
     /// <summary>

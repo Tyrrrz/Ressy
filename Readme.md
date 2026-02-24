@@ -415,8 +415,8 @@ using Ressy.HighLevel.StringTables;
 var portableExecutable = new PortableExecutable("some_app.exe");
 
 var stringTable = portableExecutable.GetStringTable();
-// stringTable[1] => "Hello, World!"
-// stringTable[100] => "Some other string"
+// stringTable.Strings[1] => "Hello, World!"
+// stringTable.Strings[100] => "Some other string"
 ```
 
 To retrieve a specific string by its ID, call `GetString(...)` or `TryGetString(...)`:
@@ -434,7 +434,7 @@ var str = portableExecutable.GetString(1);
 
 > [!NOTE]
 > You can optionally pass a `Language` parameter to these methods to retrieve strings for a specific language.
-> If no language is specified, the methods give preference to resources in the neutral language.
+> If no language is specified, the methods look for strings in the neutral language.
 
 ##### Set the string table
 
@@ -451,6 +451,17 @@ portableExecutable.SetStringTable(new StringTable(new Dictionary<int, string>
     [1] = "Hello, World!",
     [100] = "Some other string",
 }));
+```
+
+To modify existing strings while preserving the rest, use the builder overload:
+
+```csharp
+using Ressy;
+using Ressy.HighLevel.StringTables;
+
+var portableExecutable = new PortableExecutable("some_app.exe");
+
+portableExecutable.SetStringTable(b => b.SetString(1, "Updated string"));
 ```
 
 > [!NOTE]

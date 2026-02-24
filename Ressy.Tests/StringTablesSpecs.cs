@@ -144,6 +144,26 @@ public class StringTablesSpecs
     }
 
     [Fact]
+    public void I_can_set_the_string_table_using_a_builder()
+    {
+        // Arrange
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
+        portableExecutable.RemoveStringTable();
+
+        portableExecutable.SetString(1, "Hello, World!");
+
+        // Act
+        portableExecutable.SetStringTable(b => b.SetString(2, "Goodbye, World!"));
+
+        // Assert
+        portableExecutable.GetString(1).Should().Be("Hello, World!");
+        portableExecutable.GetString(2).Should().Be("Goodbye, World!");
+    }
+
+    [Fact]
     public void I_can_set_the_string_table_in_a_specific_language()
     {
         // Arrange
