@@ -33,7 +33,7 @@ public static class StringTableExtensions
                 // but prefers neutral language when no language is specified.
                 .Select(g => g.OrderBy(r => r.Language.Id == Language.Neutral.Id ? 0 : 1).First());
 
-            var result = new Dictionary<int, string>();
+            var strings = new Dictionary<int, string>();
 
             foreach (var identifier in blockIdentifiers)
             {
@@ -46,16 +46,16 @@ public static class StringTableExtensions
 
                 var blockId = identifier.Name.Code.Value;
                 var baseStringId = (blockId - 1) * StringTable.BlockSize;
-                var strings = StringTable.Deserialize(resource.Data);
+                var blockStrings = StringTable.Deserialize(resource.Data);
 
                 for (var i = 0; i < StringTable.BlockSize; i++)
                 {
-                    if (strings[i].Length > 0)
-                        result[baseStringId + i] = strings[i];
+                    if (blockStrings[i].Length > 0)
+                        strings[baseStringId + i] = blockStrings[i];
                 }
             }
 
-            return result.Count > 0 ? new StringTable(result) : null;
+            return strings.Any() ? new StringTable(strings) : null;
         }
 
         /// <summary>
