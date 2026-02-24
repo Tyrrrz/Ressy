@@ -115,13 +115,15 @@ public static class StringTableExtensions
             var blockIndex = GetBlockIndex(stringId);
 
             var neutralLanguageId = Language.Neutral.Id;
-            var identifier = portableExecutable
+            var candidates = portableExecutable
                 .GetResourceIdentifiers()
                 .Where(r => r.Type.Code == ResourceType.String.Code && r.Name.Code == blockId)
-                .Where(r => language is null || r.Language.Id == language.Value.Id)
-                .OrderBy(r => r.Language.Id == neutralLanguageId ? 0 : 1)
-                .FirstOrDefault();
+                .Where(r => language is null || r.Language.Id == language.Value.Id);
 
+            if (language is null)
+                candidates = candidates.OrderBy(r => r.Language.Id == neutralLanguageId ? 0 : 1);
+
+            var identifier = candidates.FirstOrDefault();
             if (identifier is null)
                 return null;
 
