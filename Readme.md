@@ -174,7 +174,7 @@ portableExecutable.ClearResources();
 
 #### Manifest resources
 
-A manifest resource (type `24`) contains XML data that identifies and describes native assemblies that the application should bind to at run-time.
+A manifest resource (type `24`) contains XML data that identifies and describes native assemblies that the application should bind to at run time.
 It may also contain other information, such as application settings, requested execution level, and more.
 
 > [!NOTE]
@@ -398,7 +398,7 @@ portableExecutable.RemoveVersionInfo();
 
 #### String table resources
 
-String table resources (type `6`) store localized strings that can be loaded by the application at run-time using the `LoadString(...)` Windows API function.
+String table resources (type `6`) store localized strings that can be loaded by the application at run time using the `LoadString(...)` Windows API function.
 Each string is identified by a unique integer ID and stored in a specific block of 16 strings.
 
 > [!NOTE]
