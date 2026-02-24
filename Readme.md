@@ -419,7 +419,7 @@ var stringTable = portableExecutable.GetStringTable();
 // stringTable.Strings[100] => "Some other string"
 ```
 
-To retrieve a specific string by its ID, call `GetString(...)` or `TryGetString(...)`:
+To retrieve a specific string by its ID, call `GetString(...)` or `TryGetString(...)` on the returned `StringTable` object:
 
 ```csharp
 using Ressy;
@@ -427,14 +427,15 @@ using Ressy.HighLevel.StringTables;
 
 var portableExecutable = new PortableExecutable("some_app.exe");
 
-var str = portableExecutable.GetString(1);
+var stringTable = portableExecutable.GetStringTable();
+var str = stringTable.GetString(1);
 // -or-
-// var str = portableExecutable.TryGetString(1);
+// var str = stringTable.TryGetString(1);
 ```
 
 > [!NOTE]
-> You can optionally pass a `Language` parameter to these methods to retrieve strings for a specific language.
-> If no language is specified, the methods look for strings in the neutral language.
+> You can optionally pass a `Language` parameter to `GetStringTable()` to retrieve strings for a specific language.
+> If no language is specified, the method looks for strings in the neutral language.
 
 ##### Set the string table
 
@@ -467,23 +468,6 @@ portableExecutable.SetStringTable(b => b.SetString(1, "Updated string"));
 > [!NOTE]
 > You can optionally pass a `Language` parameter to set the strings for a specific language.
 > If no language is specified, the strings are stored in the neutral language.
-
-##### Set a string
-
-To add or overwrite a string in the string table resources, call the `SetString(...)` extension method:
-
-```csharp
-using Ressy;
-using Ressy.HighLevel.StringTables;
-
-var portableExecutable = new PortableExecutable("some_app.exe");
-
-portableExecutable.SetString(1, "Hello, World!");
-```
-
-> [!NOTE]
-> You can optionally pass a `Language` parameter to set the string for a specific language.
-> If no language is specified, the string is stored in the neutral language.
 
 ##### Remove string table resources
 

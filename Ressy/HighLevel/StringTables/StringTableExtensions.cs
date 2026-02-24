@@ -67,64 +67,6 @@ public static class StringTableExtensions
             ?? throw new InvalidOperationException("String table resource does not exist.");
 
         /// <summary>
-        /// Gets the string with the specified ID from the string table resources.
-        /// Returns <c>null</c> if the string doesn't exist.
-        /// </summary>
-        /// <remarks>
-        /// If <paramref name="language" /> is not specified, this method looks for the string
-        /// in the neutral language.
-        /// </remarks>
-        public string? TryGetString(int stringId, Language? language = null)
-        {
-            if (stringId < 0)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(stringId),
-                    "String ID must be non-negative."
-                );
-            }
-
-            var blockId = StringTable.GetBlockId(stringId);
-            var blockIndex = StringTable.GetBlockIndex(stringId);
-
-            var targetLanguage = language ?? Language.Neutral;
-
-            var identifier = portableExecutable
-                .GetResourceIdentifiers()
-                .Where(r =>
-                    r.Type.Code == ResourceType.String.Code
-                    && r.Name.Code == blockId
-                    && r.Language.Id == targetLanguage.Id
-                )
-                .FirstOrDefault();
-
-            if (identifier is null)
-                return null;
-
-            var resource = portableExecutable.TryGetResource(identifier);
-            if (resource is null)
-                return null;
-
-            var strings = StringTable.Deserialize(resource.Data);
-            var value = strings[blockIndex];
-
-            return !string.IsNullOrEmpty(value) ? value : null;
-        }
-
-        /// <summary>
-        /// Gets the string with the specified ID from the string table resources.
-        /// </summary>
-        /// <remarks>
-        /// If <paramref name="language" /> is not specified, this method looks for the string
-        /// in the neutral language.
-        /// </remarks>
-        public string GetString(int stringId, Language? language = null) =>
-            portableExecutable.TryGetString(stringId, language)
-            ?? throw new InvalidOperationException(
-                $"String with ID '{stringId}' does not exist in the string table."
-            );
-
-        /// <summary>
         /// Removes all existing string table resources.
         /// </summary>
         public void RemoveStringTable()
@@ -149,7 +91,7 @@ public static class StringTableExtensions
         {
             var targetLanguage = language ?? Language.Neutral;
 
-            // Find block IDs that currently exist for this language.
+            // Find block IDs that currently exist for this language
             var existingBlockIds = portableExecutable
                 .GetResourceIdentifiers()
                 .Where(r =>
@@ -160,7 +102,9 @@ public static class StringTableExtensions
                 .Select(r => r.Name.Code!.Value)
                 .ToHashSet();
 
-            var blocks = stringTable.Strings.GroupBy(kv => StringTable.GetBlockId(kv.Key)).ToList();
+            var blocks = stringTable
+                .Strings.GroupBy(kv => StringTable.GetBlockId(kv.Key))
+                .ToArray();
             var newBlockIds = blocks.Select(b => b.Key).ToHashSet();
 
             portableExecutable.UpdateResources(ctx =>
@@ -186,7 +130,7 @@ public static class StringTableExtensions
                     );
                 }
 
-                // Remove blocks that existed in the previous string table but aren't in the new one.
+                // Remove blocks that existed in the previous string table but aren't in the new one
                 foreach (var staleBlockId in existingBlockIds)
                 {
                     if (!newBlockIds.Contains(staleBlockId))
@@ -217,22 +161,6 @@ public static class StringTableExtensions
             modify(builder);
 
             portableExecutable.SetStringTable(builder.Build(), language);
-        }
-
-        /// <summary>
-        /// Adds or overwrites a string in the string table resource with the specified ID and value.
-        /// </summary>
-        public void SetString(int stringId, string value, Language? language = null)
-        {
-            if (stringId < 0)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(stringId),
-                    "String ID must be non-negative."
-                );
-            }
-
-            portableExecutable.SetStringTable(b => b.SetString(stringId, value), language);
         }
     }
 }

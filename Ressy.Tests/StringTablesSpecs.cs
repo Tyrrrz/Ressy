@@ -19,8 +19,11 @@ public class StringTablesSpecs
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveStringTable();
 
-        portableExecutable.SetString(1, "First");
-        portableExecutable.SetString(2, "Second");
+        portableExecutable.SetStringTable(b =>
+        {
+            b.SetString(1, "First");
+            b.SetString(2, "Second");
+        });
 
         // Act
         var stringTable = portableExecutable.GetStringTable();
@@ -46,9 +49,15 @@ public class StringTablesSpecs
         var english = new Language(1033);
         var french = new Language(1036);
 
-        portableExecutable.SetString(1, "Hello", english);
-        portableExecutable.SetString(1, "Bonjour", french);
-        portableExecutable.SetString(2, "Goodbye", english);
+        portableExecutable.SetStringTable(
+            b =>
+            {
+                b.SetString(1, "Hello");
+                b.SetString(2, "Goodbye");
+            },
+            english
+        );
+        portableExecutable.SetStringTable(b => b.SetString(1, "Bonjour"), french);
 
         // Act
         var englishTable = portableExecutable.GetStringTable(english);
@@ -71,10 +80,10 @@ public class StringTablesSpecs
         File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.SetString(1, "Hello, World!");
+        portableExecutable.SetStringTable(b => b.SetString(1, "Hello, World!"));
 
         // Act
-        var result = portableExecutable.GetString(1);
+        var result = portableExecutable.GetStringTable().GetString(1);
 
         // Assert
         result.Should().Be("Hello, World!");
@@ -93,12 +102,12 @@ public class StringTablesSpecs
         var english = new Language(1033);
         var french = new Language(1036);
 
-        portableExecutable.SetString(1, "Hello", english);
-        portableExecutable.SetString(1, "Bonjour", french);
+        portableExecutable.SetStringTable(b => b.SetString(1, "Hello"), english);
+        portableExecutable.SetStringTable(b => b.SetString(1, "Bonjour"), french);
 
         // Act
-        var englishString = portableExecutable.GetString(1, english);
-        var frenchString = portableExecutable.GetString(1, french);
+        var englishString = portableExecutable.GetStringTable(english).GetString(1);
+        var frenchString = portableExecutable.GetStringTable(french).GetString(1);
 
         // Assert
         englishString.Should().Be("Hello");
@@ -153,15 +162,23 @@ public class StringTablesSpecs
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveStringTable();
 
-        portableExecutable.SetString(1, "Hello, World!");
-        portableExecutable.SetString(2, "OldGoodbye");
+        portableExecutable.SetStringTable(b =>
+        {
+            b.SetString(1, "Hello, World!");
+            b.SetString(2, "OldGoodbye");
+        });
 
         // Act
-        portableExecutable.SetStringTable(b => b.SetString(2, "Goodbye, World!"));
+        portableExecutable.SetStringTable(b =>
+        {
+            b.SetString(2, "Goodbye, World!");
+            b.SetString(3, "BrandNew");
+        });
 
         // Assert
-        portableExecutable.GetString(1).Should().Be("Hello, World!");
-        portableExecutable.GetString(2).Should().Be("Goodbye, World!");
+        portableExecutable.GetStringTable().GetString(1).Should().Be("Hello, World!");
+        portableExecutable.GetStringTable().GetString(2).Should().Be("Goodbye, World!");
+        portableExecutable.GetStringTable().GetString(3).Should().Be("BrandNew");
     }
 
     [Fact]
@@ -188,8 +205,8 @@ public class StringTablesSpecs
         );
 
         // Assert
-        portableExecutable.GetString(1, english).Should().Be("Hello");
-        portableExecutable.GetString(1, french).Should().Be("Bonjour");
+        portableExecutable.GetStringTable(english).GetString(1).Should().Be("Hello");
+        portableExecutable.GetStringTable(french).GetString(1).Should().Be("Bonjour");
     }
 
     [Fact]
@@ -203,10 +220,10 @@ public class StringTablesSpecs
         portableExecutable.RemoveStringTable();
 
         // Act
-        portableExecutable.SetString(1, "Hello, World!");
+        portableExecutable.SetStringTable(b => b.SetString(1, "Hello, World!"));
 
         // Assert
-        portableExecutable.GetString(1).Should().Be("Hello, World!");
+        portableExecutable.GetStringTable().GetString(1).Should().Be("Hello, World!");
     }
 
     [Fact]
@@ -223,12 +240,12 @@ public class StringTablesSpecs
         var french = new Language(1036);
 
         // Act
-        portableExecutable.SetString(1, "Hello", english);
-        portableExecutable.SetString(1, "Bonjour", french);
+        portableExecutable.SetStringTable(b => b.SetString(1, "Hello"), english);
+        portableExecutable.SetStringTable(b => b.SetString(1, "Bonjour"), french);
 
         // Assert
-        portableExecutable.GetString(1, english).Should().Be("Hello");
-        portableExecutable.GetString(1, french).Should().Be("Bonjour");
+        portableExecutable.GetStringTable(english).GetString(1).Should().Be("Hello");
+        portableExecutable.GetStringTable(french).GetString(1).Should().Be("Bonjour");
     }
 
     [Fact]
@@ -239,15 +256,18 @@ public class StringTablesSpecs
         File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.SetString(1, "Hello, World!");
-        portableExecutable.SetString(2, "Untouched");
+        portableExecutable.SetStringTable(b =>
+        {
+            b.SetString(1, "Hello, World!");
+            b.SetString(2, "Untouched");
+        });
 
         // Act
-        portableExecutable.SetString(1, "Goodbye, World!");
+        portableExecutable.SetStringTable(b => b.SetString(1, "Goodbye, World!"));
 
         // Assert
-        portableExecutable.GetString(1).Should().Be("Goodbye, World!");
-        portableExecutable.GetString(2).Should().Be("Untouched");
+        portableExecutable.GetStringTable().GetString(1).Should().Be("Goodbye, World!");
+        portableExecutable.GetStringTable().GetString(2).Should().Be("Untouched");
     }
 
     [Fact]
@@ -258,7 +278,7 @@ public class StringTablesSpecs
         File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.SetString(1, "Hello, World!");
+        portableExecutable.SetStringTable(b => b.SetString(1, "Hello, World!"));
 
         // Act
         portableExecutable.RemoveStringTable();
