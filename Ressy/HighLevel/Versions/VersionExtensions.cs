@@ -49,7 +49,7 @@ public static class VersionExtensions
 
         /// <summary>
         /// Gets the version info resource and deserializes it.
-        /// Returns <c>null</c> if the resource doesn't exist or can't be deserialized.
+        /// Returns <c>null</c> if the resource doesn't exist.
         /// </summary>
         /// <remarks>
         /// If there are multiple version info resources, this method retrieves the one
@@ -58,21 +58,8 @@ public static class VersionExtensions
         /// If there are no matching resources, this method retrieves the first
         /// version info resource it finds.
         /// </remarks>
-        public VersionInfo? TryGetVersionInfo()
-        {
-            var resource = portableExecutable.TryGetVersionInfoResource();
-            if (resource is null)
-                return null;
-
-            try
-            {
-                return resource.ReadAsVersionInfo();
-            }
-            catch (Exception ex) when (ex is EndOfStreamException || ex is InvalidDataException)
-            {
-                return null;
-            }
-        }
+        public VersionInfo? TryGetVersionInfo() =>
+            portableExecutable.TryGetVersionInfoResource()?.ReadAsVersionInfo();
 
         /// <summary>
         /// Gets the version info resource and deserializes it.

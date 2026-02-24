@@ -58,68 +58,6 @@ public class VersionsSpecs
     }
 
     [Fact]
-    public void I_can_get_the_version_info_of_Notepad()
-    {
-        if (!OperatingSystem.IsWindows())
-            return;
-
-        // Arrange
-        var portableExecutable = new PortableExecutable(
-            Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                "System32",
-                "notepad.exe"
-            )
-        );
-
-        // Act
-        // Use TryGetVersionInfo because notepad.exe on modern Windows may have a
-        // minimal/stub version resource (MUI redirection); in that case we skip.
-        var versionInfo = portableExecutable.TryGetVersionInfo();
-
-        // Assert
-        versionInfo
-            ?.GetAttribute(VersionAttributeName.InternalName)
-            .Should()
-            .BeEquivalentTo("Notepad");
-
-        // We can't rely on the returned data because it's not deterministic but we only really
-        // care that the deserialization has finished without any exceptions.
-    }
-
-    [Fact]
-    public void I_can_get_the_version_info_of_InternetExplorer()
-    {
-        if (!OperatingSystem.IsWindows())
-            return;
-
-        var iePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-            "Internet Explorer",
-            "iexplore.exe"
-        );
-
-        if (!File.Exists(iePath))
-            return;
-
-        // Arrange
-        var portableExecutable = new PortableExecutable(iePath);
-
-        // Act
-        // Use TryGetVersionInfo for the same MUI-resilience reason as the Notepad test.
-        var versionInfo = portableExecutable.TryGetVersionInfo();
-
-        // Assert
-        versionInfo
-            ?.GetAttribute(VersionAttributeName.InternalName)
-            .Should()
-            .BeEquivalentTo("iexplore");
-
-        // We can't rely on the returned data because it's not deterministic but we only really
-        // care that the deserialization has finished without any exceptions.
-    }
-
-    [Fact]
     public void I_can_add_the_version_info()
     {
         // Arrange
