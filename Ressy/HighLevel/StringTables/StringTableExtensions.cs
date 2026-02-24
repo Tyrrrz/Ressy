@@ -24,16 +24,6 @@ public static class StringTableExtensions
         /// </remarks>
         public StringTable? TryGetStringTable(Language? language = null)
         {
-            if (
-                !portableExecutable
-                    .GetResourceIdentifiers()
-                    .Any(r =>
-                        r.Type.Code == ResourceType.String.Code
-                        && (language is null || r.Language.Id == language.Value.Id)
-                    )
-            )
-                return null;
-
             var blockIdentifiers = portableExecutable
                 .GetResourceIdentifiers()
                 .Where(r => r.Type.Code == ResourceType.String.Code)
@@ -65,7 +55,7 @@ public static class StringTableExtensions
                 }
             }
 
-            return new StringTable(result);
+            return result.Count > 0 ? new StringTable(result) : null;
         }
 
         /// <summary>
