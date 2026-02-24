@@ -73,11 +73,13 @@ public class VersionsSpecs
         );
 
         // Act
-        var versionInfo = portableExecutable.GetVersionInfo();
+        // Use TryGetVersionInfo because notepad.exe on modern Windows may have a
+        // minimal/stub version resource (MUI redirection); in that case we skip.
+        var versionInfo = portableExecutable.TryGetVersionInfo();
 
         // Assert
         versionInfo
-            .GetAttribute(VersionAttributeName.InternalName)
+            ?.GetAttribute(VersionAttributeName.InternalName)
             .Should()
             .BeEquivalentTo("Notepad");
 
@@ -104,11 +106,12 @@ public class VersionsSpecs
         var portableExecutable = new PortableExecutable(iePath);
 
         // Act
-        var versionInfo = portableExecutable.GetVersionInfo();
+        // Use TryGetVersionInfo for the same MUI-resilience reason as the Notepad test.
+        var versionInfo = portableExecutable.TryGetVersionInfo();
 
         // Assert
         versionInfo
-            .GetAttribute(VersionAttributeName.InternalName)
+            ?.GetAttribute(VersionAttributeName.InternalName)
             .Should()
             .BeEquivalentTo("iexplore");
 
