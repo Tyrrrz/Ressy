@@ -10,7 +10,23 @@ namespace Ressy.Tests;
 public class StringTablesSpecs
 {
     [Fact]
-    public void I_can_set_a_string()
+    public void I_can_try_to_get_a_string_that_does_not_exist_and_receive_null_instead()
+    {
+        // Arrange
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
+
+        // Act
+        var result = portableExecutable.TryGetString(999);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void I_can_add_a_string()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -27,7 +43,7 @@ public class StringTablesSpecs
     }
 
     [Fact]
-    public void I_can_set_multiple_strings()
+    public void I_can_add_multiple_strings()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -58,15 +74,13 @@ public class StringTablesSpecs
     }
 
     [Fact]
-    public void I_can_overwrite_a_string()
+    public void I_can_modify_a_string()
     {
         // Arrange
         using var file = TempFile.Create();
         File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.RemoveStringTable();
-
         portableExecutable.SetString(1, "Hello, World!");
 
         // Act
@@ -77,24 +91,7 @@ public class StringTablesSpecs
     }
 
     [Fact]
-    public void I_can_try_to_get_a_string_that_does_not_exist_and_receive_null_instead()
-    {
-        // Arrange
-        using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
-
-        var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.RemoveStringTable();
-
-        // Act
-        var result = portableExecutable.TryGetString(999);
-
-        // Assert
-        result.Should().BeNull();
-    }
-
-    [Fact]
-    public void I_can_set_strings_for_a_specific_language()
+    public void I_can_add_a_string_for_a_specific_language()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -153,7 +150,6 @@ public class StringTablesSpecs
         File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-
         portableExecutable.SetString(1, "Hello, World!");
 
         // Act
