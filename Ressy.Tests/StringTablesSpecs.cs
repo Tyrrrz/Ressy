@@ -116,6 +116,36 @@ public class StringTablesSpecs
     }
 
     [Fact]
+    public void I_can_get_string_table_for_a_specific_language()
+    {
+        // Arrange
+        using var file = TempFile.Create();
+        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+
+        var portableExecutable = new PortableExecutable(file.Path);
+        portableExecutable.RemoveStringTable();
+
+        var english = new Language(1033);
+        var french = new Language(1036);
+
+        portableExecutable.SetString(1, "Hello", english);
+        portableExecutable.SetString(1, "Bonjour", french);
+        portableExecutable.SetString(2, "Goodbye", english);
+
+        // Act
+        var englishTable = portableExecutable.GetStringTable(english);
+        var frenchTable = portableExecutable.GetStringTable(french);
+
+        // Assert
+        englishTable.Should().Contain(new KeyValuePair<int, string>(1, "Hello"));
+        englishTable.Should().Contain(new KeyValuePair<int, string>(2, "Goodbye"));
+        englishTable.Should().NotContain(kv => kv.Value == "Bonjour");
+
+        frenchTable.Should().Contain(new KeyValuePair<int, string>(1, "Bonjour"));
+        frenchTable.Should().NotContain(kv => kv.Value == "Hello" || kv.Value == "Goodbye");
+    }
+
+    [Fact]
     public void I_can_remove_the_string_table()
     {
         // Arrange
