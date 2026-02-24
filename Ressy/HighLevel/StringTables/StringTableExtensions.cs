@@ -111,6 +111,8 @@ public static class StringTableExtensions
         /// </remarks>
         public string? TryGetString(int stringId, Language? language = null)
         {
+            if (stringId < 0)
+                throw new ArgumentOutOfRangeException(nameof(stringId), "String ID must be non-negative.");
             var blockId = GetBlockId(stringId);
             var blockIndex = GetBlockIndex(stringId);
 
