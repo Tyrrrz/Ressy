@@ -278,6 +278,6 @@ public class StringTablesSpecs
             .Should()
             .NotContain(r => r.Type.Code == ResourceType.String.Code);
 
-        portableExecutable.GetStringTable().Should().BeEmpty();
+        portableExecutable.TryGetStringTable().Should().BeNull();
     }
 }

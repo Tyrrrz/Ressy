@@ -14,7 +14,8 @@ public static class StringTableExtensions
     extension(Resource resource)
     {
         /// <summary>
-        /// Reads the specified resource as a string table block and returns the 16 strings it contains.
+        /// Reads the specified resource as a string table block and returns the up to 16 strings it contains.
+        /// Empty strings represent absent entries.
         /// </summary>
         public string[] ReadAsStringTable() => StringTable.Deserialize(resource.Data);
     }
@@ -29,18 +30,11 @@ public static class StringTableExtensions
                 .GetResourceIdentifiers()
                 .Where(r => r.Type.Code == ResourceType.String.Code)
                 .Where(r => language is null || r.Language.Id == language.Value.Id)
+                // No-op when a specific language is requested (all entries have the same language),
+                // but prefers neutral language when no language is specified.
                 .OrderBy(r => r.Language.Id == Language.Neutral.Id ? 0 : 1)
                 .ThenBy(r => r.Name.Code ?? int.MaxValue)
                 .FirstOrDefault();
-
-        private Resource? TryGetStringTableResource(Language? language = null)
-        {
-            var identifier = portableExecutable.TryGetStringTableResourceIdentifier(language);
-            if (identifier is null)
-                return null;
-
-            return portableExecutable.TryGetResource(identifier);
-        }
 
         /// <summary>
         /// Gets all strings from the string table resources as a dictionary mapping string IDs to values.
@@ -56,27 +50,27 @@ public static class StringTableExtensions
             if (portableExecutable.TryGetStringTableResourceIdentifier(language) is null)
                 return null;
 
-            var neutralLanguageId = Language.Neutral.Id;
             var blockIdentifiers = portableExecutable
                 .GetResourceIdentifiers()
-                .Where(r => r.Type.Code == ResourceType.String.Code && r.Name.Code is not null)
+                .Where(r => r.Type.Code == ResourceType.String.Code)
                 .Where(r => language is null || r.Language.Id == language.Value.Id)
-                .GroupBy(r => r.Name.Code!.Value)
-                .Select(g =>
-                    language is null
-                        ? g.OrderBy(r => r.Language.Id == neutralLanguageId ? 0 : 1).First()
-                        : g.First()
-                );
+                .GroupBy(r => r.Name.Code)
+                // No-op when a specific language is requested (all entries have the same language),
+                // but prefers neutral language when no language is specified.
+                .Select(g => g.OrderBy(r => r.Language.Id == Language.Neutral.Id ? 0 : 1).First());
 
             var result = new Dictionary<int, string>();
 
             foreach (var identifier in blockIdentifiers)
             {
+                if (identifier.Name.Code is null)
+                    continue;
+
                 var resource = portableExecutable.TryGetResource(identifier);
                 if (resource is null)
                     continue;
 
-                var blockId = identifier.Name.Code!.Value;
+                var blockId = identifier.Name.Code.Value;
                 var baseStringId = (blockId - 1) * StringTable.BlockSize;
                 var strings = resource.ReadAsStringTable();
 
@@ -92,7 +86,6 @@ public static class StringTableExtensions
 
         /// <summary>
         /// Gets all strings from the string table resources as a dictionary mapping string IDs to values.
-        /// Returns an empty dictionary if no string table resources exist.
         /// </summary>
         /// <remarks>
         /// If <paramref name="language" /> is not specified, this method retrieves strings from
@@ -100,7 +93,8 @@ public static class StringTableExtensions
         /// when multiple languages contain the same string ID.
         /// </remarks>
         public IReadOnlyDictionary<int, string> GetStringTable(Language? language = null) =>
-            portableExecutable.TryGetStringTable(language) ?? new Dictionary<int, string>();
+            portableExecutable.TryGetStringTable(language)
+            ?? throw new InvalidOperationException("String table resource does not exist.");
 
         /// <summary>
         /// Gets the string with the specified ID from the string table resources.
@@ -121,14 +115,13 @@ public static class StringTableExtensions
             var blockId = StringTable.GetBlockId(stringId);
             var blockIndex = StringTable.GetBlockIndex(stringId);
 
-            var neutralLanguageId = Language.Neutral.Id;
             var candidates = portableExecutable
                 .GetResourceIdentifiers()
                 .Where(r => r.Type.Code == ResourceType.String.Code && r.Name.Code == blockId)
                 .Where(r => language is null || r.Language.Id == language.Value.Id);
 
             if (language is null)
-                candidates = candidates.OrderBy(r => r.Language.Id == neutralLanguageId ? 0 : 1);
+                candidates = candidates.OrderBy(r => r.Language.Id == Language.Neutral.Id ? 0 : 1);
 
             var identifier = candidates.FirstOrDefault();
             if (identifier is null)
@@ -178,6 +171,10 @@ public static class StringTableExtensions
         /// Adds or overwrites all strings in the string table resources with the specified mapping
         /// of string IDs to values.
         /// </summary>
+        /// <remarks>
+        /// Consider calling <see cref="RemoveStringTable" /> first to remove redundant
+        /// string table resources left over from any previous string table.
+        /// </remarks>
         public void SetStringTable(
             IReadOnlyDictionary<int, string> strings,
             Language? language = null
