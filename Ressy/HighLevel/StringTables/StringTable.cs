@@ -14,7 +14,7 @@ public partial class StringTable : IReadOnlyDictionary<int, string>
     private readonly IReadOnlyDictionary<int, string> _strings;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="StringTable" /> with the specified strings.
+    /// Initializes a new instance of <see cref="StringTable" />.
     /// </summary>
     public StringTable(IReadOnlyDictionary<int, string> strings) => _strings = strings;
 

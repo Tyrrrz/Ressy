@@ -11,31 +11,8 @@ namespace Ressy.HighLevel.StringTables;
 public static class StringTableExtensions
 {
     /// <inheritdoc cref="StringTableExtensions" />
-    extension(Resource resource)
-    {
-        /// <summary>
-        /// Reads the specified resource as a string table block and returns the up to 16 strings it contains.
-        /// Empty strings represent absent entries.
-        /// </summary>
-        public string[] ReadAsStringTable() => StringTable.Deserialize(resource.Data);
-    }
-
-    /// <inheritdoc cref="StringTableExtensions" />
     extension(PortableExecutable portableExecutable)
     {
-        private ResourceIdentifier? TryGetStringTableResourceIdentifier(
-            Language? language = null
-        ) =>
-            portableExecutable
-                .GetResourceIdentifiers()
-                .Where(r => r.Type.Code == ResourceType.String.Code)
-                .Where(r => language is null || r.Language.Id == language.Value.Id)
-                // No-op when a specific language is requested (all entries have the same language),
-                // but prefers neutral language when no language is specified.
-                .OrderBy(r => r.Language.Id == Language.Neutral.Id ? 0 : 1)
-                .ThenBy(r => r.Name.Code ?? int.MaxValue)
-                .FirstOrDefault();
-
         /// <summary>
         /// Gets all strings from the string table resources.
         /// Returns <c>null</c> if no string table resources exist.
@@ -47,7 +24,14 @@ public static class StringTableExtensions
         /// </remarks>
         public StringTable? TryGetStringTable(Language? language = null)
         {
-            if (portableExecutable.TryGetStringTableResourceIdentifier(language) is null)
+            if (
+                !portableExecutable
+                    .GetResourceIdentifiers()
+                    .Any(r =>
+                        r.Type.Code == ResourceType.String.Code
+                        && (language is null || r.Language.Id == language.Value.Id)
+                    )
+            )
                 return null;
 
             var blockIdentifiers = portableExecutable
@@ -72,7 +56,7 @@ public static class StringTableExtensions
 
                 var blockId = identifier.Name.Code.Value;
                 var baseStringId = (blockId - 1) * StringTable.BlockSize;
-                var strings = resource.ReadAsStringTable();
+                var strings = StringTable.Deserialize(resource.Data);
 
                 for (var i = 0; i < StringTable.BlockSize; i++)
                 {
@@ -131,7 +115,7 @@ public static class StringTableExtensions
             if (resource is null)
                 return null;
 
-            var strings = resource.ReadAsStringTable();
+            var strings = StringTable.Deserialize(resource.Data);
             var value = strings[blockIndex];
 
             return value.Length > 0 ? value : null;
@@ -173,7 +157,7 @@ public static class StringTableExtensions
         /// </summary>
         /// <remarks>
         /// Consider calling <see cref="RemoveStringTable" /> first to remove redundant
-        /// string table resources left over from any previous string table.
+        /// string table resources.
         /// </remarks>
         public void SetStringTable(StringTable stringTable, Language? language = null)
         {
@@ -231,7 +215,7 @@ public static class StringTableExtensions
             var existingResource = portableExecutable.TryGetResource(identifier);
             if (existingResource is not null)
             {
-                var existingStrings = existingResource.ReadAsStringTable();
+                var existingStrings = StringTable.Deserialize(existingResource.Data);
                 Array.Copy(existingStrings, strings, StringTable.BlockSize);
             }
 
