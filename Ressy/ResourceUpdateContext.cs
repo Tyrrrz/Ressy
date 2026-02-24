@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Ressy.PE;
 
 namespace Ressy;
@@ -17,9 +16,6 @@ internal partial class ResourceUpdateContext : IDisposable
         _resources = resources;
     }
 
-    [ExcludeFromCodeCoverage]
-    ~ResourceUpdateContext() => Dispose();
-
     public void Set(ResourceIdentifier identifier, byte[] data) => _resources[identifier] = data;
 
     public void Remove(ResourceIdentifier identifier) => _resources.Remove(identifier);
@@ -29,7 +25,10 @@ internal partial class ResourceUpdateContext : IDisposable
         if (_disposed)
             return;
 
+        // Suppress finalizer first so double-disposal can't occur even if UpdateResources throws
+        GC.SuppressFinalize(this);
         _disposed = true;
+
         // Write the complete desired state directly; deleteExisting=true avoids re-reading the file
         PeFile.UpdateResources(
             _filePath,
@@ -40,8 +39,6 @@ internal partial class ResourceUpdateContext : IDisposable
             },
             deleteExisting: true
         );
-
-        GC.SuppressFinalize(this);
     }
 }
 

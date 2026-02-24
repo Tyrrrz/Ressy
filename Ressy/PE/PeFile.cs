@@ -37,10 +37,10 @@ internal static class PeFile
     }
 
     private static int AlignUp(int value, int alignment) =>
-        alignment > 0 ? (value + alignment - 1) / alignment * alignment : value;
+        alignment > 0 ? (int)(((long)value + alignment - 1) / alignment * alignment) : value;
 
     private static uint AlignUp(uint value, uint alignment) =>
-        alignment > 0 ? (value + alignment - 1) / alignment * alignment : value;
+        alignment > 0 ? (uint)(((ulong)value + alignment - 1UL) / alignment * alignment) : value;
 
     #endregion
 
@@ -130,6 +130,11 @@ internal static class PeFile
         };
 
         // These fields are at the same offsets in both PE32 and PE32+
+        // Minimum required size: PE32 needs 64 bytes (0..63), PE32+ needs 80 bytes (0..79)
+        var minOptHeaderSize = isPe32Plus ? 80 : 64;
+        if (optHeaderOffset + minOptHeaderSize > fileBytes.Length)
+            throw new InvalidDataException("PE optional header is truncated.");
+
         var sectionAlignment = ReadUInt32(fileBytes, optHeaderOffset + 32);
         var fileAlignment = ReadUInt32(fileBytes, optHeaderOffset + 36);
         var sizeOfImageFileOffset = optHeaderOffset + 56;
@@ -137,7 +142,13 @@ internal static class PeFile
 
         // DataDirectory base: PE32 = optHeader + 96, PE32+ = optHeader + 112
         // DataDirectory[2] (Resource) is at base + 2 * 8 = base + 16
+        // Validate that the file has room for the data directory entry
         var dataDirBase = optHeaderOffset + (isPe32Plus ? 112 : 96);
+        if (dataDirBase + 24 > fileBytes.Length)
+            throw new InvalidDataException(
+                "PE optional header is too small to contain the resource data directory entry."
+            );
+
         var dataDir2FileOffset = dataDirBase + 16;
 
         // Section headers begin right after the optional header
@@ -212,6 +223,9 @@ internal static class PeFile
 
         if (rsrc.SizeOfRawData == 0 || rsrc.PointerToRawData == 0)
             return null;
+
+        if (rsrc.PointerToRawData > int.MaxValue || rsrc.SizeOfRawData > int.MaxValue)
+            throw new InvalidDataException("Resource section is too large to be processed.");
 
         var sectionBase = (int)rsrc.PointerToRawData;
         var sectionSize = (int)rsrc.SizeOfRawData;
@@ -385,7 +399,11 @@ internal static class PeFile
             var dataFileOffset =
                 (long)rsrc.PointerToRawData + (long)dataRva - (long)rsrc.VirtualAddress;
 
-            if (dataFileOffset < 0 || dataFileOffset + dataSize > fileBytes.Length)
+            if (
+                dataFileOffset < 0
+                || dataFileOffset > int.MaxValue
+                || dataFileOffset + dataSize > fileBytes.Length
+            )
                 continue;
 
             var data = new byte[dataSize];
@@ -405,6 +423,9 @@ internal static class PeFile
 
         if (rsrc.SizeOfRawData == 0 || rsrc.PointerToRawData == 0)
             return result;
+
+        if (rsrc.PointerToRawData > int.MaxValue || rsrc.SizeOfRawData > int.MaxValue)
+            throw new InvalidDataException("Resource section is too large to be processed.");
 
         var sectionBase = (int)rsrc.PointerToRawData;
         var sectionSize = (int)rsrc.SizeOfRawData;
@@ -517,7 +538,11 @@ internal static class PeFile
                 var dataFileOffset =
                     (long)rsrc.PointerToRawData + (long)dataRva - (long)rsrc.VirtualAddress;
 
-                if (dataFileOffset < 0 || dataFileOffset + dataSize > fileBytes.Length)
+                if (
+                    dataFileOffset < 0
+                    || dataFileOffset > int.MaxValue
+                    || dataFileOffset + dataSize > fileBytes.Length
+                )
                     continue;
 
                 var data = new byte[dataSize];
@@ -982,11 +1007,13 @@ internal static class PeFile
                 RsrcSectionCharacteristics
             );
 
-            WriteUInt16(
-                newFileBytes,
-                info.NumberOfSectionsFileOffset,
-                (ushort)(info.Sections.Count + 1)
-            );
+            var newSectionCount = info.Sections.Count + 1;
+            if (newSectionCount > ushort.MaxValue)
+                throw new InvalidOperationException(
+                    "Cannot add a new section: the file already has the maximum number of sections."
+                );
+
+            WriteUInt16(newFileBytes, info.NumberOfSectionsFileOffset, (ushort)newSectionCount);
         }
 
         // Update DataDirectory[2] (Resource)
