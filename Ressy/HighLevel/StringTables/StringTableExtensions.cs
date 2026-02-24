@@ -75,9 +75,11 @@ public static class StringTableExtensions
             var blockGroups = identifiers
                 .Where(r => r.Name.Code is not null)
                 .GroupBy(r => r.Name.Code!.Value)
-                .Select(g => language is null
-                    ? g.OrderBy(r => r.Language.Id == neutralLanguageId ? 0 : 1).First()
-                    : g.First());
+                .Select(g =>
+                    language is null
+                        ? g.OrderBy(r => r.Language.Id == neutralLanguageId ? 0 : 1).First()
+                        : g.First()
+                );
 
             var result = new Dictionary<int, string>();
 
@@ -112,7 +114,10 @@ public static class StringTableExtensions
         public string? TryGetString(int stringId, Language? language = null)
         {
             if (stringId < 0)
-                throw new ArgumentOutOfRangeException(nameof(stringId), "String ID must be non-negative.");
+                throw new ArgumentOutOfRangeException(
+                    nameof(stringId),
+                    "String ID must be non-negative."
+                );
             var blockId = GetBlockId(stringId);
             var blockIndex = GetBlockIndex(stringId);
 
@@ -174,6 +179,12 @@ public static class StringTableExtensions
         /// </summary>
         public void SetString(int stringId, string value, Language? language = null)
         {
+            if (stringId < 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(stringId),
+                    "String ID must be non-negative."
+                );
+
             var targetLanguage = language ?? Language.Neutral;
             var blockId = GetBlockId(stringId);
             var blockIndex = GetBlockIndex(stringId);
