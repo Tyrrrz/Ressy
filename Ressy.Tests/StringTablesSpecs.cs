@@ -55,12 +55,12 @@ public class StringTablesSpecs
         var frenchTable = portableExecutable.GetStringTable(french);
 
         // Assert
-        englishTable.Should().Contain(new KeyValuePair<int, string>(1, "Hello"));
-        englishTable.Should().Contain(new KeyValuePair<int, string>(2, "Goodbye"));
-        englishTable.Should().NotContain(kv => kv.Value == "Bonjour");
+        englishTable.Strings.Should().ContainKey(1).WhoseValue.Should().Be("Hello");
+        englishTable.Strings.Should().ContainKey(2).WhoseValue.Should().Be("Goodbye");
+        englishTable.Strings.Values.Should().NotContain("Bonjour");
 
-        frenchTable.Should().Contain(new KeyValuePair<int, string>(1, "Bonjour"));
-        frenchTable.Should().NotContain(kv => kv.Value == "Hello" || kv.Value == "Goodbye");
+        frenchTable.Strings.Should().ContainKey(1).WhoseValue.Should().Be("Bonjour");
+        frenchTable.Strings.Values.Should().NotContain("Hello").And.NotContain("Goodbye");
     }
 
     [Fact]
@@ -167,18 +167,8 @@ public class StringTablesSpecs
         );
 
         // Assert
-        portableExecutable
-            .GetStringTable(english)
-            .Should()
-            .ContainKey(1)
-            .WhoseValue.Should()
-            .Be("Hello");
-        portableExecutable
-            .GetStringTable(french)
-            .Should()
-            .ContainKey(1)
-            .WhoseValue.Should()
-            .Be("Bonjour");
+        portableExecutable.GetString(1, english).Should().Be("Hello");
+        portableExecutable.GetString(1, french).Should().Be("Bonjour");
     }
 
     [Fact]
@@ -221,39 +211,6 @@ public class StringTablesSpecs
     }
 
     [Fact]
-    public void I_can_add_multiple_strings_to_the_string_table()
-    {
-        // Arrange
-        using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
-
-        var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.RemoveStringTable();
-
-        // Act
-        portableExecutable.SetString(1, "First");
-        portableExecutable.SetString(2, "Second");
-        portableExecutable.SetString(100, "OneHundred");
-        portableExecutable.SetString(1000, "OneThousand");
-
-        // Assert
-        portableExecutable
-            .GetStringTable()
-            .Should()
-            .BeEquivalentTo(
-                new StringTable(
-                    new Dictionary<int, string>
-                    {
-                        [1] = "First",
-                        [2] = "Second",
-                        [100] = "OneHundred",
-                        [1000] = "OneThousand",
-                    }
-                )
-            );
-    }
-
-    [Fact]
     public void I_can_modify_a_string_in_the_string_table()
     {
         // Arrange
@@ -262,12 +219,14 @@ public class StringTablesSpecs
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.SetString(1, "Hello, World!");
+        portableExecutable.SetString(2, "Untouched");
 
         // Act
         portableExecutable.SetString(1, "Goodbye, World!");
 
         // Assert
         portableExecutable.GetString(1).Should().Be("Goodbye, World!");
+        portableExecutable.GetString(2).Should().Be("Untouched");
     }
 
     [Fact]

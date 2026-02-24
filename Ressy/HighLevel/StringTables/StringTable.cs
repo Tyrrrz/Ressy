@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,21 +8,19 @@ namespace Ressy.HighLevel.StringTables;
 /// Contains strings loaded from string table resources, keyed by their IDs.
 /// </summary>
 // https://learn.microsoft.com/windows/win32/menurc/stringtable-resource
-public partial class StringTable : IReadOnlyDictionary<int, string>
+public partial class StringTable(IReadOnlyDictionary<int, string> strings)
 {
-    private readonly IReadOnlyDictionary<int, string> _strings;
-
     /// <summary>
-    /// Initializes a new instance of <see cref="StringTable" />.
+    /// Contains the string entries, keyed by their IDs.
     /// </summary>
-    public StringTable(IReadOnlyDictionary<int, string> strings) => _strings = strings;
+    public IReadOnlyDictionary<int, string> Strings { get; } = strings;
 
     /// <summary>
     /// Gets the string with the specified ID.
-    /// Returns <c>null</c> if the string does not exist.
+    /// Returns <c>null</c> if the string doesn't exist.
     /// </summary>
     public string? TryGetString(int stringId) =>
-        _strings.TryGetValue(stringId, out var value) ? value : null;
+        Strings.TryGetValue(stringId, out var value) ? value : null;
 
     /// <summary>
     /// Gets the string with the specified ID.
@@ -33,39 +30,6 @@ public partial class StringTable : IReadOnlyDictionary<int, string>
         ?? throw new InvalidOperationException(
             $"String with ID '{stringId}' does not exist in the string table."
         );
-
-    /// <inheritdoc />
-    public string this[int key] => _strings[key];
-
-    /// <inheritdoc />
-    public IEnumerable<int> Keys => _strings.Keys;
-
-    /// <inheritdoc />
-    public IEnumerable<string> Values => _strings.Values;
-
-    /// <inheritdoc />
-    public int Count => _strings.Count;
-
-    /// <inheritdoc />
-    public bool ContainsKey(int key) => _strings.ContainsKey(key);
-
-    /// <inheritdoc />
-    public bool TryGetValue(int key, out string value)
-    {
-        if (_strings.TryGetValue(key, out var result))
-        {
-            value = result!;
-            return true;
-        }
-        value = default!;
-        return false;
-    }
-
-    /// <inheritdoc />
-    public IEnumerator<KeyValuePair<int, string>> GetEnumerator() => _strings.GetEnumerator();
-
-    /// <inheritdoc />
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_strings).GetEnumerator();
 }
 
 public partial class StringTable

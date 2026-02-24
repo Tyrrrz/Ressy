@@ -8,10 +8,12 @@ public partial class StringTable
     internal static byte[] Serialize(string[] strings)
     {
         if (strings.Length != BlockSize)
+        {
             throw new ArgumentException(
                 $"String table block must contain exactly {BlockSize} strings.",
                 nameof(strings)
             );
+        }
 
         using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, Encoding);
