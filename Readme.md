@@ -439,7 +439,7 @@ var str = stringTable.GetString(1);
 
 ##### Set the string table
 
-To add or overwrite all strings in the string table resources at once, call the `SetStringTable(...)` extension method:
+To add new strings or modify existing ones while preserving the rest, call the `SetStringTable(...)` extension method with a builder:
 
 ```csharp
 using Ressy;
@@ -447,22 +447,11 @@ using Ressy.HighLevel.StringTables;
 
 var portableExecutable = new PortableExecutable("some_app.exe");
 
-portableExecutable.SetStringTable(new StringTable(new Dictionary<int, string>
+portableExecutable.SetStringTable(b =>
 {
-    [1] = "Hello, World!",
-    [100] = "Some other string",
-}));
-```
-
-To modify existing strings while preserving the rest, use the builder overload:
-
-```csharp
-using Ressy;
-using Ressy.HighLevel.StringTables;
-
-var portableExecutable = new PortableExecutable("some_app.exe");
-
-portableExecutable.SetStringTable(b => b.SetString(1, "Updated string"));
+    b.SetString(1, "Hello, World!");
+    b.SetString(100, "Some other string");
+});
 ```
 
 > [!NOTE]
