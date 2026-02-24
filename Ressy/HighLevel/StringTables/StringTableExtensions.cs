@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ressy.Utils.Extensions;
 
 namespace Ressy.HighLevel.StringTables;
 
@@ -15,12 +16,9 @@ public static class StringTableExtensions
     {
         /// <summary>
         /// Gets all string table resource blocks and returns a unified view over all of them.
+        /// Retrieves resource blocks in the specified language or in the neutral language if no language is specified.
         /// Returns <c>null</c> if no string table resources exist.
         /// </summary>
-        /// <remarks>
-        /// If <paramref name="language" /> is specified, retrieves only blocks in that language.
-        /// If <paramref name="language" /> is not specified, retrieves blocks in the neutral language.
-        /// </remarks>
         public StringTable? TryGetStringTable(Language? language = null)
         {
             var targetLanguage = language ?? Language.Neutral;
@@ -31,7 +29,7 @@ public static class StringTableExtensions
                     r.Type.Code == ResourceType.String.Code && r.Language.Id == targetLanguage.Id
                 );
 
-            var strings = new Dictionary<int, string>();
+            var blocks = new List<byte[]>();
 
             foreach (var identifier in blockIdentifiers)
             {
@@ -42,26 +40,16 @@ public static class StringTableExtensions
                 if (resource is null)
                     continue;
 
-                var baseStringId = (identifier.Name.Code.Value - 1) * StringTable.BlockSize;
-                var blockStrings = StringTable.Deserialize(resource.Data);
-
-                for (var i = 0; i < StringTable.BlockSize; i++)
-                {
-                    if (!string.IsNullOrEmpty(blockStrings[i]))
-                        strings[baseStringId + i] = blockStrings[i];
-                }
+                blocks.Add(resource.Data);
             }
 
-            return strings.Any() ? new StringTable(strings) : null;
+            return blocks.Count > 0 ? StringTable.Deserialize(blocks) : null;
         }
 
         /// <summary>
         /// Gets all string table resource blocks and returns a unified view over all of them.
+        /// Retrieves resource blocks in the specified language or in the neutral language if no language is specified.
         /// </summary>
-        /// <remarks>
-        /// If <paramref name="language" /> is specified, retrieves only blocks in that language.
-        /// If <paramref name="language" /> is not specified, retrieves blocks in the neutral language.
-        /// </remarks>
         public StringTable GetStringTable(Language? language = null) =>
             portableExecutable.TryGetStringTable(language)
             ?? throw new InvalidOperationException("String table resource does not exist.");
@@ -84,8 +72,8 @@ public static class StringTableExtensions
         }
 
         /// <summary>
-        /// Sets the string table resources to the specified string table.
-        /// Blocks that previously existed but are not present in the new string table are removed.
+        /// Adds or overwrites string table resource blocks with the specified data.
+        /// Removes blocks that existed in the previous string table but not in the new one.
         /// </summary>
         public void SetStringTable(StringTable stringTable, Language? language = null)
         {
@@ -95,60 +83,49 @@ public static class StringTableExtensions
             var existingBlockIds = portableExecutable
                 .GetResourceIdentifiers()
                 .Where(r =>
-                    r.Type.Code == ResourceType.String.Code
-                    && r.Language.Id == targetLanguage.Id
-                    && r.Name.Code is not null
+                    r.Type.Code == ResourceType.String.Code && r.Language.Id == targetLanguage.Id
                 )
-                .Select(r => r.Name.Code!.Value)
+                .Select(r => r.Name.Code)
+                .WhereNotNull()
                 .ToHashSet();
 
-            var blocks = stringTable
-                .Strings.GroupBy(kv => StringTable.GetBlockId(kv.Key))
-                .ToArray();
-            var newBlockIds = blocks.Select(b => b.Key).ToHashSet();
+            var blocks = stringTable.Serialize();
+            var newBlockIds = blocks.Select((_, i) => i + 1).ToHashSet();
 
             portableExecutable.UpdateResources(ctx =>
             {
-                foreach (var block in blocks)
+                foreach (var (i, block) in blocks.Index())
                 {
-                    // The block must always contain exactly BlockSize entries, with string.Empty
-                    // representing absent string IDs.
-                    var blockData = Enumerable
-                        .Repeat(string.Empty, StringTable.BlockSize)
-                        .ToArray();
-
-                    foreach (var kv in block)
-                        blockData[StringTable.GetBlockIndex(kv.Key)] = kv.Value;
-
                     ctx.Set(
                         new ResourceIdentifier(
                             ResourceType.String,
-                            ResourceName.FromCode(block.Key),
+                            ResourceName.FromCode(i + 1),
                             targetLanguage
                         ),
-                        StringTable.Serialize(blockData)
+                        block
                     );
                 }
 
                 // Remove blocks that existed in the previous string table but aren't in the new one
                 foreach (var staleBlockId in existingBlockIds)
                 {
-                    if (!newBlockIds.Contains(staleBlockId))
-                    {
-                        ctx.Remove(
-                            new ResourceIdentifier(
-                                ResourceType.String,
-                                ResourceName.FromCode(staleBlockId),
-                                targetLanguage
-                            )
-                        );
-                    }
+                    if (newBlockIds.Contains(staleBlockId))
+                        continue;
+
+                    ctx.Remove(
+                        new ResourceIdentifier(
+                            ResourceType.String,
+                            ResourceName.FromCode(staleBlockId),
+                            targetLanguage
+                        )
+                    );
                 }
             });
         }
 
         /// <summary>
         /// Modifies the currently stored string table resource blocks.
+        /// If there are no existing string table resources, an empty one will be created.
         /// </summary>
         public void SetStringTable(Action<StringTableBuilder> modify, Language? language = null)
         {

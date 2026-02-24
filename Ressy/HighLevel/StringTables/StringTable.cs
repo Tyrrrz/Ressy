@@ -5,7 +5,7 @@ using System.Text;
 namespace Ressy.HighLevel.StringTables;
 
 /// <summary>
-/// Contains strings loaded from string table resources, keyed by their IDs.
+/// Contains strings loaded from string table resource blocks, keyed by their IDs.
 /// </summary>
 // https://learn.microsoft.com/windows/win32/menurc/stringtable-resource
 public partial class StringTable(IReadOnlyDictionary<int, string> strings)
