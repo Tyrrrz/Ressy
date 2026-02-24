@@ -177,7 +177,8 @@ portableExecutable.ClearResources();
 A manifest resource (type `24`) contains XML data that identifies and describes native assemblies that the application should bind to at run-time.
 It may also contain other information, such as application settings, requested execution level, and more.
 
-To learn more about application manifests, see [this article](https://learn.microsoft.com/windows/win32/sbscs/application-manifests).
+> [!NOTE]
+> To learn more about application manifests, see [this article](https://learn.microsoft.com/windows/win32/sbscs/application-manifests).
 
 ##### Retrieve the manifest
 
@@ -400,11 +401,12 @@ portableExecutable.RemoveVersionInfo();
 String table resources (type `6`) store localized strings that can be loaded by the application at runtime using the `LoadString` Windows API function.
 Each string is identified by a unique integer ID.
 
-To learn more about string table resources, see [this article](https://learn.microsoft.com/windows/win32/menurc/stringtable-resource).
+> [!NOTE]
+> To learn more about string table resources, see [this article](https://learn.microsoft.com/windows/win32/menurc/stringtable-resource).
 
 ##### Retrieve strings
 
-To get all strings from the string table resources as a dictionary, call the `GetStringTable()` extension method:
+To get the string table resource, call the `GetStringTable()` extension method. This returns a dictionary mapping string IDs to their values:
 
 ```csharp
 using Ressy;
@@ -433,6 +435,27 @@ var str = portableExecutable.GetString(1);
 > [!NOTE]
 > You can optionally pass a `Language` parameter to these methods to retrieve strings for a specific language.
 > If no language is specified, the methods give preference to resources in the neutral language.
+
+##### Set the string table
+
+To add or overwrite all strings in the string table resources at once, call the `SetStringTable(...)` extension method:
+
+```csharp
+using Ressy;
+using Ressy.HighLevel.StringTables;
+
+var portableExecutable = new PortableExecutable("some_app.exe");
+
+portableExecutable.SetStringTable(new Dictionary<int, string>
+{
+    [1] = "Hello, World!",
+    [100] = "Some other string",
+});
+```
+
+> [!NOTE]
+> You can optionally pass a `Language` parameter to set the strings for a specific language.
+> If no language is specified, the strings are stored in the neutral language.
 
 ##### Set a string
 

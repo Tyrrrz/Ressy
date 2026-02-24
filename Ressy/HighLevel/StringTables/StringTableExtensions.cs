@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Ressy.HighLevel.StringTables;
 
@@ -12,68 +10,57 @@ namespace Ressy.HighLevel.StringTables;
 // https://learn.microsoft.com/windows/win32/menurc/stringtable-resource
 public static class StringTableExtensions
 {
-    private const int BlockSize = 16;
-
-    private static int GetBlockId(int stringId) => (stringId >> 4) + 1;
-
-    private static int GetBlockIndex(int stringId) => stringId & 0x0F;
-
-    private static string[] ReadBlock(byte[] data)
+    /// <inheritdoc cref="StringTableExtensions" />
+    extension(Resource resource)
     {
-        var strings = new string[BlockSize];
-
-        using var stream = new MemoryStream(data);
-        using var reader = new BinaryReader(stream, Encoding.Unicode);
-
-        for (var i = 0; i < BlockSize; i++)
-        {
-            var length = reader.ReadUInt16();
-            strings[i] = new string(reader.ReadChars(length));
-        }
-
-        return strings;
-    }
-
-    private static byte[] WriteBlock(string[] strings)
-    {
-        using var stream = new MemoryStream();
-        using var writer = new BinaryWriter(stream, Encoding.Unicode);
-
-        for (var i = 0; i < BlockSize; i++)
-        {
-            var str = strings[i];
-            writer.Write((ushort)str.Length);
-            foreach (var c in str)
-                writer.Write(c);
-        }
-
-        return stream.ToArray();
+        /// <summary>
+        /// Reads the specified resource as a string table block and returns the 16 strings it contains.
+        /// </summary>
+        public string[] ReadAsStringTable() => StringTable.Deserialize(resource.Data);
     }
 
     /// <inheritdoc cref="StringTableExtensions" />
     extension(PortableExecutable portableExecutable)
     {
+        private ResourceIdentifier? TryGetStringTableResourceIdentifier(
+            Language? language = null
+        ) =>
+            portableExecutable
+                .GetResourceIdentifiers()
+                .Where(r => r.Type.Code == ResourceType.String.Code)
+                .Where(r => language is null || r.Language.Id == language.Value.Id)
+                .OrderBy(r => r.Language.Id == Language.Neutral.Id ? 0 : 1)
+                .ThenBy(r => r.Name.Code ?? int.MaxValue)
+                .FirstOrDefault();
+
+        private Resource? TryGetStringTableResource(Language? language = null)
+        {
+            var identifier = portableExecutable.TryGetStringTableResourceIdentifier(language);
+            if (identifier is null)
+                return null;
+
+            return portableExecutable.TryGetResource(identifier);
+        }
+
         /// <summary>
         /// Gets all strings from the string table resources as a dictionary mapping string IDs to values.
-        /// Returns an empty dictionary if no string table resources exist.
+        /// Returns <c>null</c> if no string table resources exist.
         /// </summary>
         /// <remarks>
         /// If <paramref name="language" /> is not specified, this method retrieves strings from
         /// all available string table resources, giving preference to resources in the neutral language
         /// when multiple languages contain the same string ID.
         /// </remarks>
-        public IReadOnlyDictionary<int, string> GetStringTable(Language? language = null)
+        public IReadOnlyDictionary<int, string>? TryGetStringTable(Language? language = null)
         {
-            var identifiers = portableExecutable
-                .GetResourceIdentifiers()
-                .Where(r => r.Type.Code == ResourceType.String.Code)
-                .Where(r => language is null || r.Language.Id == language.Value.Id);
+            if (portableExecutable.TryGetStringTableResourceIdentifier(language) is null)
+                return null;
 
-            // Group by block ID and, when no specific language is requested,
-            // prefer entries in the neutral language.
             var neutralLanguageId = Language.Neutral.Id;
-            var blockGroups = identifiers
-                .Where(r => r.Name.Code is not null)
+            var blockIdentifiers = portableExecutable
+                .GetResourceIdentifiers()
+                .Where(r => r.Type.Code == ResourceType.String.Code && r.Name.Code is not null)
+                .Where(r => language is null || r.Language.Id == language.Value.Id)
                 .GroupBy(r => r.Name.Code!.Value)
                 .Select(g =>
                     language is null
@@ -83,17 +70,17 @@ public static class StringTableExtensions
 
             var result = new Dictionary<int, string>();
 
-            foreach (var identifier in blockGroups)
+            foreach (var identifier in blockIdentifiers)
             {
                 var resource = portableExecutable.TryGetResource(identifier);
                 if (resource is null)
                     continue;
 
                 var blockId = identifier.Name.Code!.Value;
-                var baseStringId = (blockId - 1) * BlockSize;
-                var strings = ReadBlock(resource.Data);
+                var baseStringId = (blockId - 1) * StringTable.BlockSize;
+                var strings = resource.ReadAsStringTable();
 
-                for (var i = 0; i < BlockSize; i++)
+                for (var i = 0; i < StringTable.BlockSize; i++)
                 {
                     if (strings[i].Length > 0)
                         result[baseStringId + i] = strings[i];
@@ -102,6 +89,18 @@ public static class StringTableExtensions
 
             return result;
         }
+
+        /// <summary>
+        /// Gets all strings from the string table resources as a dictionary mapping string IDs to values.
+        /// Returns an empty dictionary if no string table resources exist.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="language" /> is not specified, this method retrieves strings from
+        /// all available string table resources, giving preference to resources in the neutral language
+        /// when multiple languages contain the same string ID.
+        /// </remarks>
+        public IReadOnlyDictionary<int, string> GetStringTable(Language? language = null) =>
+            portableExecutable.TryGetStringTable(language) ?? new Dictionary<int, string>();
 
         /// <summary>
         /// Gets the string with the specified ID from the string table resources.
@@ -118,8 +117,9 @@ public static class StringTableExtensions
                     nameof(stringId),
                     "String ID must be non-negative."
                 );
-            var blockId = GetBlockId(stringId);
-            var blockIndex = GetBlockIndex(stringId);
+
+            var blockId = StringTable.GetBlockId(stringId);
+            var blockIndex = StringTable.GetBlockIndex(stringId);
 
             var neutralLanguageId = Language.Neutral.Id;
             var candidates = portableExecutable
@@ -138,7 +138,7 @@ public static class StringTableExtensions
             if (resource is null)
                 return null;
 
-            var strings = ReadBlock(resource.Data);
+            var strings = resource.ReadAsStringTable();
             var value = strings[blockIndex];
 
             return value.Length > 0 ? value : null;
@@ -175,6 +175,42 @@ public static class StringTableExtensions
         }
 
         /// <summary>
+        /// Adds or overwrites all strings in the string table resources with the specified mapping
+        /// of string IDs to values.
+        /// </summary>
+        public void SetStringTable(
+            IReadOnlyDictionary<int, string> strings,
+            Language? language = null
+        )
+        {
+            var targetLanguage = language ?? Language.Neutral;
+
+            var blocks = strings.GroupBy(kv => StringTable.GetBlockId(kv.Key));
+
+            portableExecutable.UpdateResources(ctx =>
+            {
+                foreach (var block in blocks)
+                {
+                    var blockData = Enumerable
+                        .Repeat(string.Empty, StringTable.BlockSize)
+                        .ToArray();
+
+                    foreach (var kv in block)
+                        blockData[StringTable.GetBlockIndex(kv.Key)] = kv.Value;
+
+                    ctx.Set(
+                        new ResourceIdentifier(
+                            ResourceType.String,
+                            ResourceName.FromCode(block.Key),
+                            targetLanguage
+                        ),
+                        StringTable.Serialize(blockData)
+                    );
+                }
+            });
+        }
+
+        /// <summary>
         /// Adds or overwrites a string in the string table resource with the specified ID and value.
         /// </summary>
         public void SetString(int stringId, string value, Language? language = null)
@@ -186,8 +222,8 @@ public static class StringTableExtensions
                 );
 
             var targetLanguage = language ?? Language.Neutral;
-            var blockId = GetBlockId(stringId);
-            var blockIndex = GetBlockIndex(stringId);
+            var blockId = StringTable.GetBlockId(stringId);
+            var blockIndex = StringTable.GetBlockIndex(stringId);
 
             var identifier = new ResourceIdentifier(
                 ResourceType.String,
@@ -196,18 +232,18 @@ public static class StringTableExtensions
             );
 
             // Load existing block data or start with empty entries
-            var strings = Enumerable.Repeat(string.Empty, BlockSize).ToArray();
+            var strings = Enumerable.Repeat(string.Empty, StringTable.BlockSize).ToArray();
 
             var existingResource = portableExecutable.TryGetResource(identifier);
             if (existingResource is not null)
             {
-                var existingStrings = ReadBlock(existingResource.Data);
-                Array.Copy(existingStrings, strings, BlockSize);
+                var existingStrings = existingResource.ReadAsStringTable();
+                Array.Copy(existingStrings, strings, StringTable.BlockSize);
             }
 
             strings[blockIndex] = value;
 
-            portableExecutable.SetResource(identifier, WriteBlock(strings));
+            portableExecutable.SetResource(identifier, StringTable.Serialize(strings));
         }
     }
 }
