@@ -177,7 +177,8 @@ portableExecutable.ClearResources();
 A manifest resource (type `24`) contains XML data that identifies and describes native assemblies that the application should bind to at run-time.
 It may also contain other information, such as application settings, requested execution level, and more.
 
-To learn more about application manifests, see [this article](https://learn.microsoft.com/windows/win32/sbscs/application-manifests).
+> [!NOTE]
+> To learn more about application manifests, see [this article](https://learn.microsoft.com/windows/win32/sbscs/application-manifests).
 
 ##### Retrieve the manifest
 
@@ -393,4 +394,99 @@ using Ressy.HighLevel.Versions;
 var portableExecutable = new PortableExecutable("some_app.exe");
 
 portableExecutable.RemoveVersionInfo();
+```
+
+#### String table resources
+
+String table resources (type `6`) store localized strings that can be loaded by the application at runtime using the `LoadString` Windows API function.
+Each string is identified by a unique integer ID.
+
+> [!NOTE]
+> To learn more about string table resources, see [this article](https://learn.microsoft.com/windows/win32/menurc/stringtable-resource).
+
+##### Retrieve strings
+
+To get the string table resource, call the `GetStringTable()` extension method. This returns a `StringTable` object that contains the strings mapped to their IDs:
+
+```csharp
+using Ressy;
+using Ressy.HighLevel.StringTables;
+
+var portableExecutable = new PortableExecutable("some_app.exe");
+
+var stringTable = portableExecutable.GetStringTable();
+// stringTable.Strings[1] => "Hello, World!"
+// stringTable.Strings[100] => "Some other string"
+```
+
+To retrieve a specific string by its ID, call `GetString(...)` or `TryGetString(...)` on the returned `StringTable` object:
+
+```csharp
+using Ressy;
+using Ressy.HighLevel.StringTables;
+
+var portableExecutable = new PortableExecutable("some_app.exe");
+
+var stringTable = portableExecutable.GetStringTable();
+var str = stringTable.GetString(1);
+// -or-
+// var str = stringTable.TryGetString(1);
+```
+
+> [!NOTE]
+> You can optionally pass a `Language` parameter to `GetStringTable()` to retrieve strings for a specific language.
+> If no language is specified, the method looks for strings in the neutral language.
+
+##### Set the string table
+
+To replace the entire string table with a new set of strings, call the `SetStringTable(...)` extension method with a `StringTable` object:
+
+```csharp
+using System.Collections.Generic;
+using Ressy;
+using Ressy.HighLevel.StringTables;
+
+var portableExecutable = new PortableExecutable("some_app.exe");
+
+portableExecutable.SetStringTable(
+    new StringTable(
+        new Dictionary<int, string>
+        {
+            [1] = "Hello, World!",
+            [100] = "Some other string",
+        }
+    )
+);
+```
+
+To add new strings or modify existing ones while preserving the rest, call the `SetStringTable(...)` extension method with a builder delegate:
+
+```csharp
+using Ressy;
+using Ressy.HighLevel.StringTables;
+
+var portableExecutable = new PortableExecutable("some_app.exe");
+
+portableExecutable.SetStringTable(b =>
+{
+    b.SetString(1, "Hello, World!");
+    b.SetString(100, "Some other string");
+});
+```
+
+> [!NOTE]
+> You can optionally pass a `Language` parameter to set the strings for a specific language.
+> If no language is specified, the strings are stored in the neutral language.
+
+##### Remove string table resources
+
+To remove all string table resources, call the `RemoveStringTable()` extension method:
+
+```csharp
+using Ressy;
+using Ressy.HighLevel.StringTables;
+
+var portableExecutable = new PortableExecutable("some_app.exe");
+
+portableExecutable.RemoveStringTable();
 ```
