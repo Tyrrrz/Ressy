@@ -399,15 +399,15 @@ portableExecutable.RemoveVersionInfo();
 #### String table resources
 
 String table resources (type `6`) store localized strings that can be loaded by the application at run time using the `LoadString(...)` Windows API function.
-Each string is identified by a unique integer ID and stored in a specific block of 16 strings.
+Each resource is a separate block of 16 strings where each string is identified by a unique ID.
 
 > [!NOTE]
 > To learn more about string table resources, see [this article](https://learn.microsoft.com/windows/win32/menurc/stringtable-resource).
 
 ##### Retrieve strings
 
-To get the string table resource, call the `GetStringTable()` extension method.
-This returns a `StringTable` object that provides a unified view over all string blocks stored in the PE file:
+You can call the `GetStringTable()` extension method to retrieve all string table resource blocks stored in a PE file.
+This returns a `StringTable` object that provides a unified view over all of them:
 
 ```csharp
 using Ressy;
@@ -437,11 +437,11 @@ var str = stringTable.GetString(1);
 
 > [!NOTE]
 > You can optionally pass a `Language` parameter to `GetStringTable()` to retrieve strings for a specific language.
-> If no language is specified, the method looks for strings in the neutral language.
+> If no language is specified, the method looks for strings in the neutral UI language.
 
 ##### Set the string table
 
-To replace the entire string table with a new set of strings, call the `SetStringTable(...)` extension method with a `StringTable` object.
+To add or overwrite strings, replacing any existing string table resource blocks, call the `SetStringTable(...)` extension method.
 You can use the `StringTableBuilder` class to simplify the creation of a new `StringTable` instance:
 
 ```csharp
@@ -476,7 +476,7 @@ portableExecutable.SetStringTable(b =>
 
 > [!NOTE]
 > You can optionally pass a `Language` parameter to set the strings for a specific language.
-> If no language is specified, the strings are stored in the neutral language.
+> If no language is specified, the strings are stored in the neutral UI language.
 
 ##### Remove string table resources
 

@@ -60,10 +60,14 @@ public static class StringTableExtensions
         }
 
         /// <summary>
-        /// Gets all string table resource blocks and returns a unified view over all of them.
-        /// Retrieves resource blocks in the specified language or in the neutral language if no language is specified.
+        /// Gets all string table resource blocks, deserializes them, and returns a unified view over them.
         /// Returns <c>null</c> if no string table resources exist.
         /// </summary>
+        /// <remarks>
+        /// If the language is specified, this method retrieves string table resources only in that language.
+        /// If the language is not specified, this method retrieves string table resources
+        /// in the neutral UI language (<see cref="Language.NeutralDefault" />).
+        /// </remarks>
         public StringTable? TryGetStringTable(Language? language = null)
         {
             var targetLanguage = language ?? Language.NeutralDefault;
@@ -81,23 +85,27 @@ public static class StringTableExtensions
                 if (identifier.Name.Code is not { } blockId)
                     continue;
 
-                var block = portableExecutable.TryGetStringTableBlockResource(
-                    blockId,
-                    targetLanguage
-                );
+                var block = portableExecutable
+                    .TryGetStringTableBlockResource(blockId, targetLanguage)
+                    ?.ReadAsStringTableBlock();
+
                 if (block is null)
                     continue;
 
-                blocks.Add(block.ReadAsStringTableBlock());
+                blocks.Add(block);
             }
 
             return blocks.Count > 0 ? StringTable.FromBlocks(blocks) : null;
         }
 
         /// <summary>
-        /// Gets all string table resource blocks and returns a unified view over all of them.
-        /// Retrieves resource blocks in the specified language or in the neutral language if no language is specified.
+        /// Gets all string table resource blocks, deserializes them, and returns a unified view over them.
         /// </summary>
+        /// <remarks>
+        /// If the language is specified, this method retrieves string table resources only in that language.
+        /// If the language is not specified, this method retrieves string table resources
+        /// in the neutral UI language (<see cref="Language.NeutralDefault" />).
+        /// </remarks>
         public StringTable GetStringTable(Language? language = null) =>
             portableExecutable.TryGetStringTable(language)
             ?? throw new InvalidOperationException("String table resource does not exist.");
@@ -121,8 +129,11 @@ public static class StringTableExtensions
 
         /// <summary>
         /// Adds or overwrites string table resource blocks with the specified data.
-        /// Removes blocks that existed in the previous string table but not in the new one.
         /// </summary>
+        /// <remarks>
+        /// If there are existing string table resource blocks (based on <see cref="TryGetStringTable" /> rules),
+        /// they will be automatically removed.
+        /// </remarks>
         public void SetStringTable(StringTable stringTable, Language? language = null)
         {
             var targetLanguage = language ?? Language.NeutralDefault;
@@ -173,8 +184,12 @@ public static class StringTableExtensions
 
         /// <summary>
         /// Modifies the currently stored string table resource blocks.
-        /// If there are no existing string table resources, an empty one will be created.
         /// </summary>
+        /// <remarks>
+        /// If there are existing string table resource blocks (based on <see cref="TryGetStringTable" /> rules),
+        /// they will be used as the base for modification.
+        /// If there are no existing string table resource blocks, they will be created as necessary.
+        /// </remarks>
         public void SetStringTable(Action<StringTableBuilder> modify, Language? language = null)
         {
             var builder = new StringTableBuilder();

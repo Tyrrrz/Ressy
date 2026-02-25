@@ -77,10 +77,6 @@ public partial class StringTable
     /// <summary>
     /// Creates a new <see cref="StringTable" /> from a collection of string table resource blocks.
     /// </summary>
-    /// <remarks>
-    /// Non-empty strings from all blocks are merged into a unified view keyed by their IDs.
-    /// Blocks with duplicate IDs are merged in the order they appear in the input sequence.
-    /// </remarks>
     public static StringTable FromBlocks(IReadOnlyList<StringTableBlock> blocks)
     {
         var strings = new Dictionary<int, string>();

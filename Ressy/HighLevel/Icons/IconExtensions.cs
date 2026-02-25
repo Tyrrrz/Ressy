@@ -38,7 +38,7 @@ public static class IconExtensions
         /// </summary>
         /// <remarks>
         /// Consider calling <see cref="RemoveIcon" /> first to remove redundant
-        /// icon and icon group resources.
+        /// icon and icon group resources left from previously existing icons.
         /// </remarks>
         public void SetIcon(Stream iconFileStream)
         {
@@ -91,7 +91,7 @@ public static class IconExtensions
         /// </summary>
         /// <remarks>
         /// Consider calling <see cref="RemoveIcon" /> first to remove redundant
-        /// icon and icon group resources.
+        /// icon and icon group resources left from previously existing icons.
         /// </remarks>
         public void SetIcon(string iconFilePath)
         {
