@@ -74,14 +74,16 @@ public class VersionInfoSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.RemoveVersionInfo();
+        using (var portableExecutable = new PortableExecutable(file.Path))
+        {
+            portableExecutable.RemoveVersionInfo();
 
-        // Act
-        portableExecutable.SetVersionInfo(versionInfo);
+            // Act
+            portableExecutable.SetVersionInfo(versionInfo);
 
-        // Assert
-        portableExecutable.GetVersionInfo().Should().BeEquivalentTo(versionInfo);
+            // Assert
+            portableExecutable.GetVersionInfo().Should().BeEquivalentTo(versionInfo);
+        }
 
         // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
         // (via System.Reflection.Metadata) rather than Win32 version resources, so it
@@ -115,20 +117,22 @@ public class VersionInfoSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        VersionInfo versionInfo;
+        using (var portableExecutable = new PortableExecutable(file.Path))
+        {
+            // Act
+            portableExecutable.SetVersionInfo(v =>
+                v.SetFileVersion(new Version(4, 3, 2, 1))
+                    .SetFileOperatingSystem(
+                        FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT
+                    )
+                    .SetAttribute(VersionAttributeName.ProductName, "ProductTest")
+                    .SetAttribute(VersionAttributeName.CompanyName, "CompanyTest")
+            );
 
-        // Act
-        portableExecutable.SetVersionInfo(v =>
-            v.SetFileVersion(new Version(4, 3, 2, 1))
-                .SetFileOperatingSystem(
-                    FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT
-                )
-                .SetAttribute(VersionAttributeName.ProductName, "ProductTest")
-                .SetAttribute(VersionAttributeName.CompanyName, "CompanyTest")
-        );
-
-        // Assert
-        var versionInfo = portableExecutable.GetVersionInfo();
+            // Assert
+            versionInfo = portableExecutable.GetVersionInfo();
+        }
 
         versionInfo
             .Should()
@@ -198,18 +202,19 @@ public class VersionInfoSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using (var portableExecutable = new PortableExecutable(file.Path))
+        {
+            // Act
+            portableExecutable.RemoveVersionInfo();
 
-        // Act
-        portableExecutable.RemoveVersionInfo();
+            // Assert
+            portableExecutable
+                .GetResourceIdentifiers()
+                .Should()
+                .NotContain(r => r.Type.Code == ResourceType.Version.Code);
 
-        // Assert
-        portableExecutable
-            .GetResourceIdentifiers()
-            .Should()
-            .NotContain(r => r.Type.Code == ResourceType.Version.Code);
-
-        portableExecutable.TryGetVersionInfo().Should().BeNull();
+            portableExecutable.TryGetVersionInfo().Should().BeNull();
+        }
 
         // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
         // (via System.Reflection.Metadata) rather than Win32 version resources, so it

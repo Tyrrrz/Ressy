@@ -33,7 +33,7 @@ public partial class PortableExecutable : IDisposable
     /// </summary>
     public PortableExecutable(string filePath)
         : this(
-            File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
+            File.Open(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite),
             disposeStream: true
         )
     {
