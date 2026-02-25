@@ -256,7 +256,7 @@ To read the manifest resource as an XML text string, call the `GetManifest()` ex
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.Manifests;
+using Ressy.Manifests;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -274,7 +274,7 @@ To add or overwrite a manifest resource, call the `SetManifest(...)` extension m
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.Manifests;
+using Ressy.Manifests;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -287,7 +287,7 @@ To remove all manifest resources, call the `RemoveManifest()` extension method:
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.Manifests;
+using Ressy.Manifests;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -305,7 +305,7 @@ To add or overwrite icon resources based on an ICO file, call the `SetIcon(...)`
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.Icons;
+using Ressy.Icons;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -320,7 +320,7 @@ Additionally, you can also set the icon by passing a stream that contains ICO-fo
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.Icons;
+using Ressy.Icons;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -334,7 +334,7 @@ To remove all icon and icon group resources, call the `RemoveIcon()` extension m
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.Icons;
+using Ressy.Icons;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -353,7 +353,7 @@ This returns a `VersionInfo` object that represents the deserialized binary data
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.Versions;
+using Ressy.Versions;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -417,7 +417,7 @@ You can use the `VersionInfoBuilder` class to drastically simplify the creation 
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.Versions;
+using Ressy.Versions;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -438,7 +438,7 @@ Properties that are not provided are pulled from the existing version info resou
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.Versions;
+using Ressy.Versions;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -459,7 +459,7 @@ To remove all version info resources, call the `RemoveVersionInfo()` extension m
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.Versions;
+using Ressy.Versions;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -481,7 +481,7 @@ This returns a `StringTable` object that provides a unified view over all of the
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.StringTables;
+using Ressy.StringTables;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -495,7 +495,7 @@ To retrieve a specific string by its ID, call `GetString(...)` on the returned `
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.StringTables;
+using Ressy.StringTables;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -517,7 +517,7 @@ You can use the `StringTableBuilder` class to simplify the creation of a new `St
 ```csharp
 using System.Collections.Generic;
 using Ressy;
-using Ressy.HighLevel.StringTables;
+using Ressy.StringTables;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -533,7 +533,7 @@ To add new strings or modify existing ones while preserving the rest, call the `
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.StringTables;
+using Ressy.StringTables;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -554,7 +554,7 @@ To remove all string table resources, call the `RemoveStringTable()` extension m
 
 ```csharp
 using Ressy;
-using Ressy.HighLevel.StringTables;
+using Ressy.StringTables;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 

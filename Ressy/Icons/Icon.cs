@@ -1,4 +1,4 @@
-namespace Ressy.HighLevel.Icons;
+namespace Ressy.Icons;
 
 internal class Icon(
     byte width,

@@ -2,7 +2,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using FluentAssertions;
-using Ressy.HighLevel.Icons;
+using Ressy.Icons;
 using Ressy.Tests.Utils;
 using Ressy.Tests.Utils.Extensions;
 using Xunit;

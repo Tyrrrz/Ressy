@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ressy.HighLevel.StringTables;
+namespace Ressy.StringTables;
 
 /// <summary>
 /// Contains strings loaded from string table resource blocks, keyed by their IDs.

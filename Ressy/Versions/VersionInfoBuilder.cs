@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ressy.HighLevel.Versions;
+namespace Ressy.Versions;
 
 /// <summary>
 /// Builder for <see cref="VersionInfo" />.

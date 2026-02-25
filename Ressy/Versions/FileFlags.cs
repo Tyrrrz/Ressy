@@ -1,6 +1,6 @@
 using System;
 
-namespace Ressy.HighLevel.Versions;
+namespace Ressy.Versions;
 
 /// <summary>
 /// Flags associated with a portable executable file.

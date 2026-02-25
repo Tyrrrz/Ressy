@@ -1,6 +1,6 @@
 using System.IO;
 using FluentAssertions;
-using Ressy.HighLevel.Manifests;
+using Ressy.Manifests;
 using Ressy.Tests.Utils;
 using Xunit;
 

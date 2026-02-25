@@ -1,6 +1,6 @@
 using System.IO;
 using FluentAssertions;
-using Ressy.HighLevel.StringTables;
+using Ressy.StringTables;
 using Ressy.Tests.Utils;
 using Xunit;
 

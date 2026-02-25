@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Ressy.HighLevel.Versions;
+namespace Ressy.Versions;
 
 /// <summary>
 /// Operating system for which a portable executable file was designed.
