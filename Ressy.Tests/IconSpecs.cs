@@ -20,48 +20,50 @@ public class IconSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.RemoveIcon();
+        using (var portableExecutable = new PortableExecutable(file.Path))
+        {
+            portableExecutable.RemoveIcon();
 
-        // Act
-        portableExecutable.SetIcon(iconFilePath);
+            // Act
+            portableExecutable.SetIcon(iconFilePath);
 
-        // Assert
-        portableExecutable
-            .GetResourceIdentifiers()
-            .Should()
-            .Contain([
-                new ResourceIdentifier(
-                    ResourceType.IconGroup,
-                    ResourceName.FromCode(1),
-                    Language.Neutral
-                ),
-                new ResourceIdentifier(
-                    ResourceType.Icon,
-                    ResourceName.FromCode(1),
-                    Language.Neutral
-                ),
-                new ResourceIdentifier(
-                    ResourceType.Icon,
-                    ResourceName.FromCode(2),
-                    Language.Neutral
-                ),
-                new ResourceIdentifier(
-                    ResourceType.Icon,
-                    ResourceName.FromCode(3),
-                    Language.Neutral
-                ),
-                new ResourceIdentifier(
-                    ResourceType.Icon,
-                    ResourceName.FromCode(4),
-                    Language.Neutral
-                ),
-                new ResourceIdentifier(
-                    ResourceType.Icon,
-                    ResourceName.FromCode(5),
-                    Language.Neutral
-                ),
-            ]);
+            // Assert
+            portableExecutable
+                .GetResourceIdentifiers()
+                .Should()
+                .Contain([
+                    new ResourceIdentifier(
+                        ResourceType.IconGroup,
+                        ResourceName.FromCode(1),
+                        Language.Neutral
+                    ),
+                    new ResourceIdentifier(
+                        ResourceType.Icon,
+                        ResourceName.FromCode(1),
+                        Language.Neutral
+                    ),
+                    new ResourceIdentifier(
+                        ResourceType.Icon,
+                        ResourceName.FromCode(2),
+                        Language.Neutral
+                    ),
+                    new ResourceIdentifier(
+                        ResourceType.Icon,
+                        ResourceName.FromCode(3),
+                        Language.Neutral
+                    ),
+                    new ResourceIdentifier(
+                        ResourceType.Icon,
+                        ResourceName.FromCode(4),
+                        Language.Neutral
+                    ),
+                    new ResourceIdentifier(
+                        ResourceType.Icon,
+                        ResourceName.FromCode(5),
+                        Language.Neutral
+                    ),
+                ]);
+        }
 
         // Icon.ExtractAssociatedIcon() is a Win32 API wrapper with no cross-platform equivalent;
         // it throws PlatformNotSupportedException on non-Windows.
