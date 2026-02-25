@@ -608,6 +608,7 @@ You can use `GetSatelliteFilePath(...)` on a `MuiInfo` instance to compute the p
 ```csharp
 using Ressy;
 using Ressy.MultilingualUserInterface;
+using Ressy.Strings;
 
 // Read the language-neutral EXE to find the satellite path
 using var pe = PortableExecutable.OpenRead("notepad.exe");
@@ -617,13 +618,12 @@ var muiInfo = pe.GetMuiInfo();
 var satellitePath = muiInfo.GetSatelliteFilePath("notepad.exe");
 // => "en-US\notepad.exe.mui"  (uses muiInfo.Language internally)
 
-// Open the satellite MUI file to read its localized resources
+// Open the satellite MUI file and read its localized string table
 using var satellitePe = PortableExecutable.OpenRead(satellitePath);
-var satelliteMuiInfo = satellitePe.GetMuiInfo();
+var stringTable = satellitePe.GetStringTable();
 
-// satelliteMuiInfo.FileType          => LanguageSpecific
-// satelliteMuiInfo.Language          => "en-US"
-// satelliteMuiInfo.FallbackLanguage  => "en-US"
+// stringTable.GetString(1) => "Open"
+// stringTable.GetString(2) => "Save"
 ```
 
 ##### Set MUI info
