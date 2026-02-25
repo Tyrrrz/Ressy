@@ -572,7 +572,7 @@ It identifies the language of the file, along with fallback languages to use whe
 ##### Retrieve MUI info
 
 To get the MUI resource, call the `GetMuiInfo()` extension method.
-This returns a `MultilingualUserInterfaceInfo` object that represents the deserialized binary data stored in the resource:
+This returns a `MuiInfo` object that represents the deserialized binary data stored in the resource:
 
 ```csharp
 using Ressy;
@@ -590,15 +590,38 @@ Returned object should contain data similar to this:
 ```jsonc
 // Formatted as JSON in this example for better readability
 {
-  "FileType": "LanguageSpecific",
-  "Language": "en-US",
-  "FallbackLanguage": "en-US",
+  "FileType": "LanguageNeutral",
+  "SystemAttributes": 0,
+  "TypeIDFallbackList": [16, 24],
+  "TypeIDMainList": [6],
+  "Language": null,
+  "FallbackLanguage": null,
   "UltimateFallbackLanguage": "en"
 }
 ```
 
 > [!NOTE]
 > If there are multiple MUI resources, this method retrieves the first one it finds, giving preference to resources with lower ordinal name (ID) and in the neutral language.
+
+On Windows, language-specific resources are split out into satellite `.mui` files placed in a language-named subdirectory next to the original executable.
+You can use `MuiInfo.GetSatelliteFilePath(...)` to compute the path to the satellite file, then open it with `PortableExecutable.OpenRead(...)`:
+
+```csharp
+using Ressy;
+using Ressy.MultilingualUserInterface;
+
+// Open the language-neutral EXE and get its MUI satellite path for en-US
+var satellitePath = MuiInfo.GetSatelliteFilePath("notepad.exe", "en-US");
+// => "en-US\notepad.exe.mui"
+
+// Open the satellite MUI file to read its localized resources
+using var satellitePe = PortableExecutable.OpenRead(satellitePath);
+var satelliteMuiInfo = satellitePe.GetMuiInfo();
+
+// satelliteMuiInfo.FileType          => LanguageSpecific
+// satelliteMuiInfo.Language          => "en-US"
+// satelliteMuiInfo.FallbackLanguage  => "en-US"
+```
 
 ##### Set MUI info
 
@@ -610,8 +633,13 @@ using Ressy.MultilingualUserInterface;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
-portableExecutable.SetMuiInfo(new MultilingualUserInterfaceInfo(
+portableExecutable.SetMuiInfo(new MuiInfo(
     MuiFileType.LanguageSpecific,
+    systemAttributes: 0,
+    checksum: new byte[16],
+    serviceChecksum: new byte[16],
+    typeIDFallbackList: [],
+    typeIDMainList: [6, 16],
     language: "en-US",
     fallbackLanguage: "en-US",
     ultimateFallbackLanguage: "en"

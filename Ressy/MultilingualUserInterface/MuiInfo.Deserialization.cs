@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Ressy.MultilingualUserInterface;
 
-public partial class MultilingualUserInterfaceInfo
+public partial class MuiInfo
 {
     // https://learn.microsoft.com/windows/win32/intl/mui-resource-technology
     private const uint MuiSignature = 0xFECDFECDu;
@@ -21,7 +22,28 @@ public partial class MultilingualUserInterfaceInfo
         return Encoding.GetString(data, (int)offset, byteLength);
     }
 
-    internal static MultilingualUserInterfaceInfo Deserialize(byte[] data)
+    private static IReadOnlyList<int> ReadTypeIDList(byte[] data, uint offset, uint size)
+    {
+        if (offset == 0 || size == 0)
+            return [];
+
+        var list = new List<int>();
+        var pos = (int)offset;
+        var end = pos + (int)size;
+
+        while (pos + 1 < end && pos + 1 < data.Length)
+        {
+            var id = (int)BitConverter.ToUInt16(data, pos);
+            pos += 2;
+            if (id == 0)
+                break;
+            list.Add(id);
+        }
+
+        return list;
+    }
+
+    internal static MuiInfo Deserialize(byte[] data)
     {
         using var stream = new MemoryStream(data);
         using var reader = new BinaryReader(stream);
@@ -38,7 +60,7 @@ public partial class MultilingualUserInterfaceInfo
         var fileType = (MuiFileType)reader.ReadUInt32();
 
         // dwSystemAttributes
-        _ = reader.ReadUInt32();
+        var systemAttributes = reader.ReadUInt32();
 
         // dwUltimateFallbackLocation
         _ = reader.ReadUInt32();
@@ -47,22 +69,24 @@ public partial class MultilingualUserInterfaceInfo
         _ = reader.ReadBytes(8);
 
         // abChecksum[16]
-        _ = reader.ReadBytes(16);
+        var checksum = reader.ReadBytes(16);
 
         // abServiceChecksum[16]
-        _ = reader.ReadBytes(16);
+        // This is a secondary checksum used by Windows servicing/update, covering different
+        // data than abChecksum. It lets Windows detect independently patched MUI files.
+        var serviceChecksum = reader.ReadBytes(16);
 
         // dwTypeNameListOffset, dwTypeNameListSize
         _ = reader.ReadUInt32();
         _ = reader.ReadUInt32();
 
         // dwTypeIDFallbackListOffset, dwTypeIDFallbackListSize
-        _ = reader.ReadUInt32();
-        _ = reader.ReadUInt32();
+        var typeIDFallbackOffset = reader.ReadUInt32();
+        var typeIDFallbackSize = reader.ReadUInt32();
 
         // dwTypeIDMainListOffset, dwTypeIDMainListSize
-        _ = reader.ReadUInt32();
-        _ = reader.ReadUInt32();
+        var typeIDMainOffset = reader.ReadUInt32();
+        var typeIDMainSize = reader.ReadUInt32();
 
         // dwNameListOffset, dwNameListSize
         _ = reader.ReadUInt32();
@@ -80,6 +104,8 @@ public partial class MultilingualUserInterfaceInfo
         var ultimateFallbackOffset = reader.ReadUInt32();
         var ultimateFallbackSize = reader.ReadUInt32();
 
+        var typeIDFallbackList = ReadTypeIDList(data, typeIDFallbackOffset, typeIDFallbackSize);
+        var typeIDMainList = ReadTypeIDList(data, typeIDMainOffset, typeIDMainSize);
         var language = ReadLanguageString(data, languageOffset, languageSize);
         var fallbackLanguage = ReadLanguageString(data, fallbackOffset, fallbackSize);
         var ultimateFallbackLanguage = ReadLanguageString(
@@ -88,8 +114,13 @@ public partial class MultilingualUserInterfaceInfo
             ultimateFallbackSize
         );
 
-        return new MultilingualUserInterfaceInfo(
+        return new MuiInfo(
             fileType,
+            systemAttributes,
+            checksum,
+            serviceChecksum,
+            typeIDFallbackList,
+            typeIDMainList,
             language,
             fallbackLanguage,
             ultimateFallbackLanguage

@@ -9,11 +9,33 @@ namespace Ressy.Tests;
 public class MuiSpecs
 {
     [Fact]
-    public void I_can_set_the_mui_info()
+    public void I_can_get_the_MUI_info()
     {
         // Arrange
-        var muiInfo = new MultilingualUserInterfaceInfo(
+        using var file = TempFile.Create();
+        File.Copy(Dummy.Program.Path, file.Path);
+
+        using var portableExecutable = PortableExecutable.OpenRead(file.Path);
+
+        // Act
+        var muiInfo = portableExecutable.GetMuiInfo();
+
+        // Assert
+        muiInfo.FileType.Should().Be(MuiFileType.LanguageNeutral);
+        muiInfo.UltimateFallbackLanguage.Should().Be("en");
+    }
+
+    [Fact]
+    public void I_can_set_the_MUI_info()
+    {
+        // Arrange
+        var muiInfo = new MuiInfo(
             MuiFileType.LanguageSpecific,
+            systemAttributes: 0,
+            checksum: new byte[16],
+            serviceChecksum: new byte[16],
+            typeIDFallbackList: [],
+            typeIDMainList: [6, 16],
             "en-US",
             "en-US",
             "en"
@@ -33,11 +55,16 @@ public class MuiSpecs
     }
 
     [Fact]
-    public void I_can_set_the_mui_info_with_no_languages()
+    public void I_can_set_the_MUI_info_with_no_languages()
     {
         // Arrange
-        var muiInfo = new MultilingualUserInterfaceInfo(
+        var muiInfo = new MuiInfo(
             MuiFileType.LanguageNeutral,
+            systemAttributes: 0,
+            checksum: new byte[16],
+            serviceChecksum: new byte[16],
+            typeIDFallbackList: [],
+            typeIDMainList: [],
             null,
             null,
             null
@@ -57,21 +84,13 @@ public class MuiSpecs
     }
 
     [Fact]
-    public void I_can_remove_the_mui_info()
+    public void I_can_remove_the_MUI_info()
     {
         // Arrange
-        var muiInfo = new MultilingualUserInterfaceInfo(
-            MuiFileType.LanguageSpecific,
-            "en-US",
-            "en-US",
-            null
-        );
-
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
-        portableExecutable.SetMuiInfo(muiInfo);
 
         // Act
         portableExecutable.RemoveMuiInfo();

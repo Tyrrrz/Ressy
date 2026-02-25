@@ -16,8 +16,7 @@ public static class MuiExtensions
         /// Reads the specified resource as a MUI resource and
         /// deserializes its data to the corresponding structural representation.
         /// </summary>
-        public MultilingualUserInterfaceInfo ReadAsMuiInfo() =>
-            MultilingualUserInterfaceInfo.Deserialize(resource.Data);
+        public MuiInfo ReadAsMuiInfo() => MuiInfo.Deserialize(resource.Data);
     }
 
     /// <inheritdoc cref="MuiExtensions" />
@@ -51,8 +50,7 @@ public static class MuiExtensions
         /// If there are no matching resources, this method retrieves the first
         /// MUI resource it finds.
         /// </remarks>
-        public MultilingualUserInterfaceInfo? TryGetMuiInfo() =>
-            portableExecutable.TryGetMuiResource()?.ReadAsMuiInfo();
+        public MuiInfo? TryGetMuiInfo() => portableExecutable.TryGetMuiResource()?.ReadAsMuiInfo();
 
         /// <summary>
         /// Gets the MUI resource and deserializes it.
@@ -64,7 +62,7 @@ public static class MuiExtensions
         /// If there are no matching resources, this method retrieves the first
         /// MUI resource it finds.
         /// </remarks>
-        public MultilingualUserInterfaceInfo GetMuiInfo() =>
+        public MuiInfo GetMuiInfo() =>
             portableExecutable.TryGetMuiInfo()
             ?? throw new InvalidOperationException("MUI resource does not exist.");
 
@@ -83,7 +81,7 @@ public static class MuiExtensions
         /// If no MUI resource exists, a new one will be created with
         /// an ordinal name (ID) of 1 in the neutral language (<see cref="Language.Neutral" />).
         /// </remarks>
-        public void SetMuiInfo(MultilingualUserInterfaceInfo muiInfo)
+        public void SetMuiInfo(MuiInfo muiInfo)
         {
             // If the resource already exists, reuse the same identifier
             var identifier =
