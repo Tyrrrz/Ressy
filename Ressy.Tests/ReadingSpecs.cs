@@ -13,7 +13,7 @@ public class ReadingSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 
@@ -106,7 +106,7 @@ public class ReadingSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 
@@ -124,7 +124,7 @@ public class ReadingSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 

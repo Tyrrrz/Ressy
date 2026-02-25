@@ -117,12 +117,12 @@ public static class StringTableExtensions
         {
             var identifiers = portableExecutable.GetResourceIdentifiers();
 
-            portableExecutable.UpdateResources(ctx =>
+            portableExecutable.UpdateResources(resources =>
             {
                 foreach (var identifier in identifiers)
                 {
                     if (identifier.Type.Code == ResourceType.String.Code)
-                        ctx.Remove(identifier);
+                        resources.Remove(identifier);
                 }
             });
         }
@@ -151,18 +151,17 @@ public static class StringTableExtensions
             var blocks = stringTable.ToBlocks();
             var newBlockIds = blocks.Select(b => b.BlockId).ToHashSet();
 
-            portableExecutable.UpdateResources(ctx =>
+            portableExecutable.UpdateResources(resources =>
             {
                 foreach (var block in blocks)
                 {
-                    ctx.Set(
+                    resources[
                         new ResourceIdentifier(
                             ResourceType.String,
                             ResourceName.FromCode(block.BlockId),
                             targetLanguage
-                        ),
-                        block.Serialize()
-                    );
+                        )
+                    ] = block.Serialize();
                 }
 
                 // Remove blocks that existed in the previous string table but aren't in the new one
@@ -171,7 +170,7 @@ public static class StringTableExtensions
                     if (newBlockIds.Contains(staleBlockId))
                         continue;
 
-                    ctx.Remove(
+                    resources.Remove(
                         new ResourceIdentifier(
                             ResourceType.String,
                             ResourceName.FromCode(staleBlockId),

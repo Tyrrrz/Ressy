@@ -13,7 +13,7 @@ public class StringTableSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 
@@ -31,7 +31,7 @@ public class StringTableSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 
@@ -55,7 +55,7 @@ public class StringTableSpecs
             .Build();
 
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveStringTable();
@@ -78,7 +78,7 @@ public class StringTableSpecs
             .Build();
 
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveStringTable();
@@ -95,7 +95,7 @@ public class StringTableSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 
@@ -134,7 +134,7 @@ public class StringTableSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 

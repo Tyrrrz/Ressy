@@ -81,12 +81,12 @@ public static class VersionExtensions
         {
             var identifiers = portableExecutable.GetResourceIdentifiers();
 
-            portableExecutable.UpdateResources(ctx =>
+            portableExecutable.UpdateResources(resources =>
             {
                 foreach (var identifier in identifiers)
                 {
                     if (identifier.Type.Code == ResourceType.Version.Code)
-                        ctx.Remove(identifier);
+                        resources.Remove(identifier);
                 }
             });
         }

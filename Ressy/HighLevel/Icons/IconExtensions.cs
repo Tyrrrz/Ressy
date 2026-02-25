@@ -18,7 +18,7 @@ public static class IconExtensions
         {
             var identifiers = portableExecutable.GetResourceIdentifiers();
 
-            portableExecutable.UpdateResources(ctx =>
+            portableExecutable.UpdateResources(resources =>
             {
                 foreach (var identifier in identifiers)
                 {
@@ -27,7 +27,7 @@ public static class IconExtensions
                         || identifier.Type.Code == ResourceType.IconGroup.Code
                     )
                     {
-                        ctx.Remove(identifier);
+                        resources.Remove(identifier);
                     }
                 }
             });
@@ -44,15 +44,14 @@ public static class IconExtensions
         {
             var iconGroup = IconGroup.Deserialize(iconFileStream);
 
-            portableExecutable.UpdateResources(ctx =>
+            portableExecutable.UpdateResources(resources =>
             {
                 // Icon resources (written as-is)
                 foreach (var (i, icon) in iconGroup.Icons.Index())
                 {
-                    ctx.Set(
-                        new ResourceIdentifier(ResourceType.Icon, ResourceName.FromCode(i + 1)),
-                        icon.Data
-                    );
+                    resources[
+                        new ResourceIdentifier(ResourceType.Icon, ResourceName.FromCode(i + 1))
+                    ] = icon.Data;
                 }
 
                 // Icon group resource (offset is replaced with icon index)
@@ -78,10 +77,9 @@ public static class IconExtensions
                         writer.Write((ushort)(i + 1));
                     }
 
-                    ctx.Set(
-                        new ResourceIdentifier(ResourceType.IconGroup, ResourceName.FromCode(1)),
-                        buffer.ToArray()
-                    );
+                    resources[
+                        new ResourceIdentifier(ResourceType.IconGroup, ResourceName.FromCode(1))
+                    ] = buffer.ToArray();
                 }
             });
         }

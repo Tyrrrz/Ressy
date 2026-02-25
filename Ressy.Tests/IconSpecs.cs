@@ -18,7 +18,7 @@ public class IconSpecs
         var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
 
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveIcon();
@@ -77,7 +77,7 @@ public class IconSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(DummyPeFile.Path, file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
 

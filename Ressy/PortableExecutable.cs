@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ressy.PE;
@@ -39,28 +39,34 @@ public class PortableExecutable(string filePath)
         ?? throw new InvalidOperationException($"Resource '{identifier}' does not exist.");
 
     internal void UpdateResources(
-        Action<ResourceUpdateContext> update,
+        Action<Dictionary<ResourceIdentifier, byte[]>> modify,
         bool deleteExistingResources = false
     )
     {
-        using var context = ResourceUpdateContext.Create(FilePath, deleteExistingResources);
-        update(context);
+        var resources = deleteExistingResources
+            ? new Dictionary<ResourceIdentifier, byte[]>()
+            : PeFile.ReadResources(FilePath).ToDictionary(r => r.Id, r => r.Data);
+
+        modify(resources);
+
+        PeFile.UpdateResources(FilePath, resources);
     }
 
     /// <summary>
     /// Removes all existing resources.
     /// </summary>
-    public void ClearResources() => UpdateResources(_ => { }, true);
+    public void ClearResources() =>
+        PeFile.UpdateResources(FilePath, new Dictionary<ResourceIdentifier, byte[]>());
 
     /// <summary>
     /// Adds or overwrites the specified resource.
     /// </summary>
     public void SetResource(ResourceIdentifier identifier, byte[] data) =>
-        UpdateResources(ctx => ctx.Set(identifier, data));
+        UpdateResources(resources => resources[identifier] = data);
 
     /// <summary>
     /// Removes the specified resource.
     /// </summary>
     public void RemoveResource(ResourceIdentifier identifier) =>
-        UpdateResources(ctx => ctx.Remove(identifier));
+        UpdateResources(resources => resources.Remove(identifier));
 }
