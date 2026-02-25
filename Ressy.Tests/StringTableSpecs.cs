@@ -15,7 +15,7 @@ public class StringTableSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
         // Act
         var stringTable = portableExecutable.GetStringTable();
@@ -24,6 +24,10 @@ public class StringTableSpecs
         stringTable.Strings.Should().ContainKey(1).WhoseValue.Should().Be("Hello, World!");
         stringTable.Strings.Should().ContainKey(5).WhoseValue.Should().Be("Goodbye, World!");
         stringTable.Strings.Should().ContainKey(18).WhoseValue.Should().Be("Beep blop boop");
+
+        stringTable.GetString(1).Should().Be("Hello, World!");
+        stringTable.GetString(5).Should().Be("Goodbye, World!");
+        stringTable.GetString(18).Should().Be("Beep blop boop");
     }
 
     [Fact]
@@ -33,7 +37,7 @@ public class StringTableSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
         // Act
         var stringTable = portableExecutable.GetStringTable(new Language(1036));
@@ -42,6 +46,10 @@ public class StringTableSpecs
         stringTable.Strings.Should().ContainKey(1).WhoseValue.Should().Be("Bonjour, le monde !");
         stringTable.Strings.Should().ContainKey(5).WhoseValue.Should().Be("Au revoir, le monde !");
         stringTable.Strings.Should().ContainKey(18).WhoseValue.Should().Be("Bip blop boup");
+
+        stringTable.GetString(1).Should().Be("Bonjour, le monde !");
+        stringTable.GetString(5).Should().Be("Au revoir, le monde !");
+        stringTable.GetString(18).Should().Be("Bip blop boup");
     }
 
     [Fact]
@@ -57,7 +65,7 @@ public class StringTableSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveStringTable();
 
         // Act
@@ -80,7 +88,7 @@ public class StringTableSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveStringTable();
 
         // Act
@@ -97,7 +105,7 @@ public class StringTableSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 
         // Act
         portableExecutable.SetStringTable(b => b.SetString(1, "Foo bar").SetString(3, "Baz qux"));
@@ -136,7 +144,7 @@ public class StringTableSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 
         // Act
         portableExecutable.RemoveStringTable();

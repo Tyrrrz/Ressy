@@ -9,36 +9,13 @@ namespace Ressy;
 /// <summary>
 /// Portable executable image file.
 /// </summary>
-public partial class PortableExecutable : IDisposable
+public partial class PortableExecutable(
+    Stream stream,
+    bool isReadOnly = false,
+    bool disposeStream = false
+) : IDisposable
 {
-    private readonly Stream _stream;
-    private readonly bool _disposeStream;
-    private PEInfo _info;
-
-    // Can be null if this instance is initialized from a raw stream.
-    internal string? FilePath { get; }
-
-    /// <summary>
-    /// Wraps a seekable stream as a portable executable.
-    /// </summary>
-    public PortableExecutable(Stream stream, bool disposeStream = false)
-    {
-        _stream = stream;
-        _disposeStream = disposeStream;
-        _info = ParsePEInfo(stream);
-    }
-
-    /// <summary>
-    /// Opens the portable executable at the specified file path.
-    /// </summary>
-    public PortableExecutable(string filePath)
-        : this(
-            File.Open(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite),
-            disposeStream: true
-        )
-    {
-        FilePath = filePath;
-    }
+    private PEInfo _info = ParsePEInfo(stream);
 
     /// <summary>
     /// Gets the identifiers of all existing resources.
@@ -58,7 +35,7 @@ public partial class PortableExecutable : IDisposable
         var sectionBase = (int)resource.PointerToRawData;
         var sectionSize = (int)resource.SizeOfRawData;
 
-        using var reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true);
+        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
         return ReadIdentifiers(reader, sectionBase, sectionSize, 0, null, null).ToList();
     }
 
@@ -70,7 +47,7 @@ public partial class PortableExecutable : IDisposable
         if (_info.ResourceSectionIndex < 0)
             return [];
 
-        using var reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true);
+        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
         return ReadResourcesFromSection(reader, _info.Sections[_info.ResourceSectionIndex]);
     }
 
@@ -90,7 +67,7 @@ public partial class PortableExecutable : IDisposable
         if (resource.PointerToRawData > int.MaxValue || resource.SizeOfRawData > int.MaxValue)
             throw new InvalidDataException("Resource section is too large to be processed.");
 
-        using var reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true);
+        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
         var data = FindResourceData(
             reader,
             (int)resource.PointerToRawData,
@@ -115,16 +92,21 @@ public partial class PortableExecutable : IDisposable
     /// </summary>
     public void SetResources(IReadOnlyList<Resource> resources, bool removeOthers = false)
     {
+        if (isReadOnly)
+            throw new InvalidOperationException("Cannot modify resources in a read-only PE file.");
+
         if (removeOthers)
         {
             UpdateResources(resources);
             return;
         }
 
-        var merged = GetResources().ToDictionary(r => r.Identifier);
+        var resourcesByIdentifier = GetResources().ToDictionary(r => r.Identifier);
+
         foreach (var resource in resources)
-            merged[resource.Identifier] = resource;
-        UpdateResources(merged.Values.ToArray());
+            resourcesByIdentifier[resource.Identifier] = resource;
+
+        UpdateResources(resourcesByIdentifier.Values.ToArray());
     }
 
     /// <summary>
@@ -135,8 +117,11 @@ public partial class PortableExecutable : IDisposable
     /// <summary>
     /// Removes all resources matching the specified predicate.
     /// </summary>
-    public void RemoveResources(Func<ResourceIdentifier, bool> predicate) =>
-        UpdateResources(GetResources().Where(r => !predicate(r.Identifier)).ToArray());
+    public void RemoveResources(Func<ResourceIdentifier, bool> predicate)
+    {
+        var resourcesToKeep = GetResources().Where(r => !predicate(r.Identifier)).ToArray();
+        SetResources(resourcesToKeep, true);
+    }
 
     /// <summary>
     /// Removes the specified resources.
@@ -147,7 +132,7 @@ public partial class PortableExecutable : IDisposable
     /// <summary>
     /// Removes all existing resources.
     /// </summary>
-    public void RemoveResources() => UpdateResources([]);
+    public void RemoveResources() => SetResources([], true);
 
     /// <summary>
     /// Removes the specified resource.
@@ -157,7 +142,40 @@ public partial class PortableExecutable : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        if (_disposeStream)
-            _stream.Dispose();
+        if (disposeStream)
+            stream.Dispose();
     }
+}
+
+public partial class PortableExecutable
+{
+    /// <summary>
+    /// Opens the portable executable at the specified file path with the specified access and sharing options.
+    /// </summary>
+    public static PortableExecutable Open(
+        string filePath,
+        FileAccess fileAccess,
+        FileShare fileShare
+    ) =>
+        new(
+            File.Open(filePath, FileMode.Open, fileAccess, fileShare),
+            fileAccess == FileAccess.Read,
+            true
+        );
+
+    /// <summary>
+    /// Opens the portable executable at the specified file path with read and write access.
+    /// </summary>
+    public static PortableExecutable OpenWrite(string filePath) =>
+        Open(filePath, FileAccess.ReadWrite, FileShare.ReadWrite);
+
+    /// <summary>
+    /// Opens the portable executable at the specified file path with read-only access.
+    /// </summary>
+    /// <remarks>
+    /// Opening a PE file with read-only access allows reading data when it's in use by another process,
+    /// but prevents any modifications to it.
+    /// </remarks>
+    public static PortableExecutable OpenRead(string filePath) =>
+        Open(filePath, FileAccess.Read, FileShare.Read);
 }

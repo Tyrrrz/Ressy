@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 
 namespace Ressy.HighLevel.Versions;
@@ -22,14 +21,6 @@ public static class VersionExtensions
     /// <inheritdoc cref="VersionExtensions" />
     extension(PortableExecutable portableExecutable)
     {
-        private FileType GetFileType() =>
-            Path.GetExtension(portableExecutable.FilePath ?? "").ToUpperInvariant() switch
-            {
-                ".EXE" => FileType.Application,
-                ".DLL" => FileType.DynamicallyLinkedLibrary,
-                _ => FileType.Unknown,
-            };
-
         private ResourceIdentifier? TryGetVersionInfoResourceIdentifier() =>
             portableExecutable
                 .GetResourceIdentifiers()
@@ -123,11 +114,6 @@ public static class VersionExtensions
             if (existingResource is not null)
             {
                 builder.SetAll(existingResource.ReadAsVersionInfo());
-            }
-            // Otherwise, infer reasonable defaults as base
-            else
-            {
-                builder.SetFileType(portableExecutable.GetFileType());
             }
 
             modify(builder);

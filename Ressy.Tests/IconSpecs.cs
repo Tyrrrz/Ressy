@@ -20,7 +20,7 @@ public class IconSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using (var portableExecutable = new PortableExecutable(file.Path))
+        using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
         {
             portableExecutable.RemoveIcon();
 
@@ -83,7 +83,7 @@ public class IconSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 
         // Act
         portableExecutable.RemoveIcon();

@@ -18,7 +18,7 @@ public class VersionInfoSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
         // Act
         var versionInfo = portableExecutable.GetVersionInfo();
@@ -74,7 +74,7 @@ public class VersionInfoSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using (var portableExecutable = new PortableExecutable(file.Path))
+        using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
         {
             portableExecutable.RemoveVersionInfo();
 
@@ -118,7 +118,7 @@ public class VersionInfoSpecs
         File.Copy(Dummy.Program.Path, file.Path);
 
         VersionInfo versionInfo;
-        using (var portableExecutable = new PortableExecutable(file.Path))
+        using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
         {
             // Act
             portableExecutable.SetVersionInfo(v =>
@@ -202,7 +202,7 @@ public class VersionInfoSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using (var portableExecutable = new PortableExecutable(file.Path))
+        using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
         {
             // Act
             portableExecutable.RemoveVersionInfo();

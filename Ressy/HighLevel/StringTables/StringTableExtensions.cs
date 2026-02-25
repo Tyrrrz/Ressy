@@ -172,7 +172,7 @@ public static class StringTableExtensions
 
             portableExecutable.SetResources(
                 resources.Select(kv => new Resource(kv.Key, kv.Value)).ToArray(),
-                removeOthers: true
+                true
             );
         }
 

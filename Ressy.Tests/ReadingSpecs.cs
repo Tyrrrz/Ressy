@@ -15,7 +15,7 @@ public class ReadingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
         // Act
         var identifiers = portableExecutable.GetResourceIdentifiers();
@@ -108,7 +108,7 @@ public class ReadingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
         // Act
         var resource = portableExecutable.GetResource(
@@ -126,7 +126,7 @@ public class ReadingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
         // Act
         var resource = portableExecutable.TryGetResource(

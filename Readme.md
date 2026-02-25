@@ -39,19 +39,20 @@ To learn more about the war and how you can help, [click here](https://tyrrrz.me
 
 ## Usage
 
-**Ressy**'s functionality is provided entirely through the `PortableExecutable` class, which implements `IDisposable`.
-You can create an instance of this class by passing a path to a PE file:
+**Ressy**'s functionality is provided entirely through the `PortableExecutable` class.
+You can create an instance of this class by calling `PortableExecutable.OpenWrite(...)` or `PortableExecutable.OpenRead(...)` with the path to a PE file.
 
 ```csharp
 using Ressy;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
+// -or-
+// using var portableExecutable = PortableExecutable.OpenRead("some_app.exe");
 
 // ...
 ```
 
-Alternatively, you can pass a seekable `Stream` directly.
-When `disposeStream` is `false` (the default), the stream is left open after `Dispose()`:
+Alternatively, you can also initialize a `PortableExecutable` from a `Stream`, which is useful when you need to work on PE files that are not stored on disk:
 
 ```csharp
 using Ressy;
@@ -62,6 +63,9 @@ using var portableExecutable = new PortableExecutable(stream);
 // ...
 ```
 
+> [!IMPORTANT]
+> When initializing a `PortableExecutable` from a stream, make sure that the stream supports seeking.
+
 ### Reading resources
 
 #### Enumerate resource identifiers
@@ -71,8 +75,7 @@ To get the list of resources in a PE file, use the `GetResourceIdentifiers()` me
 ```csharp
 using Ressy;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
-
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 var identifiers = portableExecutable.GetResourceIdentifiers();
 ```
 
@@ -100,10 +103,14 @@ To retrieve all resources at once (including their binary data), call the `GetRe
 ```csharp
 using Ressy;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
-
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 var resources = portableExecutable.GetResources();
-// resources is IReadOnlyList<Resource>
+
+foreach (var resource in resources)
+{
+    var identifier = resource.Identifier; // { Type, Name, Language }
+    var data = resource.Data; // byte[]
+}
 ```
 
 #### Retrieve resource data
@@ -114,7 +121,7 @@ This returns an instance of the `Resource` class that contains the resource data
 ```csharp
 using Ressy;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 var resource = portableExecutable.GetResource(new ResourceIdentifier(
     ResourceType.Manifest,
@@ -132,7 +139,7 @@ It returns `null` in case the resource is missing:
 ```csharp
 using Ressy;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 var resource = portableExecutable.TryGetResource(new ResourceIdentifier(
     ResourceType.Manifest,
@@ -150,7 +157,7 @@ To add or overwrite a resource, call the `SetResource(...)` method:
 ```csharp
 using Ressy;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.SetResource(new Resource(
     new ResourceIdentifier(
@@ -168,7 +175,7 @@ When `removeOthers` is `true`, all existing resources not in the list are delete
 ```csharp
 using Ressy;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.SetResources(
     [
@@ -192,7 +199,7 @@ To remove a resource, call the `RemoveResource(...)` method:
 ```csharp
 using Ressy;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.RemoveResource(
     new ResourceIdentifier(
@@ -208,7 +215,7 @@ To remove all resources in a PE file, call the `RemoveResources()` method:
 ```csharp
 using Ressy;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.RemoveResources();
 ```
@@ -218,7 +225,7 @@ You can also remove a specific set of resources, or those matching a predicate:
 ```csharp
 using Ressy;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 // Remove a specific list of resources
 portableExecutable.RemoveResources(
@@ -251,7 +258,7 @@ To read the manifest resource as an XML text string, call the `GetManifest()` ex
 using Ressy;
 using Ressy.HighLevel.Manifests;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 var manifest = portableExecutable.GetManifest();
 // -or-
@@ -269,7 +276,7 @@ To add or overwrite a manifest resource, call the `SetManifest(...)` extension m
 using Ressy;
 using Ressy.HighLevel.Manifests;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.SetManifest("<assembly>...</assembly>");
 ```
@@ -282,7 +289,7 @@ To remove all manifest resources, call the `RemoveManifest()` extension method:
 using Ressy;
 using Ressy.HighLevel.Manifests;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.RemoveManifest();
 ```
@@ -300,7 +307,7 @@ To add or overwrite icon resources based on an ICO file, call the `SetIcon(...)`
 using Ressy;
 using Ressy.HighLevel.Icons;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.SetIcon("new_icon.ico");
 ```
@@ -315,7 +322,7 @@ Additionally, you can also set the icon by passing a stream that contains ICO-fo
 using Ressy;
 using Ressy.HighLevel.Icons;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 using var iconFileStream = File.OpenRead("new_icon.ico");
 portableExecutable.SetIcon(iconFileStream);
@@ -329,7 +336,7 @@ To remove all icon and icon group resources, call the `RemoveIcon()` extension m
 using Ressy;
 using Ressy.HighLevel.Icons;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.RemoveIcon();
 ```
@@ -348,7 +355,7 @@ This returns a `VersionInfo` object that represents the deserialized binary data
 using Ressy;
 using Ressy.HighLevel.Versions;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 var versionInfo = portableExecutable.GetVersionInfo();
 // -or-
@@ -412,7 +419,7 @@ You can use the `VersionInfoBuilder` class to drastically simplify the creation 
 using Ressy;
 using Ressy.HighLevel.Versions;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 var versionInfo = new VersionInfoBuilder()
     .SetFileVersion(new Version(1, 2, 3, 4))
@@ -433,7 +440,7 @@ Properties that are not provided are pulled from the existing version info resou
 using Ressy;
 using Ressy.HighLevel.Versions;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.SetVersionInfo(v => v
     .SetFileVersion(new Version(1, 2, 3, 4))
@@ -454,7 +461,7 @@ To remove all version info resources, call the `RemoveVersionInfo()` extension m
 using Ressy;
 using Ressy.HighLevel.Versions;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.RemoveVersionInfo();
 ```
@@ -476,7 +483,7 @@ This returns a `StringTable` object that provides a unified view over all of the
 using Ressy;
 using Ressy.HighLevel.StringTables;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 var stringTable = portableExecutable.GetStringTable();
 
@@ -490,7 +497,7 @@ To retrieve a specific string by its ID, call `GetString(...)` on the returned `
 using Ressy;
 using Ressy.HighLevel.StringTables;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 var stringTable = portableExecutable.GetStringTable();
 var str = stringTable.GetString(1);
@@ -512,7 +519,7 @@ using System.Collections.Generic;
 using Ressy;
 using Ressy.HighLevel.StringTables;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.SetStringTable(
     new StringTableBuilder()
@@ -528,7 +535,7 @@ To add new strings or modify existing ones while preserving the rest, call the `
 using Ressy;
 using Ressy.HighLevel.StringTables;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.SetStringTable(b =>
 {
@@ -549,7 +556,7 @@ To remove all string table resources, call the `RemoveStringTable()` extension m
 using Ressy;
 using Ressy.HighLevel.StringTables;
 
-using var portableExecutable = new PortableExecutable("some_app.exe");
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.RemoveStringTable();
 ```

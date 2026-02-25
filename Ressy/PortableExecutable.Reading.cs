@@ -26,7 +26,7 @@ public partial class PortableExecutable
         public required int NumberOfSectionsFileOffset { get; init; }
         public required int FirstSectionHeaderFileOffset { get; init; }
         public required int SizeOfHeadersValue { get; init; }
-        public List<SectionInfo> Sections { get; } = new();
+        public List<SectionInfo> Sections { get; } = [];
         public int ResourceSectionIndex { get; set; } = -1;
     }
 
@@ -47,7 +47,7 @@ public partial class PortableExecutable
             throw new InvalidDataException("File is too small to be a valid PE file.");
 
         stream.Position = 0;
-        using var reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
+        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
 
         if (reader.ReadUInt16() != DosMagic)
         {

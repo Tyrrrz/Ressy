@@ -17,7 +17,7 @@ public class GetStringTableCommand : ICommand
 
     public ValueTask ExecuteAsync(IConsole console)
     {
-        var portableExecutable = new PortableExecutable(FilePath);
+        var portableExecutable = PortableExecutable.OpenRead(FilePath);
         var stringTable = portableExecutable.GetStringTable(new Language(Language));
 
         foreach (var (id, value) in stringTable.Strings)

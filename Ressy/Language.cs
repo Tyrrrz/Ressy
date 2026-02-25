@@ -23,12 +23,12 @@ public readonly partial struct Language(int id)
 public partial struct Language
 {
     /// <summary>
-    /// Neutral language (<c>LANG_NEUTRAL + SUBLANG_NEUTRAL</c>, <c>0x0000</c>).
+    /// Neutral language (<c>LANG_NEUTRAL + SUBLANG_NEUTRAL</c>, <c>0x0000</c> / <c>0</c>).
     /// </summary>
     public static Language Neutral { get; } = new(0);
 
     /// <summary>
-    /// Neutral language with the default sublanguage (LANG_NEUTRAL + SUBLANG_DEFAULT, 0x0400).
+    /// Neutral language with the default sublanguage (<c>LANG_NEUTRAL + SUBLANG_DEFAULT</c>, <c>0x0400</c> / <c>1024</c>).
     /// Used as the Win32 neutral UI fallback.
     /// </summary>
     // ReSharper disable once InconsistentNaming

@@ -17,7 +17,7 @@ public class GetManifestCommand : ICommand
 
     public ValueTask ExecuteAsync(IConsole console)
     {
-        using var portableExecutable = new PortableExecutable(FilePath);
+        using var portableExecutable = PortableExecutable.OpenRead(FilePath);
         var manifest = portableExecutable.GetManifest();
 
         console.Output.WriteLine($"Manifest resource in '{FileName}':");

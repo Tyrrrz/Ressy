@@ -15,7 +15,7 @@ public class ManifestSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
         // Act
         var manifest = portableExecutable.GetManifest();
@@ -44,7 +44,7 @@ public class ManifestSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveManifest();
 
         // Act
@@ -61,7 +61,7 @@ public class ManifestSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 
         // Act
         portableExecutable.RemoveManifest();

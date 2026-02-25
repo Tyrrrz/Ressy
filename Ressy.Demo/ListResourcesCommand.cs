@@ -13,7 +13,7 @@ public class ListResourcesCommand : ICommand
 
     public ValueTask ExecuteAsync(IConsole console)
     {
-        using var portableExecutable = new PortableExecutable(FilePath);
+        using var portableExecutable = PortableExecutable.OpenRead(FilePath);
 
         foreach (var identifier in portableExecutable.GetResourceIdentifiers())
         {
@@ -22,7 +22,7 @@ public class ListResourcesCommand : ICommand
                 {
                     "type": "{{identifier.Type}}",
                     "name": "{{identifier.Name}}",
-                    "language": "{{identifier.Language}}
+                    "language": "{{identifier.Language}}"
                 }
                 """
             );

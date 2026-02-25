@@ -16,12 +16,12 @@ public partial class PortableExecutable
     // writes the modified bytes back to the stream, and re-parses the PE metadata.
     private void UpdateResources(IReadOnlyList<Resource> resources)
     {
-        if (_stream.Length > int.MaxValue)
+        if (stream.Length > int.MaxValue)
             throw new InvalidDataException("PE file is too large to be processed.");
 
-        _stream.Position = 0;
-        using var reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true);
-        var fileBytes = reader.ReadBytes((int)_stream.Length);
+        stream.Position = 0;
+        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
+        var fileBytes = reader.ReadBytes((int)stream.Length);
 
         var info = _info;
 
@@ -40,13 +40,11 @@ public partial class PortableExecutable
             var newAligned = Arithmetic.AlignUp((uint)probe.Length, info.SectionAlignment);
 
             newVirtualAddress =
-                newAligned <= oldAligned
-                    ? old.VirtualAddress
-                    : FindNextVirtualAddress(info, excludeRsrc: true);
+                newAligned <= oldAligned ? old.VirtualAddress : FindNextVirtualAddress(info, true);
         }
         else
         {
-            newVirtualAddress = FindNextVirtualAddress(info, excludeRsrc: false);
+            newVirtualAddress = FindNextVirtualAddress(info, false);
         }
 
         var newRsrcContent = BuildResourceSection(resources, newVirtualAddress);
@@ -181,13 +179,13 @@ public partial class PortableExecutable
         }
 
         // Write modified bytes back.
-        _stream.Position = 0;
-        _stream.Write(newFileBytes, 0, newFileBytes.Length);
-        _stream.SetLength(newFileBytes.Length);
-        _stream.Flush();
+        stream.Position = 0;
+        stream.Write(newFileBytes, 0, newFileBytes.Length);
+        stream.SetLength(newFileBytes.Length);
+        stream.Flush();
 
         // Re-parse PE metadata since the structure may have changed
-        _info = ParsePEInfo(_stream);
+        _info = ParsePEInfo(stream);
     }
 
     private static uint FindNextVirtualAddress(PEInfo info, bool excludeRsrc)
