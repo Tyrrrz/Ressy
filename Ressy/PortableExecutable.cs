@@ -44,11 +44,7 @@ public class PortableExecutable(string filePath)
         ?? throw new InvalidOperationException($"Resource '{identifier}' does not exist.");
 
     /// <summary>
-    /// Adds or overwrites the specified resources.
-    /// If <paramref name="removeOthers"/> is <c>true</c>, all existing resources not present
-    /// in <paramref name="resources"/> are removed.
-    /// If <paramref name="removeOthers"/> is <c>false</c> (default), existing resources not
-    /// present in <paramref name="resources"/> are left intact.
+    /// Adds or overwrites the specified resources, optionally removing the rest.
     /// </summary>
     public void SetResources(IReadOnlyList<Resource> resources, bool removeOthers = false)
     {

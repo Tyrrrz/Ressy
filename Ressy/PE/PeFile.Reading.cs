@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,8 +6,6 @@ namespace Ressy.PE;
 
 internal static partial class PeFile
 {
-    #region Resource reading
-
     // Walks the .rsrc directory tree collecting only identifiers, without loading data bytes.
     public static List<ResourceIdentifier> ReadResourceIdentifiers(string filePath)
     {
@@ -16,11 +13,11 @@ internal static partial class PeFile
         var info = ParsePeInfo(fileBytes);
 
         if (info.RsrcSectionIndex < 0)
-            return new List<ResourceIdentifier>();
+            return [];
 
         var rsrc = info.Sections[info.RsrcSectionIndex];
         if (rsrc.SizeOfRawData == 0 || rsrc.PointerToRawData == 0)
-            return new List<ResourceIdentifier>();
+            return [];
 
         if (rsrc.PointerToRawData > int.MaxValue || rsrc.SizeOfRawData > int.MaxValue)
             throw new InvalidDataException("Resource section is too large to be processed.");
@@ -28,13 +25,16 @@ internal static partial class PeFile
         var sectionBase = (int)rsrc.PointerToRawData;
         var sectionSize = (int)rsrc.SizeOfRawData;
 
+        using var stream = new MemoryStream(fileBytes, writable: false);
+        using var reader = new BinaryReader(stream);
+
         var result = new List<ResourceIdentifier>();
-        ReadIdentifiers(fileBytes, sectionBase, sectionSize, 0, null, null, result);
+        ReadIdentifiers(reader, sectionBase, sectionSize, 0, null, null, result);
         return result;
     }
 
     private static void ReadIdentifiers(
-        byte[] fileBytes,
+        BinaryReader reader,
         int sectionBase,
         int sectionSize,
         int dirOffset,
@@ -44,21 +44,23 @@ internal static partial class PeFile
     )
     {
         var absOffset = sectionBase + dirOffset;
-        if (absOffset + 16 > fileBytes.Length)
+        if (absOffset + 16 > reader.BaseStream.Length)
             return;
 
-        var numNamed = (int)ReadUInt16(fileBytes, absOffset + 12);
-        var numId = (int)ReadUInt16(fileBytes, absOffset + 14);
+        reader.BaseStream.Position = absOffset + 12;
+        var numNamed = (int)reader.ReadUInt16();
+        var numId = (int)reader.ReadUInt16();
         var total = numNamed + numId;
 
         for (var i = 0; i < total; i++)
         {
             var entryAbs = absOffset + 16 + i * 8;
-            if (entryAbs + 8 > fileBytes.Length)
+            if (entryAbs + 8 > reader.BaseStream.Length)
                 break;
 
-            var nameField = ReadUInt32(fileBytes, entryAbs);
-            var dataField = ReadUInt32(fileBytes, entryAbs + 4);
+            reader.BaseStream.Position = entryAbs;
+            var nameField = reader.ReadUInt32();
+            var dataField = reader.ReadUInt32();
 
             if ((dataField & SubdirectoryFlag) != 0)
             {
@@ -70,7 +72,7 @@ internal static partial class PeFile
                         (nameField & NameStringFlag) != 0
                             ? ResourceType.FromString(
                                 ReadSectionString(
-                                    fileBytes,
+                                    reader,
                                     sectionBase,
                                     sectionSize,
                                     (int)(nameField & ~NameStringFlag)
@@ -78,7 +80,7 @@ internal static partial class PeFile
                             )
                             : ResourceType.FromCode((int)(nameField & 0xFFFF));
                     ReadIdentifiers(
-                        fileBytes,
+                        reader,
                         sectionBase,
                         sectionSize,
                         subdirOffset,
@@ -93,7 +95,7 @@ internal static partial class PeFile
                         (nameField & NameStringFlag) != 0
                             ? ResourceName.FromString(
                                 ReadSectionString(
-                                    fileBytes,
+                                    reader,
                                     sectionBase,
                                     sectionSize,
                                     (int)(nameField & ~NameStringFlag)
@@ -101,7 +103,7 @@ internal static partial class PeFile
                             )
                             : ResourceName.FromCode((int)(nameField & 0xFFFF));
                     ReadIdentifiers(
-                        fileBytes,
+                        reader,
                         sectionBase,
                         sectionSize,
                         subdirOffset,
@@ -129,9 +131,12 @@ internal static partial class PeFile
         var info = ParsePeInfo(fileBytes);
 
         if (info.RsrcSectionIndex < 0)
-            return new List<Resource>();
+            return [];
 
-        return ReadResourcesFromSection(fileBytes, info.Sections[info.RsrcSectionIndex]);
+        using var stream = new MemoryStream(fileBytes, writable: false);
+        using var reader = new BinaryReader(stream);
+
+        return ReadResourcesFromSection(reader, info.Sections[info.RsrcSectionIndex]);
     }
 
     // Reads only the single resource matching the given identifier; returns null if not found.
@@ -151,15 +156,22 @@ internal static partial class PeFile
         if (rsrc.PointerToRawData > int.MaxValue || rsrc.SizeOfRawData > int.MaxValue)
             throw new InvalidDataException("Resource section is too large to be processed.");
 
-        var sectionBase = (int)rsrc.PointerToRawData;
-        var sectionSize = (int)rsrc.SizeOfRawData;
+        using var stream = new MemoryStream(fileBytes, writable: false);
+        using var reader = new BinaryReader(stream);
 
-        return FindResourceData(fileBytes, sectionBase, sectionSize, rsrc, identifier, 0);
+        return FindResourceData(
+            reader,
+            (int)rsrc.PointerToRawData,
+            (int)rsrc.SizeOfRawData,
+            rsrc,
+            identifier,
+            0
+        );
     }
 
     // Walks the resource directory looking for the specific identifier; returns data or null.
     private static byte[]? FindResourceData(
-        byte[] fileBytes,
+        BinaryReader reader,
         int sectionBase,
         int sectionSize,
         SectionInfo rsrc,
@@ -168,61 +180,63 @@ internal static partial class PeFile
     )
     {
         var absOffset = sectionBase + dirOffset;
-        if (absOffset + 16 > fileBytes.Length)
+        if (absOffset + 16 > reader.BaseStream.Length)
             return null;
 
-        var numNamed = (int)ReadUInt16(fileBytes, absOffset + 12);
-        var numId = (int)ReadUInt16(fileBytes, absOffset + 14);
+        reader.BaseStream.Position = absOffset + 12;
+        var numNamed = (int)reader.ReadUInt16();
+        var numId = (int)reader.ReadUInt16();
         var total = numNamed + numId;
 
         for (var i = 0; i < total; i++)
         {
             var entryAbs = absOffset + 16 + i * 8;
-            if (entryAbs + 8 > fileBytes.Length)
+            if (entryAbs + 8 > reader.BaseStream.Length)
                 break;
 
-            var nameField = ReadUInt32(fileBytes, entryAbs);
-            var dataField = ReadUInt32(fileBytes, entryAbs + 4);
+            reader.BaseStream.Position = entryAbs;
+            var nameField = reader.ReadUInt32();
+            var dataField = reader.ReadUInt32();
 
-            if ((dataField & SubdirectoryFlag) != 0)
-            {
-                var subdirOffset = (int)(dataField & ~SubdirectoryFlag);
+            if ((dataField & SubdirectoryFlag) == 0)
+                continue;
 
-                // Level 0: match type
-                var entryType =
-                    (nameField & NameStringFlag) != 0
-                        ? ResourceType.FromString(
-                            ReadSectionString(
-                                fileBytes,
-                                sectionBase,
-                                sectionSize,
-                                (int)(nameField & ~NameStringFlag)
-                            )
+            var subdirOffset = (int)(dataField & ~SubdirectoryFlag);
+
+            // Level 0: match type
+            var entryType =
+                (nameField & NameStringFlag) != 0
+                    ? ResourceType.FromString(
+                        ReadSectionString(
+                            reader,
+                            sectionBase,
+                            sectionSize,
+                            (int)(nameField & ~NameStringFlag)
                         )
-                        : ResourceType.FromCode((int)(nameField & 0xFFFF));
+                    )
+                    : ResourceType.FromCode((int)(nameField & 0xFFFF));
 
-                if (!entryType.Equals(target.Type))
-                    continue;
+            if (!entryType.Equals(target.Type))
+                continue;
 
-                // Drill into the matching type subdirectory
-                var nameResult = FindResourceDataInNameDir(
-                    fileBytes,
-                    sectionBase,
-                    sectionSize,
-                    rsrc,
-                    target,
-                    subdirOffset
-                );
-                if (nameResult is not null)
-                    return nameResult;
-            }
+            // Drill into the matching type subdirectory
+            var nameResult = FindResourceDataInNameDir(
+                reader,
+                sectionBase,
+                sectionSize,
+                rsrc,
+                target,
+                subdirOffset
+            );
+            if (nameResult is not null)
+                return nameResult;
         }
 
         return null;
     }
 
     private static byte[]? FindResourceDataInNameDir(
-        byte[] fileBytes,
+        BinaryReader reader,
         int sectionBase,
         int sectionSize,
         SectionInfo rsrc,
@@ -231,21 +245,23 @@ internal static partial class PeFile
     )
     {
         var absOffset = sectionBase + dirOffset;
-        if (absOffset + 16 > fileBytes.Length)
+        if (absOffset + 16 > reader.BaseStream.Length)
             return null;
 
-        var numNamed = (int)ReadUInt16(fileBytes, absOffset + 12);
-        var numId = (int)ReadUInt16(fileBytes, absOffset + 14);
+        reader.BaseStream.Position = absOffset + 12;
+        var numNamed = (int)reader.ReadUInt16();
+        var numId = (int)reader.ReadUInt16();
         var total = numNamed + numId;
 
         for (var i = 0; i < total; i++)
         {
             var entryAbs = absOffset + 16 + i * 8;
-            if (entryAbs + 8 > fileBytes.Length)
+            if (entryAbs + 8 > reader.BaseStream.Length)
                 break;
 
-            var nameField = ReadUInt32(fileBytes, entryAbs);
-            var dataField = ReadUInt32(fileBytes, entryAbs + 4);
+            reader.BaseStream.Position = entryAbs;
+            var nameField = reader.ReadUInt32();
+            var dataField = reader.ReadUInt32();
 
             if ((dataField & SubdirectoryFlag) == 0)
                 continue;
@@ -254,7 +270,7 @@ internal static partial class PeFile
                 (nameField & NameStringFlag) != 0
                     ? ResourceName.FromString(
                         ReadSectionString(
-                            fileBytes,
+                            reader,
                             sectionBase,
                             sectionSize,
                             (int)(nameField & ~NameStringFlag)
@@ -267,7 +283,7 @@ internal static partial class PeFile
 
             var subdirOffset = (int)(dataField & ~SubdirectoryFlag);
             return FindResourceDataInLangDir(
-                fileBytes,
+                reader,
                 sectionBase,
                 sectionSize,
                 rsrc,
@@ -280,7 +296,7 @@ internal static partial class PeFile
     }
 
     private static byte[]? FindResourceDataInLangDir(
-        byte[] fileBytes,
+        BinaryReader reader,
         int sectionBase,
         int sectionSize,
         SectionInfo rsrc,
@@ -289,21 +305,23 @@ internal static partial class PeFile
     )
     {
         var absOffset = sectionBase + dirOffset;
-        if (absOffset + 16 > fileBytes.Length)
+        if (absOffset + 16 > reader.BaseStream.Length)
             return null;
 
-        var numNamed = (int)ReadUInt16(fileBytes, absOffset + 12);
-        var numId = (int)ReadUInt16(fileBytes, absOffset + 14);
+        reader.BaseStream.Position = absOffset + 12;
+        var numNamed = (int)reader.ReadUInt16();
+        var numId = (int)reader.ReadUInt16();
         var total = numNamed + numId;
 
         for (var i = 0; i < total; i++)
         {
             var entryAbs = absOffset + 16 + i * 8;
-            if (entryAbs + 8 > fileBytes.Length)
+            if (entryAbs + 8 > reader.BaseStream.Length)
                 break;
 
-            var nameField = ReadUInt32(fileBytes, entryAbs);
-            var dataField = ReadUInt32(fileBytes, entryAbs + 4);
+            reader.BaseStream.Position = entryAbs;
+            var nameField = reader.ReadUInt32();
+            var dataField = reader.ReadUInt32();
 
             // Language entries point to data entries (no subdirectory flag expected)
             if ((dataField & SubdirectoryFlag) != 0)
@@ -314,11 +332,12 @@ internal static partial class PeFile
                 continue;
 
             var dataEntryAbs = sectionBase + (int)dataField;
-            if (dataEntryAbs + 16 > fileBytes.Length)
+            if (dataEntryAbs + 16 > reader.BaseStream.Length)
                 continue;
 
-            var dataRva = ReadUInt32(fileBytes, dataEntryAbs);
-            var dataSize = (int)ReadUInt32(fileBytes, dataEntryAbs + 4);
+            reader.BaseStream.Position = dataEntryAbs;
+            var dataRva = reader.ReadUInt32();
+            var dataSize = (int)reader.ReadUInt32();
 
             var dataFileOffset =
                 (long)rsrc.PointerToRawData + (long)dataRva - (long)rsrc.VirtualAddress;
@@ -326,19 +345,18 @@ internal static partial class PeFile
             if (
                 dataFileOffset < 0
                 || dataFileOffset > int.MaxValue
-                || dataFileOffset + dataSize > fileBytes.Length
+                || dataFileOffset + dataSize > reader.BaseStream.Length
             )
                 continue;
 
-            var data = new byte[dataSize];
-            Array.Copy(fileBytes, (int)dataFileOffset, data, 0, dataSize);
-            return data;
+            reader.BaseStream.Position = (int)dataFileOffset;
+            return reader.ReadBytes(dataSize);
         }
 
         return null;
     }
 
-    private static List<Resource> ReadResourcesFromSection(byte[] fileBytes, SectionInfo rsrc)
+    private static List<Resource> ReadResourcesFromSection(BinaryReader reader, SectionInfo rsrc)
     {
         var result = new List<Resource>();
 
@@ -352,13 +370,13 @@ internal static partial class PeFile
         var sectionSize = (int)rsrc.SizeOfRawData;
 
         // Walk the 3-level resource directory tree: type -> name -> language -> data
-        ReadDirectory(fileBytes, sectionBase, sectionSize, rsrc, 0, null, null, result);
+        ReadDirectory(reader, sectionBase, sectionSize, rsrc, 0, null, null, result);
 
         return result;
     }
 
     private static void ReadDirectory(
-        byte[] fileBytes,
+        BinaryReader reader,
         int sectionBase, // file offset of the start of the .rsrc section
         int sectionSize,
         SectionInfo rsrc,
@@ -369,21 +387,23 @@ internal static partial class PeFile
     )
     {
         var absOffset = sectionBase + dirOffset;
-        if (absOffset + 16 > fileBytes.Length)
+        if (absOffset + 16 > reader.BaseStream.Length)
             return;
 
-        var numNamed = (int)ReadUInt16(fileBytes, absOffset + 12);
-        var numId = (int)ReadUInt16(fileBytes, absOffset + 14);
+        reader.BaseStream.Position = absOffset + 12;
+        var numNamed = (int)reader.ReadUInt16();
+        var numId = (int)reader.ReadUInt16();
         var total = numNamed + numId;
 
         for (var i = 0; i < total; i++)
         {
             var entryAbs = absOffset + 16 + i * 8;
-            if (entryAbs + 8 > fileBytes.Length)
+            if (entryAbs + 8 > reader.BaseStream.Length)
                 break;
 
-            var nameField = ReadUInt32(fileBytes, entryAbs);
-            var dataField = ReadUInt32(fileBytes, entryAbs + 4);
+            reader.BaseStream.Position = entryAbs;
+            var nameField = reader.ReadUInt32();
+            var dataField = reader.ReadUInt32();
 
             if ((dataField & SubdirectoryFlag) != 0)
             {
@@ -396,7 +416,7 @@ internal static partial class PeFile
                         (nameField & NameStringFlag) != 0
                             ? ResourceType.FromString(
                                 ReadSectionString(
-                                    fileBytes,
+                                    reader,
                                     sectionBase,
                                     sectionSize,
                                     (int)(nameField & ~NameStringFlag)
@@ -404,7 +424,7 @@ internal static partial class PeFile
                             )
                             : ResourceType.FromCode((int)(nameField & 0xFFFF));
                     ReadDirectory(
-                        fileBytes,
+                        reader,
                         sectionBase,
                         sectionSize,
                         rsrc,
@@ -421,7 +441,7 @@ internal static partial class PeFile
                         (nameField & NameStringFlag) != 0
                             ? ResourceName.FromString(
                                 ReadSectionString(
-                                    fileBytes,
+                                    reader,
                                     sectionBase,
                                     sectionSize,
                                     (int)(nameField & ~NameStringFlag)
@@ -429,7 +449,7 @@ internal static partial class PeFile
                             )
                             : ResourceName.FromCode((int)(nameField & 0xFFFF));
                     ReadDirectory(
-                        fileBytes,
+                        reader,
                         sectionBase,
                         sectionSize,
                         rsrc,
@@ -449,11 +469,12 @@ internal static partial class PeFile
 
                 var langId = (int)(nameField & 0xFFFF);
                 var dataEntryAbs = sectionBase + (int)dataField;
-                if (dataEntryAbs + 16 > fileBytes.Length)
+                if (dataEntryAbs + 16 > reader.BaseStream.Length)
                     continue;
 
-                var dataRva = ReadUInt32(fileBytes, dataEntryAbs);
-                var dataSize = (int)ReadUInt32(fileBytes, dataEntryAbs + 4);
+                reader.BaseStream.Position = dataEntryAbs;
+                var dataRva = reader.ReadUInt32();
+                var dataSize = (int)reader.ReadUInt32();
 
                 // Convert RVA to file offset via the section header
                 var dataFileOffset =
@@ -462,12 +483,12 @@ internal static partial class PeFile
                 if (
                     dataFileOffset < 0
                     || dataFileOffset > int.MaxValue
-                    || dataFileOffset + dataSize > fileBytes.Length
+                    || dataFileOffset + dataSize > reader.BaseStream.Length
                 )
                     continue;
 
-                var data = new byte[dataSize];
-                Array.Copy(fileBytes, (int)dataFileOffset, data, 0, dataSize);
+                reader.BaseStream.Position = (int)dataFileOffset;
+                var data = reader.ReadBytes(dataSize);
 
                 result.Add(
                     new Resource(new ResourceIdentifier(type, name, new Language(langId)), data)
@@ -477,24 +498,23 @@ internal static partial class PeFile
     }
 
     private static string ReadSectionString(
-        byte[] fileBytes,
+        BinaryReader reader,
         int sectionBase,
         int sectionSize,
         int stringOffset
     )
     {
         var absOffset = sectionBase + stringOffset;
-        if (absOffset + 2 > fileBytes.Length)
+        if (absOffset + 2 > reader.BaseStream.Length)
             return "";
 
-        var charCount = (int)ReadUInt16(fileBytes, absOffset);
+        reader.BaseStream.Position = absOffset;
+        var charCount = (int)reader.ReadUInt16();
         var byteCount = charCount * 2;
 
-        if (absOffset + 2 + byteCount > fileBytes.Length)
+        if (absOffset + 2 + byteCount > reader.BaseStream.Length)
             return "";
 
-        return Encoding.Unicode.GetString(fileBytes, absOffset + 2, byteCount);
+        return Encoding.Unicode.GetString(reader.ReadBytes(byteCount));
     }
-
-    #endregion
 }
