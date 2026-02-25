@@ -591,9 +591,8 @@ Returned object should contain data similar to this:
 // Formatted as JSON in this example for better readability
 {
   "FileType": "LanguageNeutral",
-  "SystemAttributes": 0,
-  "TypeIDFallbackList": [16, 24],
   "TypeIDMainList": [6],
+  "TypeIDFallbackList": [16, 24],
   "Language": null,
   "FallbackLanguage": null,
   "UltimateFallbackLanguage": "en"
@@ -603,16 +602,20 @@ Returned object should contain data similar to this:
 > [!NOTE]
 > If there are multiple MUI resources, this method retrieves the first one it finds, giving preference to resources with lower ordinal name (ID) and in the neutral language.
 
-On Windows, language-specific resources are split out into satellite `.mui` files placed in a language-named subdirectory next to the original executable.
-You can use `MuiInfo.GetSatelliteFilePath(...)` to compute the path to the satellite file, then open it with `PortableExecutable.OpenRead(...)`:
+Language-specific resources are split out into satellite `.mui` files placed in a language-named subdirectory next to the original executable.
+You can use `GetSatelliteFilePath(...)` on a `MuiInfo` instance to compute the path to the satellite file, then open it with `PortableExecutable.OpenRead(...)`:
 
 ```csharp
 using Ressy;
 using Ressy.MultilingualUserInterface;
 
-// Open the language-neutral EXE and get its MUI satellite path for en-US
-var satellitePath = MuiInfo.GetSatelliteFilePath("notepad.exe", "en-US");
-// => "en-US\notepad.exe.mui"
+// Read the language-neutral EXE to find the satellite path
+using var lnPe = PortableExecutable.OpenRead("notepad.exe");
+var lnMuiInfo = lnPe.GetMuiInfo();
+
+// Compute path to the satellite MUI file for "en-US"
+var satellitePath = lnMuiInfo.GetSatelliteFilePath("notepad.exe");
+// => "en-US\notepad.exe.mui"  (uses lnMuiInfo.Language internally)
 
 // Open the satellite MUI file to read its localized resources
 using var satellitePe = PortableExecutable.OpenRead(satellitePath);
@@ -635,11 +638,10 @@ using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.SetMuiInfo(new MuiInfo(
     MuiFileType.LanguageSpecific,
-    systemAttributes: 0,
     checksum: new byte[16],
     serviceChecksum: new byte[16],
+    typeIDMainList: [ResourceType.String, ResourceType.Version],
     typeIDFallbackList: [],
-    typeIDMainList: [6, 16],
     language: "en-US",
     fallbackLanguage: "en-US",
     ultimateFallbackLanguage: "en"

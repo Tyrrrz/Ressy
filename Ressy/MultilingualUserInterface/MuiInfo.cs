@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -10,11 +11,10 @@ namespace Ressy.MultilingualUserInterface;
 // https://learn.microsoft.com/windows/win32/intl/mui-resource-technology
 public partial class MuiInfo(
     MuiFileType fileType,
-    uint systemAttributes,
     byte[] checksum,
     byte[] serviceChecksum,
-    IReadOnlyList<int> typeIDFallbackList,
-    IReadOnlyList<int> typeIDMainList,
+    IReadOnlyList<ResourceType> typeIDMainList,
+    IReadOnlyList<ResourceType> typeIDFallbackList,
     string? language,
     string? fallbackLanguage,
     string? ultimateFallbackLanguage
@@ -24,11 +24,6 @@ public partial class MuiInfo(
     /// File type indicating whether this is a language-neutral or language-specific resource.
     /// </summary>
     public MuiFileType FileType { get; } = fileType;
-
-    /// <summary>
-    /// System attributes bitmask associated with the file.
-    /// </summary>
-    public uint SystemAttributes { get; } = systemAttributes;
 
     /// <summary>
     /// MD5 checksum of the resource section.
@@ -45,15 +40,15 @@ public partial class MuiInfo(
     public byte[] ServiceChecksum { get; } = serviceChecksum;
 
     /// <summary>
-    /// Ordinal resource type IDs that exist only in the language-neutral (LN) file
-    /// and should fall back to it at runtime.
+    /// Ordinal resource types that exist in the language-specific satellite file.
     /// </summary>
-    public IReadOnlyList<int> TypeIDFallbackList { get; } = typeIDFallbackList;
+    public IReadOnlyList<ResourceType> TypeIDMainList { get; } = typeIDMainList;
 
     /// <summary>
-    /// Ordinal resource type IDs that exist in the language-specific satellite file.
+    /// Ordinal resource types that exist only in the language-neutral (LN) file
+    /// and should fall back to it at runtime.
     /// </summary>
-    public IReadOnlyList<int> TypeIDMainList { get; } = typeIDMainList;
+    public IReadOnlyList<ResourceType> TypeIDFallbackList { get; } = typeIDFallbackList;
 
     /// <summary>
     /// Primary language name associated with this file (e.g. "en-US").
@@ -74,26 +69,30 @@ public partial class MuiInfo(
     /// Can be <c>null</c> if not specified.
     /// </summary>
     public string? UltimateFallbackLanguage { get; } = ultimateFallbackLanguage;
-
-    /// <summary>
-    /// Computes the file path to the language-specific satellite (.mui) file
-    /// for the given base PE file path and desired language name (e.g. "en-US").
-    /// </summary>
-    /// <remarks>
-    /// On Windows, MUI satellite files are stored in a subdirectory named after
-    /// the language, adjacent to the language-neutral PE file.
-    /// For example, a base path of <c>C:\Windows\System32\notepad.exe</c> with
-    /// language <c>en-US</c> yields <c>C:\Windows\System32\en-US\notepad.exe.mui</c>.
-    /// </remarks>
-    public static string GetSatelliteFilePath(string filePath, string language) =>
-        Path.Combine(
-            Path.GetDirectoryName(filePath) ?? "",
-            language,
-            Path.GetFileName(filePath) + ".mui"
-        );
 }
 
 public partial class MuiInfo
 {
     private static Encoding Encoding { get; } = Encoding.Unicode;
+
+    /// <summary>
+    /// Computes the file path to the language-specific satellite (.mui) file
+    /// for the given base PE file path, using the <see cref="Language" /> of this resource.
+    /// </summary>
+    /// <remarks>
+    /// MUI satellite files are stored in a subdirectory named after
+    /// the language, adjacent to the language-neutral PE file.
+    /// For example, a base path of <c>C:\Windows\System32\notepad.exe</c> with
+    /// language <c>en-US</c> yields <c>C:\Windows\System32\en-US\notepad.exe.mui</c>.
+    /// </remarks>
+    public string GetSatelliteFilePath(string filePath) =>
+        Language is not null
+            ? Path.Combine(
+                Path.GetDirectoryName(filePath) ?? "",
+                Language,
+                Path.GetFileName(filePath) + ".mui"
+            )
+            : throw new InvalidOperationException(
+                "Cannot compute satellite file path: Language is not set."
+            );
 }

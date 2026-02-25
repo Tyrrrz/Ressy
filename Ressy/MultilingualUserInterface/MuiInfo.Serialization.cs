@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Ressy.MultilingualUserInterface;
@@ -23,7 +23,7 @@ public partial class MuiInfo
     }
 
     private static (uint offset, uint size, byte[] bytes) BuildTypeIDListEntry(
-        System.Collections.Generic.IReadOnlyList<int> list,
+        IReadOnlyList<ResourceType> list,
         ref uint currentOffset
     )
     {
@@ -33,9 +33,9 @@ public partial class MuiInfo
         var bytes = new byte[(list.Count + 1) * 2]; // items + null terminator
         for (var i = 0; i < list.Count; i++)
         {
-            var idBytes = BitConverter.GetBytes((ushort)list[i]);
-            bytes[i * 2] = idBytes[0];
-            bytes[i * 2 + 1] = idBytes[1];
+            var code = (ushort)(list[i].Code ?? 0);
+            bytes[i * 2] = (byte)(code & 0xFF);
+            bytes[i * 2 + 1] = (byte)(code >> 8);
         }
         // null terminator is already 0 (default byte value)
 
@@ -52,13 +52,13 @@ public partial class MuiInfo
         // Compute offsets for variable-length data (starts right after the header)
         var currentOffset = HeaderSize;
 
-        var (typeIDFallbackOffset, typeIDFallbackSize, typeIDFallbackBytes) = BuildTypeIDListEntry(
-            TypeIDFallbackList,
+        var (typeIDMainOffset, typeIDMainSize, typeIDMainBytes) = BuildTypeIDListEntry(
+            TypeIDMainList,
             ref currentOffset
         );
 
-        var (typeIDMainOffset, typeIDMainSize, typeIDMainBytes) = BuildTypeIDListEntry(
-            TypeIDMainList,
+        var (typeIDFallbackOffset, typeIDFallbackSize, typeIDFallbackBytes) = BuildTypeIDListEntry(
+            TypeIDFallbackList,
             ref currentOffset
         );
 
@@ -87,7 +87,7 @@ public partial class MuiInfo
         writer.Write((uint)FileType);
 
         // dwSystemAttributes
-        writer.Write(SystemAttributes);
+        writer.Write(0u);
 
         // dwUltimateFallbackLocation
         writer.Write(0u);
@@ -132,12 +132,12 @@ public partial class MuiInfo
         // Reserved padding to complete the 124-byte header
         writer.Write(new byte[8]);
 
-        // Write variable-length data
-        if (typeIDFallbackBytes.Length > 0)
-            writer.Write(typeIDFallbackBytes);
-
+        // Write variable-length data (in header offset order: main, fallback, then languages)
         if (typeIDMainBytes.Length > 0)
             writer.Write(typeIDMainBytes);
+
+        if (typeIDFallbackBytes.Length > 0)
+            writer.Write(typeIDFallbackBytes);
 
         if (languageBytes.Length > 0)
             writer.Write(languageBytes);

@@ -22,12 +22,12 @@ public partial class MuiInfo
         return Encoding.GetString(data, (int)offset, byteLength);
     }
 
-    private static IReadOnlyList<int> ReadTypeIDList(byte[] data, uint offset, uint size)
+    private static IReadOnlyList<ResourceType> ReadTypeIDList(byte[] data, uint offset, uint size)
     {
         if (offset == 0 || size == 0)
             return [];
 
-        var list = new List<int>();
+        var list = new List<ResourceType>();
         var pos = (int)offset;
         var end = pos + (int)size;
 
@@ -37,7 +37,7 @@ public partial class MuiInfo
             pos += 2;
             if (id == 0)
                 break;
-            list.Add(id);
+            list.Add(ResourceType.FromCode(id));
         }
 
         return list;
@@ -60,7 +60,7 @@ public partial class MuiInfo
         var fileType = (MuiFileType)reader.ReadUInt32();
 
         // dwSystemAttributes
-        var systemAttributes = reader.ReadUInt32();
+        _ = reader.ReadUInt32();
 
         // dwUltimateFallbackLocation
         _ = reader.ReadUInt32();
@@ -104,8 +104,8 @@ public partial class MuiInfo
         var ultimateFallbackOffset = reader.ReadUInt32();
         var ultimateFallbackSize = reader.ReadUInt32();
 
-        var typeIDFallbackList = ReadTypeIDList(data, typeIDFallbackOffset, typeIDFallbackSize);
         var typeIDMainList = ReadTypeIDList(data, typeIDMainOffset, typeIDMainSize);
+        var typeIDFallbackList = ReadTypeIDList(data, typeIDFallbackOffset, typeIDFallbackSize);
         var language = ReadLanguageString(data, languageOffset, languageSize);
         var fallbackLanguage = ReadLanguageString(data, fallbackOffset, fallbackSize);
         var ultimateFallbackLanguage = ReadLanguageString(
@@ -116,11 +116,10 @@ public partial class MuiInfo
 
         return new MuiInfo(
             fileType,
-            systemAttributes,
             checksum,
             serviceChecksum,
-            typeIDFallbackList,
             typeIDMainList,
+            typeIDFallbackList,
             language,
             fallbackLanguage,
             ultimateFallbackLanguage

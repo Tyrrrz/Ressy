@@ -22,7 +22,11 @@ public class MuiSpecs
 
         // Assert
         muiInfo.FileType.Should().Be(MuiFileType.LanguageNeutral);
+        muiInfo.Language.Should().BeNull();
+        muiInfo.FallbackLanguage.Should().BeNull();
         muiInfo.UltimateFallbackLanguage.Should().Be("en");
+        muiInfo.TypeIDMainList.Should().BeEmpty();
+        muiInfo.TypeIDFallbackList.Should().BeEmpty();
     }
 
     [Fact]
@@ -31,11 +35,10 @@ public class MuiSpecs
         // Arrange
         var muiInfo = new MuiInfo(
             MuiFileType.LanguageSpecific,
-            systemAttributes: 0,
             checksum: new byte[16],
             serviceChecksum: new byte[16],
+            typeIDMainList: [ResourceType.String, ResourceType.Version],
             typeIDFallbackList: [],
-            typeIDMainList: [6, 16],
             "en-US",
             "en-US",
             "en"
@@ -60,11 +63,10 @@ public class MuiSpecs
         // Arrange
         var muiInfo = new MuiInfo(
             MuiFileType.LanguageNeutral,
-            systemAttributes: 0,
             checksum: new byte[16],
             serviceChecksum: new byte[16],
-            typeIDFallbackList: [],
             typeIDMainList: [],
+            typeIDFallbackList: [],
             null,
             null,
             null
