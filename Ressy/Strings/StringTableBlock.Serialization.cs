@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace Ressy.HighLevel.StringTables;
+namespace Ressy.Strings;
 
 public partial class StringTableBlock
 {

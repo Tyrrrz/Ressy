@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Ressy.HighLevel.Icons;
+namespace Ressy.Icons;
 
 internal partial class IconGroup
 {

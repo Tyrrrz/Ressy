@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace Ressy.HighLevel.Manifests;
+namespace Ressy.Manifests;
 
 /// <summary>
 /// Extensions for <see cref="PortableExecutable" /> for working with manifest resources.

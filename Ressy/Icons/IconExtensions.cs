@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Ressy.HighLevel.Icons;
+namespace Ressy.Icons;
 
 /// <summary>
 /// Extensions for <see cref="PortableExecutable" /> for working with icon resources.

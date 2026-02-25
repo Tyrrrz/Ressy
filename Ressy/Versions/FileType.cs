@@ -1,4 +1,4 @@
-namespace Ressy.HighLevel.Versions;
+namespace Ressy.Versions;
 
 /// <summary>
 /// Type of a portable executable file.

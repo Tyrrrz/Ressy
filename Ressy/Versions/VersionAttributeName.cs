@@ -1,6 +1,6 @@
 using System;
 
-namespace Ressy.HighLevel.Versions;
+namespace Ressy.Versions;
 
 /// <summary>
 /// Encapsulates a name of an attribute stored inside a version info resource.

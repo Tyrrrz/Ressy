@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using FluentAssertions;
-using Ressy.HighLevel.Versions;
 using Ressy.Tests.Utils;
+using Ressy.Versions;
 using Xunit;
 
 namespace Ressy.Tests;
