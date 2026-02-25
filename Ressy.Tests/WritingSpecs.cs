@@ -17,7 +17,7 @@ public class WritingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveResources();
 
         // Act
@@ -50,7 +50,7 @@ public class WritingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveResources();
 
         // Act
@@ -83,7 +83,7 @@ public class WritingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveResources();
 
         // Act
@@ -116,7 +116,7 @@ public class WritingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveResources();
 
         // Act
@@ -149,7 +149,7 @@ public class WritingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveResources();
 
         // Act
@@ -183,7 +183,7 @@ public class WritingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
         portableExecutable.RemoveResources();
 
         // Act
@@ -213,7 +213,7 @@ public class WritingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         portableExecutable.SetResource(new Resource(identifier, new byte[] { 1, 2, 3, 4, 5 }));
@@ -242,7 +242,7 @@ public class WritingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         portableExecutable.RemoveResource(identifier);
@@ -267,7 +267,7 @@ public class WritingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         portableExecutable.RemoveResources();

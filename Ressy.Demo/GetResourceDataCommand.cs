@@ -23,7 +23,7 @@ public class GetResourceDataCommand : ICommand
 
     public ValueTask ExecuteAsync(IConsole console)
     {
-        var portableExecutable = new PortableExecutable(FilePath);
+        using var portableExecutable = new PortableExecutable(FilePath);
 
         var type = int.TryParse(
             Type,

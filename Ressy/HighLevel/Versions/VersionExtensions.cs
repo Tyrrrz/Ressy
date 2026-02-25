@@ -23,7 +23,7 @@ public static class VersionExtensions
     extension(PortableExecutable portableExecutable)
     {
         private FileType GetFileType() =>
-            Path.GetExtension(portableExecutable.FilePath).ToUpperInvariant() switch
+            Path.GetExtension(portableExecutable.FilePath ?? "").ToUpperInvariant() switch
             {
                 ".EXE" => FileType.Application,
                 ".DLL" => FileType.DynamicallyLinkedLibrary,
