@@ -163,7 +163,7 @@ public class StringTableSpecs
         var portableExecutable = new PortableExecutable(file.Path);
 
         // String ID 1 is in block 1 (IDs 0-15)
-        var blockId = StringTable.GetBlockId(1);
+        var blockId = StringTableBlock.GetBlockId(1);
         var identifier = portableExecutable
             .GetResourceIdentifiers()
             .First(r => r.Type.Code == ResourceType.String.Code && r.Name.Code == blockId);
@@ -208,28 +208,28 @@ public class StringTableSpecs
     public void StringTableBlock_GetBlockId_returns_correct_block()
     {
         // String IDs 0-15 are in block 1
-        StringTable.GetBlockId(0).Should().Be(1);
-        StringTable.GetBlockId(15).Should().Be(1);
+        StringTableBlock.GetBlockId(0).Should().Be(1);
+        StringTableBlock.GetBlockId(15).Should().Be(1);
 
         // String IDs 16-31 are in block 2
-        StringTable.GetBlockId(16).Should().Be(2);
-        StringTable.GetBlockId(31).Should().Be(2);
+        StringTableBlock.GetBlockId(16).Should().Be(2);
+        StringTableBlock.GetBlockId(31).Should().Be(2);
 
         // String ID 18 is in block 2
-        StringTable.GetBlockId(18).Should().Be(2);
+        StringTableBlock.GetBlockId(18).Should().Be(2);
     }
 
     [Fact]
     public void StringTableBlock_GetBlockIndex_returns_correct_index()
     {
         // String ID 1 is at index 1 within block 1
-        StringTable.GetBlockIndex(1).Should().Be(1);
+        StringTableBlock.GetBlockIndex(1).Should().Be(1);
 
         // String ID 18 is at index 2 within block 2
-        StringTable.GetBlockIndex(18).Should().Be(2);
+        StringTableBlock.GetBlockIndex(18).Should().Be(2);
 
         // String ID 16 is at index 0 within block 2
-        StringTable.GetBlockIndex(16).Should().Be(0);
+        StringTableBlock.GetBlockIndex(16).Should().Be(0);
     }
 
     [Fact]

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Ressy.HighLevel.StringTables;
 
@@ -56,31 +55,10 @@ public partial class StringTable
             foreach (var (i, str) in block.Strings.Index())
             {
                 if (!string.IsNullOrEmpty(str))
-                    strings[(block.BlockId - 1) * BlockSize + i] = str;
+                    strings[(block.BlockId - 1) * StringTableBlock.BlockSize + i] = str;
             }
         }
 
         return new StringTable(strings);
     }
-}
-
-public partial class StringTable
-{
-    /// <summary>
-    /// Number of strings stored in each resource block.
-    /// </summary>
-    public const int BlockSize = 16;
-
-    /// <summary>
-    /// Gets the block ID (1-based) for the resource block that contains the string with the
-    /// specified ID.
-    /// </summary>
-    public static int GetBlockId(int stringId) => (stringId >> 4) + 1;
-
-    /// <summary>
-    /// Gets the index within the block (0-15) for the string with the specified ID.
-    /// </summary>
-    public static int GetBlockIndex(int stringId) => stringId & 0x0F;
-
-    internal static Encoding Encoding { get; } = Encoding.Unicode;
 }

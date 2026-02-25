@@ -7,7 +7,7 @@ public partial class StringTableBlock
     internal byte[] Serialize()
     {
         using var stream = new MemoryStream();
-        using var writer = new BinaryWriter(stream, StringTable.Encoding);
+        using var writer = new BinaryWriter(stream, Encoding);
 
         foreach (var str in Strings)
         {

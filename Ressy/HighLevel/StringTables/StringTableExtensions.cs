@@ -11,34 +11,6 @@ namespace Ressy.HighLevel.StringTables;
 // https://learn.microsoft.com/windows/win32/menurc/stringtable-resource
 public static class StringTableExtensions
 {
-    private static ResourceIdentifier? TryGetStringTableBlockResourceIdentifier(
-        PortableExecutable portableExecutable,
-        int blockId,
-        Language language
-    ) =>
-        portableExecutable
-            .GetResourceIdentifiers()
-            .FirstOrDefault(r =>
-                r.Type.Code == ResourceType.String.Code
-                && r.Name.Code == blockId
-                && r.Language.Id == language.Id
-            );
-
-    private static Resource? TryGetStringTableBlockResource(
-        PortableExecutable portableExecutable,
-        int blockId,
-        Language language
-    )
-    {
-        var identifier = TryGetStringTableBlockResourceIdentifier(
-            portableExecutable,
-            blockId,
-            language
-        );
-
-        return identifier is not null ? portableExecutable.TryGetResource(identifier) : null;
-    }
-
     /// <inheritdoc cref="StringTableExtensions" />
     extension(Resource resource)
     {
@@ -46,9 +18,6 @@ public static class StringTableExtensions
         /// Reads the specified resource as a string table resource and
         /// deserializes its data to the corresponding structural representation.
         /// </summary>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown if the resource name is not an ordinal.
-        /// </exception>
         public StringTableBlock ReadAsStringTableBlock()
         {
             var blockId =
@@ -65,6 +34,28 @@ public static class StringTableExtensions
     /// <inheritdoc cref="StringTableExtensions" />
     extension(PortableExecutable portableExecutable)
     {
+        private ResourceIdentifier? TryGetStringTableBlockResourceIdentifier(
+            int blockId,
+            Language language
+        ) =>
+            portableExecutable
+                .GetResourceIdentifiers()
+                .FirstOrDefault(r =>
+                    r.Type.Code == ResourceType.String.Code
+                    && r.Name.Code == blockId
+                    && r.Language.Id == language.Id
+                );
+
+        private Resource? TryGetStringTableBlockResource(int blockId, Language language)
+        {
+            var identifier = portableExecutable.TryGetStringTableBlockResourceIdentifier(
+                blockId,
+                language
+            );
+
+            return identifier is not null ? portableExecutable.TryGetResource(identifier) : null;
+        }
+
         /// <summary>
         /// Gets all string table resource blocks and returns a unified view over all of them.
         /// Retrieves resource blocks in the specified language or in the neutral language if no language is specified.
@@ -80,7 +71,7 @@ public static class StringTableExtensions
                     r.Type.Code == ResourceType.String.Code && r.Language.Id == targetLanguage.Id
                 );
 
-            var blocks = new Dictionary<int, byte[]>();
+            var blocks = new List<StringTableBlock>();
 
             foreach (var identifier in blockIdentifiers)
             {
@@ -91,10 +82,10 @@ public static class StringTableExtensions
                 if (resource is null)
                     continue;
 
-                blocks[blockId] = resource.Data;
+                blocks.Add(StringTableBlock.Deserialize(blockId, resource.Data));
             }
 
-            return blocks.Count > 0 ? StringTable.Deserialize(blocks) : null;
+            return blocks.Count > 0 ? StringTable.FromBlocks(blocks) : null;
         }
 
         /// <summary>
@@ -140,20 +131,20 @@ public static class StringTableExtensions
                 .WhereNotNull()
                 .ToHashSet();
 
-            var blocks = stringTable.Serialize();
-            var newBlockIds = blocks.Select((_, i) => i + 1).ToHashSet();
+            var blocks = stringTable.ToBlocks();
+            var newBlockIds = blocks.Select(b => b.BlockId).ToHashSet();
 
             portableExecutable.UpdateResources(ctx =>
             {
-                foreach (var (i, block) in blocks.Index())
+                foreach (var block in blocks)
                 {
                     ctx.Set(
                         new ResourceIdentifier(
                             ResourceType.String,
-                            ResourceName.FromCode(i + 1),
+                            ResourceName.FromCode(block.BlockId),
                             targetLanguage
                         ),
-                        block
+                        block.Serialize()
                     );
                 }
 
