@@ -41,33 +41,26 @@ public partial class StringTable(IReadOnlyDictionary<int, string> strings)
 public partial class StringTable
 {
     /// <summary>
-    /// Initializes a new <see cref="StringTable" /> from a collection of string table resource
-    /// blocks.
+    /// Creates a new <see cref="StringTable" /> from a collection of string table resource blocks.
     /// </summary>
     /// <remarks>
     /// Non-empty strings from all blocks are merged into a unified view keyed by their IDs.
     /// Blocks with duplicate IDs are merged in the order they appear in the input sequence.
     /// </remarks>
-    public StringTable(IReadOnlyList<StringTableBlock> blocks)
-        : this(BlocksToDictionary(blocks)) { }
-
-    private static Dictionary<int, string> BlocksToDictionary(
-        IReadOnlyList<StringTableBlock> blocks
-    )
+    public static StringTable FromBlocks(IReadOnlyList<StringTableBlock> blocks)
     {
         var strings = new Dictionary<int, string>();
 
         foreach (var block in blocks)
         {
-            for (var i = 0; i < block.Strings.Count; i++)
+            foreach (var (i, str) in block.Strings.Index())
             {
-                var str = block.Strings[i];
                 if (!string.IsNullOrEmpty(str))
                     strings[(block.BlockId - 1) * BlockSize + i] = str;
             }
         }
 
-        return strings;
+        return new StringTable(strings);
     }
 }
 
@@ -89,5 +82,5 @@ public partial class StringTable
     /// </summary>
     public static int GetBlockIndex(int stringId) => stringId & 0x0F;
 
-    private static Encoding Encoding { get; } = Encoding.Unicode;
+    internal static Encoding Encoding { get; } = Encoding.Unicode;
 }

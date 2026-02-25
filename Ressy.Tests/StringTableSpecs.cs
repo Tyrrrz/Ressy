@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using FluentAssertions;
 using Ressy.HighLevel.StringTables;
 using Ressy.Tests.Utils;
@@ -153,7 +154,7 @@ public class StringTableSpecs
     }
 
     [Fact]
-    public void I_can_get_the_string_table_block_resource_identifier_for_a_string()
+    public void I_can_read_a_resource_as_a_string_table_block()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -161,50 +162,17 @@ public class StringTableSpecs
 
         var portableExecutable = new PortableExecutable(file.Path);
 
-        // Act
         // String ID 1 is in block 1 (IDs 0-15)
-        var identifier = portableExecutable.TryGetStringTableBlockResourceIdentifier(1);
-
-        // Assert
-        identifier.Should().NotBeNull();
-        identifier!.Type.Code.Should().Be(ResourceType.String.Code);
-        identifier.Name.Code.Should().Be(StringTable.GetBlockId(1));
-    }
-
-    [Fact]
-    public void I_get_null_when_getting_the_string_table_block_resource_identifier_for_a_nonexistent_block()
-    {
-        // Arrange
-        using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
-
-        var portableExecutable = new PortableExecutable(file.Path);
+        var blockId = StringTable.GetBlockId(1);
+        var identifier = portableExecutable
+            .GetResourceIdentifiers()
+            .First(r => r.Type.Code == ResourceType.String.Code && r.Name.Code == blockId);
 
         // Act
-        // String ID 9999 would be in block 626, which does not exist
-        var identifier = portableExecutable.TryGetStringTableBlockResourceIdentifier(9999);
+        var block = portableExecutable.GetResource(identifier).ReadAsStringTableBlock();
 
         // Assert
-        identifier.Should().BeNull();
-    }
-
-    [Fact]
-    public void I_can_get_the_string_table_block_resource_for_a_string()
-    {
-        // Arrange
-        using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
-
-        var portableExecutable = new PortableExecutable(file.Path);
-
-        // Act
-        // String ID 1 is in block 1 (IDs 0-15)
-        var resource = portableExecutable.TryGetStringTableBlockResource(1);
-
-        // Assert
-        resource.Should().NotBeNull();
-        var block = resource!.ReadAsStringTableBlock();
-        block.BlockId.Should().Be(StringTable.GetBlockId(1));
+        block.BlockId.Should().Be(blockId);
         block.TryGetString(1).Should().Be("Hello, World!");
     }
 
@@ -228,7 +196,7 @@ public class StringTableSpecs
         };
 
         // Act
-        var stringTable = new StringTable(blocks);
+        var stringTable = StringTable.FromBlocks(blocks);
 
         // Assert
         stringTable.Strings.Should().ContainKey(1).WhoseValue.Should().Be("Hello, World!");

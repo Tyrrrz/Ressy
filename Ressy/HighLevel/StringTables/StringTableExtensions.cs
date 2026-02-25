@@ -11,16 +11,41 @@ namespace Ressy.HighLevel.StringTables;
 // https://learn.microsoft.com/windows/win32/menurc/stringtable-resource
 public static class StringTableExtensions
 {
+    private static ResourceIdentifier? TryGetStringTableBlockResourceIdentifier(
+        PortableExecutable portableExecutable,
+        int blockId,
+        Language language
+    ) =>
+        portableExecutable
+            .GetResourceIdentifiers()
+            .FirstOrDefault(r =>
+                r.Type.Code == ResourceType.String.Code
+                && r.Name.Code == blockId
+                && r.Language.Id == language.Id
+            );
+
+    private static Resource? TryGetStringTableBlockResource(
+        PortableExecutable portableExecutable,
+        int blockId,
+        Language language
+    )
+    {
+        var identifier = TryGetStringTableBlockResourceIdentifier(
+            portableExecutable,
+            blockId,
+            language
+        );
+
+        return identifier is not null ? portableExecutable.TryGetResource(identifier) : null;
+    }
+
     /// <inheritdoc cref="StringTableExtensions" />
     extension(Resource resource)
     {
         /// <summary>
-        /// Reads the resource data as a <see cref="StringTableBlock" />.
+        /// Reads the specified resource as a string table resource and
+        /// deserializes its data to the corresponding structural representation.
         /// </summary>
-        /// <remarks>
-        /// The resource must be of type <see cref="ResourceType.String" /> and must have an
-        /// ordinal name corresponding to the block ID.
-        /// </remarks>
         /// <exception cref="InvalidOperationException">
         /// Thrown if the resource name is not an ordinal.
         /// </exception>
@@ -33,54 +58,13 @@ public static class StringTableExtensions
                         + "the resource name is not an ordinal."
                 );
 
-            return StringTable.DeserializeBlock(blockId, resource.Data);
+            return StringTableBlock.Deserialize(blockId, resource.Data);
         }
     }
 
     /// <inheritdoc cref="StringTableExtensions" />
     extension(PortableExecutable portableExecutable)
     {
-        /// <summary>
-        /// Gets the resource identifier for the string table block that contains the string with
-        /// the specified ID.
-        /// Retrieves the block in the specified language or in the neutral language if no language
-        /// is specified.
-        /// Returns <c>null</c> if the corresponding block resource does not exist.
-        /// </summary>
-        public ResourceIdentifier? TryGetStringTableBlockResourceIdentifier(
-            int stringId,
-            Language? language = null
-        )
-        {
-            var targetLanguage = language ?? Language.NeutralDefault;
-            var blockId = StringTable.GetBlockId(stringId);
-
-            return portableExecutable
-                .GetResourceIdentifiers()
-                .FirstOrDefault(r =>
-                    r.Type.Code == ResourceType.String.Code
-                    && r.Name.Code == blockId
-                    && r.Language.Id == targetLanguage.Id
-                );
-        }
-
-        /// <summary>
-        /// Gets the resource containing the string table block that contains the string with the
-        /// specified ID.
-        /// Retrieves the block in the specified language or in the neutral language if no language
-        /// is specified.
-        /// Returns <c>null</c> if the corresponding block resource does not exist.
-        /// </summary>
-        public Resource? TryGetStringTableBlockResource(int stringId, Language? language = null)
-        {
-            var identifier = portableExecutable.TryGetStringTableBlockResourceIdentifier(
-                stringId,
-                language
-            );
-
-            return identifier is not null ? portableExecutable.TryGetResource(identifier) : null;
-        }
-
         /// <summary>
         /// Gets all string table resource blocks and returns a unified view over all of them.
         /// Retrieves resource blocks in the specified language or in the neutral language if no language is specified.
@@ -96,7 +80,7 @@ public static class StringTableExtensions
                     r.Type.Code == ResourceType.String.Code && r.Language.Id == targetLanguage.Id
                 );
 
-            var blocks = new List<(int BlockId, byte[] Data)>();
+            var blocks = new Dictionary<int, byte[]>();
 
             foreach (var identifier in blockIdentifiers)
             {
@@ -107,7 +91,7 @@ public static class StringTableExtensions
                 if (resource is null)
                     continue;
 
-                blocks.Add((blockId, resource.Data));
+                blocks[blockId] = resource.Data;
             }
 
             return blocks.Count > 0 ? StringTable.Deserialize(blocks) : null;
