@@ -78,13 +78,13 @@ public class ReadingSpecs
                 new ResourceIdentifier(
                     ResourceType.String,
                     ResourceName.FromCode(1),
-                    Language.NeutralDefault
+                    Language.UINeutral
                 ),
                 // -- RT_STRING/2/English
                 new ResourceIdentifier(
                     ResourceType.String,
                     ResourceName.FromCode(2),
-                    Language.NeutralDefault
+                    Language.UINeutral
                 ),
                 // -- RT_STRING/1/French
                 new ResourceIdentifier(

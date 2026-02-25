@@ -66,11 +66,11 @@ public static class StringTableExtensions
         /// <remarks>
         /// If the language is specified, this method retrieves string table resources only in that language.
         /// If the language is not specified, this method retrieves string table resources
-        /// in the neutral UI language (<see cref="Language.NeutralDefault" />).
+        /// in the neutral UI language (<see cref="Language.UINeutral" />).
         /// </remarks>
         public StringTable? TryGetStringTable(Language? language = null)
         {
-            var targetLanguage = language ?? Language.NeutralDefault;
+            var targetLanguage = language ?? Language.UINeutral;
 
             var blockIdentifiers = portableExecutable
                 .GetResourceIdentifiers()
@@ -104,7 +104,7 @@ public static class StringTableExtensions
         /// <remarks>
         /// If the language is specified, this method retrieves string table resources only in that language.
         /// If the language is not specified, this method retrieves string table resources
-        /// in the neutral UI language (<see cref="Language.NeutralDefault" />).
+        /// in the neutral UI language (<see cref="Language.UINeutral" />).
         /// </remarks>
         public StringTable GetStringTable(Language? language = null) =>
             portableExecutable.TryGetStringTable(language)
@@ -136,7 +136,7 @@ public static class StringTableExtensions
         /// </remarks>
         public void SetStringTable(StringTable stringTable, Language? language = null)
         {
-            var targetLanguage = language ?? Language.NeutralDefault;
+            var targetLanguage = language ?? Language.UINeutral;
 
             // Find block IDs that currently exist for this language
             var existingBlockIds = portableExecutable
