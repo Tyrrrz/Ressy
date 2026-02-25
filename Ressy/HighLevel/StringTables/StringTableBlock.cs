@@ -43,5 +43,5 @@ public partial class StringTableBlock
 
     internal static int GetBlockIndex(int stringId) => stringId & 0x0F;
 
-    internal static Encoding Encoding { get; } = Encoding.Unicode;
+    private static Encoding Encoding { get; } = Encoding.Unicode;
 }
