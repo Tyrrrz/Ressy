@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Ressy.HighLevel.StringTables;
 
 public partial class StringTable
 {
-    private static string[] DeserializeBlock(byte[] data)
+    internal static StringTableBlock DeserializeBlock(int blockId, byte[] data)
     {
         using var stream = new MemoryStream(data);
         using var reader = new BinaryReader(stream, Encoding);
@@ -19,28 +18,16 @@ public partial class StringTable
             strings[i] = new string(reader.ReadChars(length));
         }
 
-        return strings;
+        return new StringTableBlock(blockId, strings);
     }
 
-    internal static StringTable Deserialize(IReadOnlyList<byte[]> blocks)
+    internal static StringTable Deserialize(IReadOnlyList<(int BlockId, byte[] Data)> blocks)
     {
-        var strings = new Dictionary<int, string>();
+        var stringTableBlocks = new List<StringTableBlock>(blocks.Count);
 
-        foreach (var (blockIndex, block) in blocks.Index())
-        {
-            var blockStrings = DeserializeBlock(block);
+        foreach (var (blockId, data) in blocks)
+            stringTableBlocks.Add(DeserializeBlock(blockId, data));
 
-            foreach (var (i, blockString) in blockStrings.Index())
-            {
-                // Only include non-empty strings
-                if (string.IsNullOrEmpty(blockString))
-                    continue;
-
-                var stringId = (blockIndex << 4) + i;
-                strings[stringId] = blockString;
-            }
-        }
-
-        return new StringTable(strings);
+        return new StringTable(stringTableBlocks);
     }
 }

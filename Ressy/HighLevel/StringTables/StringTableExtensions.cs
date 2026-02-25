@@ -12,8 +12,75 @@ namespace Ressy.HighLevel.StringTables;
 public static class StringTableExtensions
 {
     /// <inheritdoc cref="StringTableExtensions" />
+    extension(Resource resource)
+    {
+        /// <summary>
+        /// Reads the resource data as a <see cref="StringTableBlock" />.
+        /// </summary>
+        /// <remarks>
+        /// The resource must be of type <see cref="ResourceType.String" /> and must have an
+        /// ordinal name corresponding to the block ID.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the resource name is not an ordinal.
+        /// </exception>
+        public StringTableBlock ReadAsStringTableBlock()
+        {
+            var blockId =
+                resource.Identifier.Name.Code
+                ?? throw new InvalidOperationException(
+                    "Cannot read resource as a string table block: "
+                        + "the resource name is not an ordinal."
+                );
+
+            return StringTable.DeserializeBlock(blockId, resource.Data);
+        }
+    }
+
+    /// <inheritdoc cref="StringTableExtensions" />
     extension(PortableExecutable portableExecutable)
     {
+        /// <summary>
+        /// Gets the resource identifier for the string table block that contains the string with
+        /// the specified ID.
+        /// Retrieves the block in the specified language or in the neutral language if no language
+        /// is specified.
+        /// Returns <c>null</c> if the corresponding block resource does not exist.
+        /// </summary>
+        public ResourceIdentifier? TryGetStringTableBlockResourceIdentifier(
+            int stringId,
+            Language? language = null
+        )
+        {
+            var targetLanguage = language ?? Language.NeutralDefault;
+            var blockId = StringTable.GetBlockId(stringId);
+
+            return portableExecutable
+                .GetResourceIdentifiers()
+                .FirstOrDefault(r =>
+                    r.Type.Code == ResourceType.String.Code
+                    && r.Name.Code == blockId
+                    && r.Language.Id == targetLanguage.Id
+                );
+        }
+
+        /// <summary>
+        /// Gets the resource containing the string table block that contains the string with the
+        /// specified ID.
+        /// Retrieves the block in the specified language or in the neutral language if no language
+        /// is specified.
+        /// Returns <c>null</c> if the corresponding block resource does not exist.
+        /// </summary>
+        public Resource? TryGetStringTableBlockResource(int stringId, Language? language = null)
+        {
+            var identifier = portableExecutable.TryGetStringTableBlockResourceIdentifier(
+                stringId,
+                language
+            );
+
+            return identifier is not null ? portableExecutable.TryGetResource(identifier) : null;
+        }
+
         /// <summary>
         /// Gets all string table resource blocks and returns a unified view over all of them.
         /// Retrieves resource blocks in the specified language or in the neutral language if no language is specified.
@@ -29,18 +96,18 @@ public static class StringTableExtensions
                     r.Type.Code == ResourceType.String.Code && r.Language.Id == targetLanguage.Id
                 );
 
-            var blocks = new List<byte[]>();
+            var blocks = new List<(int BlockId, byte[] Data)>();
 
             foreach (var identifier in blockIdentifiers)
             {
-                if (identifier.Name.Code is null)
+                if (identifier.Name.Code is not { } blockId)
                     continue;
 
                 var resource = portableExecutable.TryGetResource(identifier);
                 if (resource is null)
                     continue;
 
-                blocks.Add(resource.Data);
+                blocks.Add((blockId, resource.Data));
             }
 
             return blocks.Count > 0 ? StringTable.Deserialize(blocks) : null;
