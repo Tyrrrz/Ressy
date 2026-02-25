@@ -104,8 +104,8 @@ public partial class MuiInfo
         var ultimateFallbackOffset = reader.ReadUInt32();
         var ultimateFallbackSize = reader.ReadUInt32();
 
-        var typeIDMainList = ReadTypeIDList(data, typeIDMainOffset, typeIDMainSize);
-        var typeIDFallbackList = ReadTypeIDList(data, typeIDFallbackOffset, typeIDFallbackSize);
+        var mainResourceTypes = ReadTypeIDList(data, typeIDMainOffset, typeIDMainSize);
+        var fallbackResourceTypes = ReadTypeIDList(data, typeIDFallbackOffset, typeIDFallbackSize);
         var language = ReadLanguageString(data, languageOffset, languageSize);
         var fallbackLanguage = ReadLanguageString(data, fallbackOffset, fallbackSize);
         var ultimateFallbackLanguage = ReadLanguageString(
@@ -118,8 +118,8 @@ public partial class MuiInfo
             fileType,
             checksum,
             serviceChecksum,
-            typeIDMainList,
-            typeIDFallbackList,
+            mainResourceTypes,
+            fallbackResourceTypes,
             language,
             fallbackLanguage,
             ultimateFallbackLanguage

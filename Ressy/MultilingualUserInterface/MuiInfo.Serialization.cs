@@ -53,12 +53,12 @@ public partial class MuiInfo
         var currentOffset = HeaderSize;
 
         var (typeIDMainOffset, typeIDMainSize, typeIDMainBytes) = BuildTypeIDListEntry(
-            TypeIDMainList,
+            MainResourceTypes,
             ref currentOffset
         );
 
         var (typeIDFallbackOffset, typeIDFallbackSize, typeIDFallbackBytes) = BuildTypeIDListEntry(
-            TypeIDFallbackList,
+            FallbackResourceTypes,
             ref currentOffset
         );
 

@@ -25,8 +25,8 @@ public class MuiSpecs
         muiInfo.Language.Should().BeNull();
         muiInfo.FallbackLanguage.Should().BeNull();
         muiInfo.UltimateFallbackLanguage.Should().Be("en");
-        muiInfo.TypeIDMainList.Should().BeEmpty();
-        muiInfo.TypeIDFallbackList.Should().BeEmpty();
+        muiInfo.MainResourceTypes.Should().BeEmpty();
+        muiInfo.FallbackResourceTypes.Should().BeEmpty();
     }
 
     [Fact]
@@ -37,8 +37,8 @@ public class MuiSpecs
             MuiFileType.LanguageSpecific,
             checksum: new byte[16],
             serviceChecksum: new byte[16],
-            typeIDMainList: [ResourceType.String, ResourceType.Version],
-            typeIDFallbackList: [],
+            mainResourceTypes: [ResourceType.String, ResourceType.Version],
+            fallbackResourceTypes: [],
             "en-US",
             "en-US",
             "en"

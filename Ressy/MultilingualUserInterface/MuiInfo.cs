@@ -13,8 +13,8 @@ public partial class MuiInfo(
     MuiFileType fileType,
     byte[] checksum,
     byte[] serviceChecksum,
-    IReadOnlyList<ResourceType> typeIDMainList,
-    IReadOnlyList<ResourceType> typeIDFallbackList,
+    IReadOnlyList<ResourceType> mainResourceTypes,
+    IReadOnlyList<ResourceType> fallbackResourceTypes,
     string? language,
     string? fallbackLanguage,
     string? ultimateFallbackLanguage
@@ -42,13 +42,13 @@ public partial class MuiInfo(
     /// <summary>
     /// Ordinal resource types that exist in the language-specific satellite file.
     /// </summary>
-    public IReadOnlyList<ResourceType> TypeIDMainList { get; } = typeIDMainList;
+    public IReadOnlyList<ResourceType> MainResourceTypes { get; } = mainResourceTypes;
 
     /// <summary>
     /// Ordinal resource types that exist only in the language-neutral (LN) file
     /// and should fall back to it at runtime.
     /// </summary>
-    public IReadOnlyList<ResourceType> TypeIDFallbackList { get; } = typeIDFallbackList;
+    public IReadOnlyList<ResourceType> FallbackResourceTypes { get; } = fallbackResourceTypes;
 
     /// <summary>
     /// Primary language name associated with this file (e.g. "en-US").
@@ -69,11 +69,6 @@ public partial class MuiInfo(
     /// Can be <c>null</c> if not specified.
     /// </summary>
     public string? UltimateFallbackLanguage { get; } = ultimateFallbackLanguage;
-}
-
-public partial class MuiInfo
-{
-    private static Encoding Encoding { get; } = Encoding.Unicode;
 
     /// <summary>
     /// Computes the file path to the language-specific satellite (.mui) file
@@ -95,4 +90,9 @@ public partial class MuiInfo
             : throw new InvalidOperationException(
                 "Cannot compute satellite file path: Language is not set."
             );
+}
+
+public partial class MuiInfo
+{
+    private static Encoding Encoding { get; } = Encoding.Unicode;
 }

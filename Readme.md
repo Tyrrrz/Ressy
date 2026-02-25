@@ -610,12 +610,12 @@ using Ressy;
 using Ressy.MultilingualUserInterface;
 
 // Read the language-neutral EXE to find the satellite path
-using var lnPe = PortableExecutable.OpenRead("notepad.exe");
-var lnMuiInfo = lnPe.GetMuiInfo();
+using var pe = PortableExecutable.OpenRead("notepad.exe");
+var muiInfo = pe.GetMuiInfo();
 
-// Compute path to the satellite MUI file for "en-US"
-var satellitePath = lnMuiInfo.GetSatelliteFilePath("notepad.exe");
-// => "en-US\notepad.exe.mui"  (uses lnMuiInfo.Language internally)
+// Compute path to the satellite MUI file
+var satellitePath = muiInfo.GetSatelliteFilePath("notepad.exe");
+// => "en-US\notepad.exe.mui"  (uses muiInfo.Language internally)
 
 // Open the satellite MUI file to read its localized resources
 using var satellitePe = PortableExecutable.OpenRead(satellitePath);
@@ -640,8 +640,8 @@ portableExecutable.SetMuiInfo(new MuiInfo(
     MuiFileType.LanguageSpecific,
     checksum: new byte[16],
     serviceChecksum: new byte[16],
-    typeIDMainList: [ResourceType.String, ResourceType.Version],
-    typeIDFallbackList: [],
+    mainResourceTypes: [ResourceType.String, ResourceType.Version],
+    fallbackResourceTypes: [],
     language: "en-US",
     fallbackLanguage: "en-US",
     ultimateFallbackLanguage: "en"

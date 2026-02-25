@@ -253,7 +253,7 @@ public partial class ResourceType
     public static ResourceType Manifest { get; } = FromCode(24);
 
     /// <summary>
-    /// Corresponds to MUI.
+    /// Corresponds to "MUI".
     /// </summary>
     // https://learn.microsoft.com/windows/win32/intl/mui-resource-technology
     public static ResourceType Mui { get; } = FromString("MUI");
