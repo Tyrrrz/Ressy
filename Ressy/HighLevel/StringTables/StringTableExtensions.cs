@@ -21,7 +21,7 @@ public static class StringTableExtensions
         /// </summary>
         public StringTable? TryGetStringTable(Language? language = null)
         {
-            var targetLanguage = language ?? Language.Neutral;
+            var targetLanguage = language ?? Language.NeutralDefault;
 
             var blockIdentifiers = portableExecutable
                 .GetResourceIdentifiers()
@@ -77,7 +77,7 @@ public static class StringTableExtensions
         /// </summary>
         public void SetStringTable(StringTable stringTable, Language? language = null)
         {
-            var targetLanguage = language ?? Language.Neutral;
+            var targetLanguage = language ?? Language.NeutralDefault;
 
             // Find block IDs that currently exist for this language
             var existingBlockIds = portableExecutable

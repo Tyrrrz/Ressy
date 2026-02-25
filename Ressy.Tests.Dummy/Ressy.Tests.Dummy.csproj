@@ -2,25 +2,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
-    <!-- Don't add git hash to the product version, to keep it deterministic for tests -->
-    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
-  </PropertyGroup>
 
-  <!-- These properties affect the contained resources -->
-  <PropertyGroup>
-    <!-- Icon and icon group resources -->
-    <ApplicationIcon>Icon.ico</ApplicationIcon>
-    <!-- Manifest resource -->
-    <ApplicationManifest>Manifest.xml</ApplicationManifest>
-    <!-- Version info resource -->
-    <AssemblyVersion>6.9.6.9</AssemblyVersion>
-    <FileVersion>1.2.3.4</FileVersion>
-    <InformationalVersion>5.6.7.8</InformationalVersion>
-    <Product>TestProduct</Product>
-    <AssemblyTitle>TestDescription</AssemblyTitle>
-    <Company>TestCompany</Company>
-    <Description>TestComments</Description>
-    <Copyright>TestCopyright</Copyright>
+    <!-- Use rc.exe from Windows SDK to generate this file from Resources.rc -->
+    <Win32Resource>Resources.res</Win32Resource>
   </PropertyGroup>
 
   <ItemGroup>

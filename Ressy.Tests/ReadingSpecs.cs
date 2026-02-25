@@ -60,19 +60,43 @@ public class ReadingSpecs
                     ResourceName.FromCode(6),
                     Language.Neutral
                 ),
-                // -- RT_GROUP_ICON/32512/Neutral
+                // -- RT_GROUP_ICON/1/Neutral
                 new ResourceIdentifier(
                     ResourceType.IconGroup,
-                    ResourceName.FromCode(32512),
+                    ResourceName.FromCode(1),
                     Language.Neutral
                 ),
-                // -- RT_VERSION/1/Neutral
-                new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1)),
                 // -- RT_MANIFEST/1/Neutral
                 new ResourceIdentifier(
                     ResourceType.Manifest,
                     ResourceName.FromCode(1),
                     Language.Neutral
+                ),
+                // -- RT_VERSION/1/Neutral
+                new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1)),
+                // -- RT_STRING/1/English
+                new ResourceIdentifier(
+                    ResourceType.String,
+                    ResourceName.FromCode(1),
+                    Language.NeutralDefault
+                ),
+                // -- RT_STRING/2/English
+                new ResourceIdentifier(
+                    ResourceType.String,
+                    ResourceName.FromCode(2),
+                    Language.NeutralDefault
+                ),
+                // -- RT_STRING/1/French
+                new ResourceIdentifier(
+                    ResourceType.String,
+                    ResourceName.FromCode(1),
+                    new Language(1036)
+                ),
+                // -- RT_STRING/2/French
+                new ResourceIdentifier(
+                    ResourceType.String,
+                    ResourceName.FromCode(2),
+                    new Language(1036)
                 ),
             ]);
     }

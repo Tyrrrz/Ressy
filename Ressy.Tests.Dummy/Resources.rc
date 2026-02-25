@@ -1,0 +1,66 @@
+﻿#include <windows.h>
+
+LANGUAGE 0x0000, SUBLANG_NEUTRAL
+
+// Icon
+1 ICON "Icon.ico"
+
+// Manifest
+1 RT_MANIFEST "Manifest.xml"
+
+// Version info
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,2,3,4
+ PRODUCTVERSION 5,6,7,8
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004B0"
+        BEGIN
+            VALUE "Assembly Version", "6.9.6.9"
+            VALUE "FileVersion", "1.2.3.4"
+            VALUE "ProductVersion", "5.6.7.8"
+            VALUE "ProductName", "TestProduct"
+            VALUE "FileDescription", "TestDescription"
+            VALUE "CompanyName", "TestCompany"
+            VALUE "Comments", "TestComments"
+            VALUE "LegalCopyright", "TestCopyright"
+            VALUE "InternalName", "TestProduct"
+            VALUE "OriginalFilename", "TestProduct.exe"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0000, 1200
+    END
+END
+
+// String table (NeutralDefault)
+LANGUAGE 0x0400, SUBLANG_DEFAULT
+
+STRINGTABLE
+BEGIN
+    1   "Hello, World!"
+    5   "Goodbye, World!"
+    18  "Beep blop boop"
+END
+
+// String table (French)
+LANGUAGE 0x040C, SUBLANG_DEFAULT
+
+STRINGTABLE
+BEGIN
+    1   "Bonjour, le monde !"
+    5   "Au revoir, le monde !"
+    18  "Bip blop boup"
+END

@@ -23,14 +23,15 @@ public readonly partial struct Language(int id)
 public partial struct Language
 {
     /// <summary>
-    /// Neutral language.
+    /// Neutral language (LANG_NEUTRAL + SUBLANG_NEUTRAL, 0x0000).
     /// </summary>
     public static Language Neutral { get; } = new(0);
 
     /// <summary>
-    /// English language.
+    /// Neutral language with default sublanguage (LANG_NEUTRAL + SUBLANG_DEFAULT, 0x0400).
+    /// Used as the Win32 neutral UI fallback.
     /// </summary>
-    public static Language English { get; } = new(1033);
+    public static Language NeutralDefault { get; } = new(1024);
 
     /// <summary>
     /// Creates a language identifier from a culture descriptor.
