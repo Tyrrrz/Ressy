@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Ressy.Native;
 
 namespace Ressy;
 
@@ -20,11 +19,6 @@ public abstract partial class ResourceType
     /// </summary>
     public abstract string Label { get; }
 
-    /// <summary>
-    /// Marshals the value of this resource type to native memory for use with Windows API.
-    /// </summary>
-    internal abstract NativeResource Marshal();
-
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public override string ToString() => Label;
@@ -41,9 +35,6 @@ public partial class ResourceType
     /// Creates a non-ordinal resource type from a string.
     /// </summary>
     public static ResourceType FromString(string type) => new StringResourceType(type);
-
-    internal static ResourceType FromHandle(nint handle) =>
-        handle < 0x10000 ? FromCode((int)handle) : FromString(NativeHelpers.GetString(handle));
 }
 
 // https://learn.microsoft.com/windows/win32/menurc/resource-types

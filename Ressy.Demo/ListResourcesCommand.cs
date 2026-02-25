@@ -13,7 +13,7 @@ public class ListResourcesCommand : ICommand
 
     public ValueTask ExecuteAsync(IConsole console)
     {
-        var portableExecutable = new PortableExecutable(FilePath);
+        using var portableExecutable = new PortableExecutable(FilePath);
 
         foreach (var identifier in portableExecutable.GetResourceIdentifiers())
         {

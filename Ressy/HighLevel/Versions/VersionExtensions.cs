@@ -23,7 +23,7 @@ public static class VersionExtensions
     extension(PortableExecutable portableExecutable)
     {
         private FileType GetFileType() =>
-            Path.GetExtension(portableExecutable.FilePath).ToUpperInvariant() switch
+            Path.GetExtension(portableExecutable.FilePath ?? "").ToUpperInvariant() switch
             {
                 ".EXE" => FileType.Application,
                 ".DLL" => FileType.DynamicallyLinkedLibrary,
@@ -77,19 +77,8 @@ public static class VersionExtensions
         /// <summary>
         /// Removes all existing version info resources.
         /// </summary>
-        public void RemoveVersionInfo()
-        {
-            var identifiers = portableExecutable.GetResourceIdentifiers();
-
-            portableExecutable.UpdateResources(ctx =>
-            {
-                foreach (var identifier in identifiers)
-                {
-                    if (identifier.Type.Code == ResourceType.Version.Code)
-                        ctx.Remove(identifier);
-                }
-            });
-        }
+        public void RemoveVersionInfo() =>
+            portableExecutable.RemoveResources(r => r.Type.Code == ResourceType.Version.Code);
 
         /// <summary>
         /// Adds or overwrites a version info resource with the specified data.
@@ -107,7 +96,7 @@ public static class VersionExtensions
                 portableExecutable.TryGetVersionInfoResourceIdentifier()
                 ?? new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1));
 
-            portableExecutable.SetResource(identifier, versionInfo.Serialize());
+            portableExecutable.SetResource(new Resource(identifier, versionInfo.Serialize()));
         }
 
         /// <summary>
@@ -143,7 +132,7 @@ public static class VersionExtensions
 
             modify(builder);
 
-            portableExecutable.SetResource(identifier, builder.Build().Serialize());
+            portableExecutable.SetResource(new Resource(identifier, builder.Build().Serialize()));
         }
     }
 }

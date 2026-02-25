@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -14,24 +15,10 @@ public static class IconExtensions
         /// <summary>
         /// Removes all existing icon and icon group resources.
         /// </summary>
-        public void RemoveIcon()
-        {
-            var identifiers = portableExecutable.GetResourceIdentifiers();
-
-            portableExecutable.UpdateResources(ctx =>
-            {
-                foreach (var identifier in identifiers)
-                {
-                    if (
-                        identifier.Type.Code == ResourceType.Icon.Code
-                        || identifier.Type.Code == ResourceType.IconGroup.Code
-                    )
-                    {
-                        ctx.Remove(identifier);
-                    }
-                }
-            });
-        }
+        public void RemoveIcon() =>
+            portableExecutable.RemoveResources(r =>
+                r.Type.Code == ResourceType.Icon.Code || r.Type.Code == ResourceType.IconGroup.Code
+            );
 
         /// <summary>
         /// Adds or overwrites icon and icon group resources based on the specified ICO file stream.
@@ -43,47 +30,51 @@ public static class IconExtensions
         public void SetIcon(Stream iconFileStream)
         {
             var iconGroup = IconGroup.Deserialize(iconFileStream);
+            var resources = new List<Resource>();
 
-            portableExecutable.UpdateResources(ctx =>
+            // Icon resources (written as-is)
+            foreach (var (i, icon) in iconGroup.Icons.Index())
             {
-                // Icon resources (written as-is)
-                foreach (var (i, icon) in iconGroup.Icons.Index())
-                {
-                    ctx.Set(
+                resources.Add(
+                    new Resource(
                         new ResourceIdentifier(ResourceType.Icon, ResourceName.FromCode(i + 1)),
                         icon.Data
-                    );
+                    )
+                );
+            }
+
+            // Icon group resource (offset is replaced with icon index)
+            {
+                using var buffer = new MemoryStream();
+                using var writer = new BinaryWriter(buffer);
+
+                // Header
+                writer.Write((ushort)0);
+                writer.Write((ushort)1);
+                writer.Write((ushort)iconGroup.Icons.Count);
+
+                // Icon directory
+                foreach (var (i, icon) in iconGroup.Icons.Index())
+                {
+                    writer.Write(icon.Width);
+                    writer.Write(icon.Height);
+                    writer.Write(icon.ColorCount);
+                    writer.Write((byte)0); // reserved
+                    writer.Write(icon.ColorPlanes);
+                    writer.Write(icon.BitsPerPixel);
+                    writer.Write((uint)icon.Data.Length);
+                    writer.Write((ushort)(i + 1));
                 }
 
-                // Icon group resource (offset is replaced with icon index)
-                {
-                    using var buffer = new MemoryStream();
-                    using var writer = new BinaryWriter(buffer);
-
-                    // Header
-                    writer.Write((ushort)0);
-                    writer.Write((ushort)1);
-                    writer.Write((ushort)iconGroup.Icons.Count);
-
-                    // Icon directory
-                    foreach (var (i, icon) in iconGroup.Icons.Index())
-                    {
-                        writer.Write(icon.Width);
-                        writer.Write(icon.Height);
-                        writer.Write(icon.ColorCount);
-                        writer.Write((byte)0); // reserved
-                        writer.Write(icon.ColorPlanes);
-                        writer.Write(icon.BitsPerPixel);
-                        writer.Write((uint)icon.Data.Length);
-                        writer.Write((ushort)(i + 1));
-                    }
-
-                    ctx.Set(
+                resources.Add(
+                    new Resource(
                         new ResourceIdentifier(ResourceType.IconGroup, ResourceName.FromCode(1)),
                         buffer.ToArray()
-                    );
-                }
-            });
+                    )
+                );
+            }
+
+            portableExecutable.SetResources(resources);
         }
 
         /// <summary>

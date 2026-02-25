@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using Ressy.Native;
 
 namespace Ressy;
 
@@ -11,8 +10,6 @@ internal partial class OrdinalResourceName(int code) : ResourceName
     public override int? Code => _code;
 
     public override string Label => '#' + _code.ToString(CultureInfo.InvariantCulture);
-
-    internal override NativeResource Marshal() => new DummyNativeResource(_code);
 }
 
 internal partial class OrdinalResourceName : IEquatable<OrdinalResourceName>

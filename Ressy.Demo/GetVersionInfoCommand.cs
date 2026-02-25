@@ -17,7 +17,7 @@ public class GetVersionInfoCommand : ICommand
 
     public ValueTask ExecuteAsync(IConsole console)
     {
-        var portableExecutable = new PortableExecutable(FilePath);
+        using var portableExecutable = new PortableExecutable(FilePath);
         var versionInfo = portableExecutable.GetVersionInfo();
 
         console.Output.WriteLine(

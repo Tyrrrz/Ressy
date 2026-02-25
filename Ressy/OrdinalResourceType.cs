@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using Ressy.Native;
 
 namespace Ressy;
 
@@ -47,8 +46,6 @@ internal partial class OrdinalResourceType(int code) : ResourceType
                 : codePortion;
         }
     }
-
-    internal override NativeResource Marshal() => new DummyNativeResource(_code);
 }
 
 internal partial class OrdinalResourceType : IEquatable<OrdinalResourceType>

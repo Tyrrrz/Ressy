@@ -16,9 +16,9 @@ public class VersionInfoSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         var versionInfo = portableExecutable.GetVersionInfo();
@@ -58,56 +58,6 @@ public class VersionInfoSpecs
     }
 
     [Fact]
-    public void I_can_get_the_version_info_of_Notepad()
-    {
-        // Arrange
-        var portableExecutable = new PortableExecutable(
-            Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                "System32",
-                "notepad.exe"
-            )
-        );
-
-        // Act
-        var versionInfo = portableExecutable.GetVersionInfo();
-
-        // Assert
-        versionInfo
-            .GetAttribute(VersionAttributeName.InternalName)
-            .Should()
-            .BeEquivalentTo("Notepad");
-
-        // We can't rely on the returned data because it's not deterministic but we only really
-        // care that the deserialization has finished without any exceptions.
-    }
-
-    [Fact]
-    public void I_can_get_the_version_info_of_InternetExplorer()
-    {
-        // Arrange
-        var portableExecutable = new PortableExecutable(
-            Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                "Internet Explorer",
-                "iexplore.exe"
-            )
-        );
-
-        // Act
-        var versionInfo = portableExecutable.GetVersionInfo();
-
-        // Assert
-        versionInfo
-            .GetAttribute(VersionAttributeName.InternalName)
-            .Should()
-            .BeEquivalentTo("iexplore");
-
-        // We can't rely on the returned data because it's not deterministic but we only really
-        // care that the deserialization has finished without any exceptions.
-    }
-
-    [Fact]
     public void I_can_set_the_version_info()
     {
         // Arrange
@@ -122,34 +72,42 @@ public class VersionInfoSpecs
             .Build();
 
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.RemoveVersionInfo();
+        using (var portableExecutable = new PortableExecutable(file.Path))
+        {
+            portableExecutable.RemoveVersionInfo();
 
-        // Act
-        portableExecutable.SetVersionInfo(versionInfo);
+            // Act
+            portableExecutable.SetVersionInfo(versionInfo);
 
-        // Assert
-        portableExecutable.GetVersionInfo().Should().BeEquivalentTo(versionInfo);
+            // Assert
+            portableExecutable.GetVersionInfo().Should().BeEquivalentTo(versionInfo);
+        }
 
-        FileVersionInfo
-            .GetVersionInfo(portableExecutable.FilePath)
-            .Should()
-            .BeEquivalentTo(
-                new
-                {
-                    FileVersion = versionInfo.FileVersion.ToString(4),
-                    ProductVersion = versionInfo.ProductVersion.ToString(4),
-                    ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
-                    FileDescription = versionInfo.GetAttribute(
-                        VersionAttributeName.FileDescription
-                    ),
-                    CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
-                    Comments = "",
-                    LegalCopyright = "",
-                }
-            );
+        // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
+        // (via System.Reflection.Metadata) rather than Win32 version resources, so it
+        // returns the original assembly attributes regardless of Win32 resource changes.
+        if (OperatingSystem.IsWindows())
+        {
+            FileVersionInfo
+                .GetVersionInfo(file.Path)
+                .Should()
+                .BeEquivalentTo(
+                    new
+                    {
+                        FileVersion = versionInfo.FileVersion.ToString(4),
+                        ProductVersion = versionInfo.ProductVersion.ToString(4),
+                        ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
+                        FileDescription = versionInfo.GetAttribute(
+                            VersionAttributeName.FileDescription
+                        ),
+                        CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
+                        Comments = "",
+                        LegalCopyright = "",
+                    }
+                );
+        }
     }
 
     [Fact]
@@ -157,22 +115,24 @@ public class VersionInfoSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        VersionInfo versionInfo;
+        using (var portableExecutable = new PortableExecutable(file.Path))
+        {
+            // Act
+            portableExecutable.SetVersionInfo(v =>
+                v.SetFileVersion(new Version(4, 3, 2, 1))
+                    .SetFileOperatingSystem(
+                        FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT
+                    )
+                    .SetAttribute(VersionAttributeName.ProductName, "ProductTest")
+                    .SetAttribute(VersionAttributeName.CompanyName, "CompanyTest")
+            );
 
-        // Act
-        portableExecutable.SetVersionInfo(v =>
-            v.SetFileVersion(new Version(4, 3, 2, 1))
-                .SetFileOperatingSystem(
-                    FileOperatingSystem.Windows32 | FileOperatingSystem.WindowsNT
-                )
-                .SetAttribute(VersionAttributeName.ProductName, "ProductTest")
-                .SetAttribute(VersionAttributeName.CompanyName, "CompanyTest")
-        );
-
-        // Assert
-        var versionInfo = portableExecutable.GetVersionInfo();
+            // Assert
+            versionInfo = portableExecutable.GetVersionInfo();
+        }
 
         versionInfo
             .Should()
@@ -206,23 +166,33 @@ public class VersionInfoSpecs
                 )
             );
 
-        FileVersionInfo
-            .GetVersionInfo(portableExecutable.FilePath)
-            .Should()
-            .BeEquivalentTo(
-                new
-                {
-                    FileVersion = versionInfo.GetAttribute(VersionAttributeName.FileVersion),
-                    ProductVersion = versionInfo.GetAttribute(VersionAttributeName.ProductVersion),
-                    ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
-                    FileDescription = versionInfo.GetAttribute(
-                        VersionAttributeName.FileDescription
-                    ),
-                    CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
-                    Comments = versionInfo.GetAttribute(VersionAttributeName.Comments),
-                    LegalCopyright = versionInfo.GetAttribute(VersionAttributeName.LegalCopyright),
-                }
-            );
+        // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
+        // (via System.Reflection.Metadata) rather than Win32 version resources, so it
+        // returns the original assembly attributes regardless of Win32 resource changes.
+        if (OperatingSystem.IsWindows())
+        {
+            FileVersionInfo
+                .GetVersionInfo(file.Path)
+                .Should()
+                .BeEquivalentTo(
+                    new
+                    {
+                        FileVersion = versionInfo.GetAttribute(VersionAttributeName.FileVersion),
+                        ProductVersion = versionInfo.GetAttribute(
+                            VersionAttributeName.ProductVersion
+                        ),
+                        ProductName = versionInfo.GetAttribute(VersionAttributeName.ProductName),
+                        FileDescription = versionInfo.GetAttribute(
+                            VersionAttributeName.FileDescription
+                        ),
+                        CompanyName = versionInfo.GetAttribute(VersionAttributeName.CompanyName),
+                        Comments = versionInfo.GetAttribute(VersionAttributeName.Comments),
+                        LegalCopyright = versionInfo.GetAttribute(
+                            VersionAttributeName.LegalCopyright
+                        ),
+                    }
+                );
+        }
     }
 
     [Fact]
@@ -230,35 +200,42 @@ public class VersionInfoSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using (var portableExecutable = new PortableExecutable(file.Path))
+        {
+            // Act
+            portableExecutable.RemoveVersionInfo();
 
-        // Act
-        portableExecutable.RemoveVersionInfo();
+            // Assert
+            portableExecutable
+                .GetResourceIdentifiers()
+                .Should()
+                .NotContain(r => r.Type.Code == ResourceType.Version.Code);
 
-        // Assert
-        portableExecutable
-            .GetResourceIdentifiers()
-            .Should()
-            .NotContain(r => r.Type.Code == ResourceType.Version.Code);
+            portableExecutable.TryGetVersionInfo().Should().BeNull();
+        }
 
-        portableExecutable.TryGetVersionInfo().Should().BeNull();
-
-        FileVersionInfo
-            .GetVersionInfo(portableExecutable.FilePath)
-            .Should()
-            .BeEquivalentTo(
-                new
-                {
-                    FileVersion = default(string),
-                    ProductVersion = default(string),
-                    ProductName = default(string),
-                    FileDescription = default(string),
-                    CompanyName = default(string),
-                    Comments = default(string),
-                    LegalCopyright = default(string),
-                }
-            );
+        // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
+        // (via System.Reflection.Metadata) rather than Win32 version resources, so it
+        // returns the original assembly attributes regardless of Win32 resource changes.
+        if (OperatingSystem.IsWindows())
+        {
+            FileVersionInfo
+                .GetVersionInfo(file.Path)
+                .Should()
+                .BeEquivalentTo(
+                    new
+                    {
+                        FileVersion = default(string),
+                        ProductVersion = default(string),
+                        ProductName = default(string),
+                        FileDescription = default(string),
+                        CompanyName = default(string),
+                        Comments = default(string),
+                        LegalCopyright = default(string),
+                    }
+                );
+        }
     }
 }

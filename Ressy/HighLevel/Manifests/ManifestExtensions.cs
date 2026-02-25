@@ -75,19 +75,8 @@ public static class ManifestExtensions
         /// <summary>
         /// Removes all existing manifest resources.
         /// </summary>
-        public void RemoveManifest()
-        {
-            var identifiers = portableExecutable.GetResourceIdentifiers();
-
-            portableExecutable.UpdateResources(ctx =>
-            {
-                foreach (var identifier in identifiers)
-                {
-                    if (identifier.Type.Code == ResourceType.Manifest.Code)
-                        ctx.Remove(identifier);
-                }
-            });
-        }
+        public void RemoveManifest() =>
+            portableExecutable.RemoveResources(r => r.Type.Code == ResourceType.Manifest.Code);
 
         /// <summary>
         /// Adds or overwrites a manifest resource with the specified XML text string.
@@ -106,8 +95,7 @@ public static class ManifestExtensions
                 ?? new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
             portableExecutable.SetResource(
-                identifier,
-                (encoding ?? DefaultManifestEncoding).GetBytes(manifest)
+                new Resource(identifier, (encoding ?? DefaultManifestEncoding).GetBytes(manifest))
             );
         }
     }

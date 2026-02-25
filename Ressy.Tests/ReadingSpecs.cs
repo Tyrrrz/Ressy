@@ -13,9 +13,9 @@ public class ReadingSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         var identifiers = portableExecutable.GetResourceIdentifiers();
@@ -106,9 +106,9 @@ public class ReadingSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         var resource = portableExecutable.GetResource(
@@ -124,9 +124,9 @@ public class ReadingSpecs
     {
         // Arrange
         using var file = TempFile.Create();
-        File.Copy(Path.ChangeExtension(typeof(Dummy.Program).Assembly.Location, "exe"), file.Path);
+        File.Copy(Dummy.Program.Path, file.Path);
 
-        var portableExecutable = new PortableExecutable(file.Path);
+        using var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
         var resource = portableExecutable.TryGetResource(

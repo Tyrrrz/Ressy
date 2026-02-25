@@ -1,5 +1,4 @@
 ﻿using System;
-using Ressy.Native;
 
 namespace Ressy;
 
@@ -10,8 +9,6 @@ internal partial class StringResourceName(string name) : ResourceName
     public override int? Code => null;
 
     public override string Label => _name;
-
-    internal override NativeResource Marshal() => NativeMemory.Create(_name);
 }
 
 internal partial class StringResourceName : IEquatable<StringResourceName>
