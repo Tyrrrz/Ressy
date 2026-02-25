@@ -19,27 +19,17 @@ public class GetResourceDataCommand : ICommand
     public required string Name { get; init; }
 
     [CommandOption("lang", 'l', Description = "Language of the resource to read.")]
-    public int Language { get; init; } = 0;
+    public int Language { get; init; } = Ressy.Language.Neutral.Id;
 
     public ValueTask ExecuteAsync(IConsole console)
     {
         var portableExecutable = new PortableExecutable(FilePath);
 
-        var type = int.TryParse(
-            Type,
-            NumberStyles.Integer,
-            CultureInfo.InvariantCulture,
-            out var typeCode
-        )
+        var type = int.TryParse(Type, CultureInfo.InvariantCulture, out var typeCode)
             ? ResourceType.FromCode(typeCode)
             : ResourceType.FromString(Type);
 
-        var name = int.TryParse(
-            Name,
-            NumberStyles.Integer,
-            CultureInfo.InvariantCulture,
-            out var nameCode
-        )
+        var name = int.TryParse(Name, CultureInfo.InvariantCulture, out var nameCode)
             ? ResourceName.FromCode(nameCode)
             : ResourceName.FromString(Name);
 
