@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ressy.Utils.Extensions;
 
-namespace Ressy.StringTables;
+namespace Ressy.Strings;
 
 /// <summary>
 /// Extensions for <see cref="PortableExecutable" /> for working with string table resources.

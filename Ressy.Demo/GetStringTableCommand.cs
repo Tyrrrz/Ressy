@@ -2,7 +2,7 @@
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
-using Ressy.StringTables;
+using Ressy.Strings;
 
 namespace Ressy.Demo;
 

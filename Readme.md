@@ -481,7 +481,7 @@ This returns a `StringTable` object that provides a unified view over all of the
 
 ```csharp
 using Ressy;
-using Ressy.StringTables;
+using Ressy.Strings;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -495,7 +495,7 @@ To retrieve a specific string by its ID, call `GetString(...)` on the returned `
 
 ```csharp
 using Ressy;
-using Ressy.StringTables;
+using Ressy.Strings;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -517,7 +517,7 @@ You can use the `StringTableBuilder` class to simplify the creation of a new `St
 ```csharp
 using System.Collections.Generic;
 using Ressy;
-using Ressy.StringTables;
+using Ressy.Strings;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -533,7 +533,7 @@ To add new strings or modify existing ones while preserving the rest, call the `
 
 ```csharp
 using Ressy;
-using Ressy.StringTables;
+using Ressy.Strings;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
@@ -554,7 +554,7 @@ To remove all string table resources, call the `RemoveStringTable()` extension m
 
 ```csharp
 using Ressy;
-using Ressy.StringTables;
+using Ressy.Strings;
 
 using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 

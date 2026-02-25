@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Ressy.StringTables;
+namespace Ressy.Strings;
 
 /// <summary>
 /// Represents a single string table resource block containing exactly 16 strings.

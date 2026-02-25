@@ -1,12 +1,12 @@
 using System.IO;
 using FluentAssertions;
-using Ressy.StringTables;
+using Ressy.Strings;
 using Ressy.Tests.Utils;
 using Xunit;
 
 namespace Ressy.Tests;
 
-public class StringTableSpecs
+public class StringSpecs
 {
     [Fact]
     public void I_can_get_the_string_table()

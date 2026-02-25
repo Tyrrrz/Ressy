@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ressy.StringTables;
+namespace Ressy.Strings;
 
 /// <summary>
 /// Builder for <see cref="StringTable" />.
