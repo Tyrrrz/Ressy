@@ -19,16 +19,15 @@ public class PortableExecutable(string filePath)
     /// Gets the identifiers of all existing resources.
     /// </summary>
     public IReadOnlyList<ResourceIdentifier> GetResourceIdentifiers() =>
-        PeFile.ReadResources(FilePath).Select(r => r.Id).ToArray();
+        PeFile.ReadResources(FilePath).Select(r => r.Identifier).ToArray();
 
     /// <summary>
-    /// Gets all existing resources as a read-only dictionary.
+    /// Gets all existing resources.
     /// </summary>
-    public IReadOnlyDictionary<ResourceIdentifier, byte[]> GetResources() =>
-        PeFile.ReadResources(FilePath).ToDictionary(r => r.Id, r => r.Data);
+    public IReadOnlyList<Resource> GetResources() => PeFile.ReadResources(FilePath);
 
     /// <summary>
-    /// Gets the raw binary data of the specified resource.
+    /// Gets the specified resource.
     /// Returns <c>null</c> if the resource doesn't exist.
     /// </summary>
     public Resource? TryGetResource(ResourceIdentifier identifier)
@@ -38,42 +37,43 @@ public class PortableExecutable(string filePath)
     }
 
     /// <summary>
-    /// Gets the raw binary data of the specified resource.
+    /// Gets the specified resource.
     /// </summary>
     public Resource GetResource(ResourceIdentifier identifier) =>
         TryGetResource(identifier)
         ?? throw new InvalidOperationException($"Resource '{identifier}' does not exist.");
 
     /// <summary>
-    /// Removes all existing resources.
-    /// </summary>
-    public void ClearResources() =>
-        PeFile.UpdateResources(FilePath, new Dictionary<ResourceIdentifier, byte[]>());
-
-    /// <summary>
     /// Adds or overwrites the specified resource.
     /// </summary>
-    public void SetResource(ResourceIdentifier identifier, byte[] data)
-    {
-        var resources = GetResources().ToDictionary(kv => kv.Key, kv => kv.Value);
-        resources[identifier] = data;
-        PeFile.UpdateResources(FilePath, resources);
-    }
+    public void SetResource(Resource resource) =>
+        SetResources(
+            GetResources().Where(r => !r.Identifier.Equals(resource.Identifier)).Append(resource)
+        );
 
     /// <summary>
-    /// Adds or overwrites multiple resources at once, replacing all existing resources
-    /// with exactly the specified set.
+    /// Replaces all existing resources with exactly the specified set.
     /// </summary>
-    public void SetResources(IReadOnlyDictionary<ResourceIdentifier, byte[]> resources) =>
-        PeFile.UpdateResources(FilePath, resources);
+    public void SetResources(IEnumerable<Resource> resources) =>
+        PeFile.UpdateResources(FilePath, resources.ToDictionary(r => r.Identifier, r => r.Data));
 
     /// <summary>
     /// Removes the specified resource.
     /// </summary>
-    public void RemoveResource(ResourceIdentifier identifier)
+    public void RemoveResource(ResourceIdentifier identifier) => RemoveResources([identifier]);
+
+    /// <summary>
+    /// Removes the specified resources.
+    /// </summary>
+    public void RemoveResources(IEnumerable<ResourceIdentifier> identifiers)
     {
-        var resources = GetResources().ToDictionary(kv => kv.Key, kv => kv.Value);
-        resources.Remove(identifier);
-        PeFile.UpdateResources(FilePath, resources);
+        var identifierSet = identifiers.ToHashSet();
+        SetResources(GetResources().Where(r => !identifierSet.Contains(r.Identifier)));
     }
+
+    /// <summary>
+    /// Removes all existing resources.
+    /// </summary>
+    public void RemoveResources() =>
+        PeFile.UpdateResources(FilePath, new Dictionary<ResourceIdentifier, byte[]>());
 }

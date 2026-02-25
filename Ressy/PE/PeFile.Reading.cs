@@ -9,13 +9,13 @@ internal static partial class PeFile
 {
     #region Resource reading
 
-    public static List<(ResourceIdentifier Id, byte[] Data)> ReadResources(string filePath)
+    public static List<Resource> ReadResources(string filePath)
     {
         var fileBytes = File.ReadAllBytes(filePath);
         var info = ParsePeInfo(fileBytes);
 
         if (info.RsrcSectionIndex < 0)
-            return new List<(ResourceIdentifier, byte[])>();
+            return new List<Resource>();
 
         return ReadResourcesFromSection(fileBytes, info.Sections[info.RsrcSectionIndex]);
     }
@@ -224,12 +224,9 @@ internal static partial class PeFile
         return null;
     }
 
-    private static List<(ResourceIdentifier Id, byte[] Data)> ReadResourcesFromSection(
-        byte[] fileBytes,
-        SectionInfo rsrc
-    )
+    private static List<Resource> ReadResourcesFromSection(byte[] fileBytes, SectionInfo rsrc)
     {
-        var result = new List<(ResourceIdentifier, byte[])>();
+        var result = new List<Resource>();
 
         if (rsrc.SizeOfRawData == 0 || rsrc.PointerToRawData == 0)
             return result;
@@ -254,7 +251,7 @@ internal static partial class PeFile
         int dirOffset, // offset within .rsrc section
         ResourceType? type,
         ResourceName? name,
-        List<(ResourceIdentifier, byte[])> result
+        List<Resource> result
     )
     {
         var absOffset = sectionBase + dirOffset;
@@ -358,7 +355,9 @@ internal static partial class PeFile
                 var data = new byte[dataSize];
                 Array.Copy(fileBytes, (int)dataFileOffset, data, 0, dataSize);
 
-                result.Add((new ResourceIdentifier(type, name, new Language(langId)), data));
+                result.Add(
+                    new Resource(new ResourceIdentifier(type, name, new Language(langId)), data)
+                );
             }
         }
     }

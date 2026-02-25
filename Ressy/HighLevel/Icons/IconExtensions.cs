@@ -16,15 +16,15 @@ public static class IconExtensions
         /// </summary>
         public void RemoveIcon()
         {
-            var resources = portableExecutable
+            var identifiers = portableExecutable
                 .GetResources()
-                .Where(kv =>
-                    kv.Key.Type.Code != ResourceType.Icon.Code
-                    && kv.Key.Type.Code != ResourceType.IconGroup.Code
+                .Where(r =>
+                    r.Identifier.Type.Code == ResourceType.Icon.Code
+                    || r.Identifier.Type.Code == ResourceType.IconGroup.Code
                 )
-                .ToDictionary(kv => kv.Key, kv => kv.Value);
+                .Select(r => r.Identifier);
 
-            portableExecutable.SetResources(resources);
+            portableExecutable.RemoveResources(identifiers);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ public static class IconExtensions
 
             var resources = portableExecutable
                 .GetResources()
-                .ToDictionary(kv => kv.Key, kv => kv.Value);
+                .ToDictionary(r => r.Identifier, r => r.Data);
 
             // Icon resources (written as-is)
             foreach (var (i, icon) in iconGroup.Icons.Index())
@@ -77,7 +77,7 @@ public static class IconExtensions
                 ] = buffer.ToArray();
             }
 
-            portableExecutable.SetResources(resources);
+            portableExecutable.SetResources(resources.Select(kv => new Resource(kv.Key, kv.Value)));
         }
 
         /// <summary>

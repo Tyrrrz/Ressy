@@ -115,12 +115,12 @@ public static class StringTableExtensions
         /// </summary>
         public void RemoveStringTable()
         {
-            var resources = portableExecutable
+            var identifiers = portableExecutable
                 .GetResources()
-                .Where(kv => kv.Key.Type.Code != ResourceType.String.Code)
-                .ToDictionary(kv => kv.Key, kv => kv.Value);
+                .Where(r => r.Identifier.Type.Code == ResourceType.String.Code)
+                .Select(r => r.Identifier);
 
-            portableExecutable.SetResources(resources);
+            portableExecutable.RemoveResources(identifiers);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ public static class StringTableExtensions
 
             var resources = portableExecutable
                 .GetResources()
-                .ToDictionary(kv => kv.Key, kv => kv.Value);
+                .ToDictionary(r => r.Identifier, r => r.Data);
 
             foreach (var block in blocks)
             {
@@ -177,7 +177,7 @@ public static class StringTableExtensions
                 );
             }
 
-            portableExecutable.SetResources(resources);
+            portableExecutable.SetResources(resources.Select(kv => new Resource(kv.Key, kv.Value)));
         }
 
         /// <summary>

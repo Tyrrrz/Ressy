@@ -18,10 +18,10 @@ public class WritingSpecs
         File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.ClearResources();
+        portableExecutable.RemoveResources();
 
         // Act
-        portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
+        portableExecutable.SetResource(new Resource(identifier, new byte[] { 1, 2, 3, 4, 5 }));
 
         // Assert
         portableExecutable
@@ -51,10 +51,10 @@ public class WritingSpecs
         File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.ClearResources();
+        portableExecutable.RemoveResources();
 
         // Act
-        portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
+        portableExecutable.SetResource(new Resource(identifier, new byte[] { 1, 2, 3, 4, 5 }));
 
         // Assert
         portableExecutable
@@ -84,10 +84,10 @@ public class WritingSpecs
         File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.ClearResources();
+        portableExecutable.RemoveResources();
 
         // Act
-        portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
+        portableExecutable.SetResource(new Resource(identifier, new byte[] { 1, 2, 3, 4, 5 }));
 
         // Assert
         portableExecutable
@@ -117,10 +117,10 @@ public class WritingSpecs
         File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.ClearResources();
+        portableExecutable.RemoveResources();
 
         // Act
-        portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
+        portableExecutable.SetResource(new Resource(identifier, new byte[] { 1, 2, 3, 4, 5 }));
 
         // Assert
         portableExecutable
@@ -150,10 +150,10 @@ public class WritingSpecs
         File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.ClearResources();
+        portableExecutable.RemoveResources();
 
         // Act
-        portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
+        portableExecutable.SetResource(new Resource(identifier, new byte[] { 1, 2, 3, 4, 5 }));
 
         // Assert
         portableExecutable
@@ -184,10 +184,10 @@ public class WritingSpecs
         File.Copy(Dummy.Program.Path, file.Path);
 
         var portableExecutable = new PortableExecutable(file.Path);
-        portableExecutable.ClearResources();
+        portableExecutable.RemoveResources();
 
         // Act
-        portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
+        portableExecutable.SetResource(new Resource(identifier, new byte[] { 1, 2, 3, 4, 5 }));
 
         // Assert
         portableExecutable
@@ -216,7 +216,7 @@ public class WritingSpecs
         var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
-        portableExecutable.SetResource(identifier, new byte[] { 1, 2, 3, 4, 5 });
+        portableExecutable.SetResource(new Resource(identifier, new byte[] { 1, 2, 3, 4, 5 }));
 
         // Assert
         portableExecutable
@@ -261,7 +261,7 @@ public class WritingSpecs
     }
 
     [Fact]
-    public void I_can_clear_resources()
+    public void I_can_remove_all_resources()
     {
         // Arrange
         using var file = TempFile.Create();
@@ -270,7 +270,7 @@ public class WritingSpecs
         var portableExecutable = new PortableExecutable(file.Path);
 
         // Act
-        portableExecutable.ClearResources();
+        portableExecutable.RemoveResources();
 
         // Assert
         portableExecutable.GetResourceIdentifiers().Should().BeEmpty();

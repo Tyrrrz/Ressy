@@ -79,12 +79,12 @@ public static class VersionExtensions
         /// </summary>
         public void RemoveVersionInfo()
         {
-            var resources = portableExecutable
+            var identifiers = portableExecutable
                 .GetResources()
-                .Where(kv => kv.Key.Type.Code != ResourceType.Version.Code)
-                .ToDictionary(kv => kv.Key, kv => kv.Value);
+                .Where(r => r.Identifier.Type.Code == ResourceType.Version.Code)
+                .Select(r => r.Identifier);
 
-            portableExecutable.SetResources(resources);
+            portableExecutable.RemoveResources(identifiers);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ public static class VersionExtensions
                 portableExecutable.TryGetVersionInfoResourceIdentifier()
                 ?? new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1));
 
-            portableExecutable.SetResource(identifier, versionInfo.Serialize());
+            portableExecutable.SetResource(new Resource(identifier, versionInfo.Serialize()));
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ public static class VersionExtensions
 
             modify(builder);
 
-            portableExecutable.SetResource(identifier, builder.Build().Serialize());
+            portableExecutable.SetResource(new Resource(identifier, builder.Build().Serialize()));
         }
     }
 }
