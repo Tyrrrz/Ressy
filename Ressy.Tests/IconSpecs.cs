@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.IO;
 using FluentAssertions;
@@ -10,9 +11,7 @@ namespace Ressy.Tests;
 
 public class IconSpecs
 {
-    // Icon.ExtractAssociatedIcon() is a Win32 API wrapper with no cross-platform equivalent;
-    // it throws PlatformNotSupportedException on non-Windows.
-    [WindowsOnlyFact]
+    [Fact]
     public void I_can_set_the_icon()
     {
         // Arrange
@@ -64,10 +63,15 @@ public class IconSpecs
                 ),
             ]);
 
-        using var sourceIcon = new Icon(iconFilePath);
-        using var actualIcon = Icon.ExtractAssociatedIcon(portableExecutable.FilePath);
-        actualIcon.Should().NotBeNull();
-        actualIcon?.ToBitmap().GetData().Should().Equal(sourceIcon.ToBitmap().GetData());
+        // Icon.ExtractAssociatedIcon() is a Win32 API wrapper with no cross-platform equivalent;
+        // it throws PlatformNotSupportedException on non-Windows.
+        if (OperatingSystem.IsWindows())
+        {
+            using var sourceIcon = new Icon(iconFilePath);
+            using var actualIcon = Icon.ExtractAssociatedIcon(portableExecutable.FilePath);
+            actualIcon.Should().NotBeNull();
+            actualIcon?.ToBitmap().GetData().Should().Equal(sourceIcon.ToBitmap().GetData());
+        }
     }
 
     [Fact]
