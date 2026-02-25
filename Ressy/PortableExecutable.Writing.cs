@@ -180,11 +180,35 @@ public partial class PortableExecutable
             }
         }
 
-        // Write modified bytes back to the stream
-        _stream.Position = 0;
-        _stream.Write(newFileBytes, 0, newFileBytes.Length);
-        _stream.SetLength(newFileBytes.Length);
-        _stream.Flush();
+        // Write modified bytes back.
+        // When initialized from a file path, open a separate write stream so that the
+        // read-only _stream does not hold a write lock (which would prevent other handles
+        // such as FileVersionInfo.GetVersionInfo from opening the file).
+        if (FilePath is not null)
+        {
+            using var writeStream = File.Open(
+                FilePath,
+                FileMode.Open,
+                FileAccess.ReadWrite,
+                FileShare.ReadWrite
+            );
+            writeStream.Position = 0;
+            writeStream.Write(newFileBytes, 0, newFileBytes.Length);
+            writeStream.SetLength(newFileBytes.Length);
+            writeStream.Flush();
+        }
+        else
+        {
+            if (!_stream.CanWrite)
+                throw new InvalidOperationException(
+                    "The stream does not support writing; cannot update resources."
+                );
+
+            _stream.Position = 0;
+            _stream.Write(newFileBytes, 0, newFileBytes.Length);
+            _stream.SetLength(newFileBytes.Length);
+            _stream.Flush();
+        }
 
         // Re-parse PE metadata since the structure may have changed
         _info = ParsePEInfo(_stream);
