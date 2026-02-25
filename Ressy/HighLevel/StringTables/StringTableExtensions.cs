@@ -81,11 +81,14 @@ public static class StringTableExtensions
                 if (identifier.Name.Code is not { } blockId)
                     continue;
 
-                var resource = portableExecutable.TryGetResource(identifier);
-                if (resource is null)
+                var block = portableExecutable.TryGetStringTableBlockResource(
+                    blockId,
+                    targetLanguage
+                );
+                if (block is null)
                     continue;
 
-                blocks.Add(StringTableBlock.Deserialize(blockId, resource.Data));
+                blocks.Add(block.ReadAsStringTableBlock());
             }
 
             return blocks.Count > 0 ? StringTable.FromBlocks(blocks) : null;

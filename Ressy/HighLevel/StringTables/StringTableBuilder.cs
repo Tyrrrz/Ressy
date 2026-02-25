@@ -30,10 +30,10 @@ public class StringTableBuilder
     /// <summary>
     /// Copies all data from an existing <see cref="StringTable" /> instance.
     /// </summary>
-    public StringTableBuilder SetAll(StringTable existing)
+    public StringTableBuilder SetAll(StringTable stringTable)
     {
-        foreach (var (key, value) in existing.Strings)
-            _strings[key] = value;
+        foreach (var (stringId, value) in stringTable.Strings)
+            _strings[stringId] = value;
 
         return this;
     }
@@ -41,5 +41,5 @@ public class StringTableBuilder
     /// <summary>
     /// Builds a new <see cref="StringTable" /> instance.
     /// </summary>
-    public StringTable Build() => new StringTable(_strings);
+    public StringTable Build() => new(_strings);
 }

@@ -57,16 +57,18 @@ public partial class StringTable(IReadOnlyDictionary<int, string> strings)
             blockStrings[i] = Enumerable.Repeat(string.Empty, StringTableBlock.BlockSize).ToArray();
 
         // Distribute all strings into the correct blocks in a single pass
-        foreach (var (stringId, str) in Strings)
+        foreach (var (stringId, value) in Strings)
+        {
             blockStrings[StringTableBlock.GetBlockId(stringId) - 1][
                 StringTableBlock.GetBlockIndex(stringId)
-            ] = str;
+            ] = value;
+        }
 
-        var blocks = new List<StringTableBlock>(maxBlockId);
-        foreach (var (i, strs) in blockStrings.Index())
-            blocks.Add(new StringTableBlock(i + 1, strs));
-
-        return blocks;
+        return blockStrings
+            .Select((strings, i) => new StringTableBlock(i + 1, strings))
+            // Skip fully empty blocks
+            .Where(block => block.Strings.Any(str => !string.IsNullOrEmpty(str)))
+            .ToArray();
     }
 }
 
@@ -85,12 +87,12 @@ public partial class StringTable
 
         foreach (var block in blocks)
         {
-            foreach (var (i, str) in block.Strings.Index())
+            foreach (var (stringId, value) in block.Strings.Index())
             {
-                if (string.IsNullOrEmpty(str))
+                if (string.IsNullOrEmpty(value))
                     continue;
 
-                strings[(block.BlockId - 1) * StringTableBlock.BlockSize + i] = str;
+                strings[(block.BlockId - 1) * StringTableBlock.BlockSize + stringId] = value;
             }
         }
 
