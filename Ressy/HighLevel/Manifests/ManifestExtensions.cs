@@ -51,7 +51,7 @@ public static class ManifestExtensions
         /// <remarks>
         /// If there are multiple manifest resources, this method retrieves the one
         /// with the lowest ordinal name (ID), giving preference to resources
-        /// in the neutral language.
+        /// in the neutral language (<see cref="Language.Neutral" />).
         /// If there are no matching resources, this method retrieves the first
         /// manifest resource it finds.
         /// </remarks>
@@ -64,7 +64,7 @@ public static class ManifestExtensions
         /// <remarks>
         /// If there are multiple manifest resources, this method retrieves the one
         /// with the lowest ordinal name (ID), giving preference to resources
-        /// in the neutral language.
+        /// in the neutral language (<see cref="Language.Neutral" />).
         /// If there are no matching resources, this method retrieves the first
         /// manifest resource it finds.
         /// </remarks>
@@ -92,6 +92,12 @@ public static class ManifestExtensions
         /// <summary>
         /// Adds or overwrites a manifest resource with the specified XML text string.
         /// </summary>
+        /// <remarks>
+        /// If a manifest resource already exists (based on <see cref="TryGetManifest" /> rules),
+        /// its identifier will be reused for the new resource.
+        /// If no manifest resource exists, a new one will be created with
+        /// an ordinal name (ID) of 1 in the neutral language (<see cref="Language.Neutral" />).
+        /// </remarks>
         public void SetManifest(string manifest, Encoding? encoding = null)
         {
             // If the resource already exists, reuse the same identifier

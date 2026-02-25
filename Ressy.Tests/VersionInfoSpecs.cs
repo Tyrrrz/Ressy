@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Ressy.Tests;
 
-public class VersionsSpecs
+public class VersionInfoSpecs
 {
     [Fact]
     public void I_can_get_the_version_info()
@@ -48,8 +48,8 @@ public class VersionsSpecs
                                 [VersionAttributeName.CompanyName] = "TestCompany",
                                 [VersionAttributeName.Comments] = "TestComments",
                                 [VersionAttributeName.LegalCopyright] = "TestCopyright",
-                                [VersionAttributeName.InternalName] = "Ressy.Tests.Dummy.dll",
-                                [VersionAttributeName.OriginalFilename] = "Ressy.Tests.Dummy.dll",
+                                [VersionAttributeName.InternalName] = "TestProduct",
+                                [VersionAttributeName.OriginalFilename] = "TestProduct.exe",
                             }
                         ),
                     ]
@@ -58,7 +58,7 @@ public class VersionsSpecs
     }
 
     [Fact]
-    public void I_can_add_the_version_info()
+    public void I_can_set_the_version_info()
     {
         // Arrange
         var versionInfo = new VersionInfoBuilder()
@@ -151,8 +151,8 @@ public class VersionsSpecs
                                 [VersionAttributeName.CompanyName] = "CompanyTest",
                                 [VersionAttributeName.Comments] = "TestComments",
                                 [VersionAttributeName.LegalCopyright] = "TestCopyright",
-                                [VersionAttributeName.InternalName] = "Ressy.Tests.Dummy.dll",
-                                [VersionAttributeName.OriginalFilename] = "Ressy.Tests.Dummy.dll",
+                                [VersionAttributeName.InternalName] = "TestProduct",
+                                [VersionAttributeName.OriginalFilename] = "TestProduct.exe",
                             }
                         ),
                     ]
@@ -202,6 +202,8 @@ public class VersionsSpecs
             .GetResourceIdentifiers()
             .Should()
             .NotContain(r => r.Type.Code == ResourceType.Version.Code);
+
+        portableExecutable.TryGetVersionInfo().Should().BeNull();
 
         if (OperatingSystem.IsWindows())
         {

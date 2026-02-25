@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Ressy.Tests;
 
-public class ManifestsSpecs
+public class ManifestSpecs
 {
     [Fact]
     public void I_can_get_the_manifest()
@@ -25,7 +25,7 @@ public class ManifestsSpecs
     }
 
     [Fact]
-    public void I_can_add_a_manifest()
+    public void I_can_set_the_manifest()
     {
         // Arrange
         const string manifest =
@@ -71,5 +71,7 @@ public class ManifestsSpecs
             .GetResourceIdentifiers()
             .Should()
             .NotContain(r => r.Type.Code == ResourceType.Manifest.Code);
+
+        portableExecutable.TryGetManifest().Should().BeNull();
     }
 }

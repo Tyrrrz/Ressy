@@ -23,7 +23,7 @@ public class PortableExecutable(string filePath)
 
     /// <summary>
     /// Gets the raw binary data of the specified resource.
-    /// Returns <c>null</c> if the resource does not exist.
+    /// Returns <c>null</c> if the resource doesn't exist.
     /// </summary>
     public Resource? TryGetResource(ResourceIdentifier identifier)
     {

@@ -54,7 +54,7 @@ public static class VersionExtensions
         /// <remarks>
         /// If there are multiple version info resources, this method retrieves the one
         /// with the lowest ordinal name (ID), giving preference to resources
-        /// in the neutral language.
+        /// in the neutral language (<see cref="Language.Neutral" />).
         /// If there are no matching resources, this method retrieves the first
         /// version info resource it finds.
         /// </remarks>
@@ -66,7 +66,7 @@ public static class VersionExtensions
         /// </summary>
         /// <remarks>
         /// In case of multiple version info resources, this method retrieves
-        /// the one with the lowest ordinal resource name in the neutral language.
+        /// the one with the lowest ordinal resource name in the neutral language (<see cref="Language.Neutral" />).
         /// If there are no resources matching aforementioned criteria, this method
         /// retrieves the first version info resource it encounters.
         /// </remarks>
@@ -94,6 +94,12 @@ public static class VersionExtensions
         /// <summary>
         /// Adds or overwrites a version info resource with the specified data.
         /// </summary>
+        /// <remarks>
+        /// If a version info resource already exists (based on <see cref="TryGetVersionInfo" /> rules),
+        /// its identifier will be reused for the new resource.
+        /// If no version info resource exists, a new one will be created with
+        /// an ordinal name (ID) of 1 in the neutral language (<see cref="Language.Neutral" />).
+        /// </remarks>
         public void SetVersionInfo(VersionInfo versionInfo)
         {
             // If the resource already exists, reuse the same identifier
@@ -106,9 +112,13 @@ public static class VersionExtensions
 
         /// <summary>
         /// Modifies the currently stored version info resource.
-        /// If the version info resource doesn't exist, default values will be used
-        /// for properties that haven't been provided.
         /// </summary>
+        /// <remarks>
+        /// If a version info resource already exists (based on <see cref="TryGetVersionInfo" /> rules),
+        /// it will be updated with the new data while keeping the same identifier.
+        /// If no version info resource exists, a new one will be created with
+        /// an ordinal name (ID) of 1 in the neutral language (<see cref="Language.Neutral" />).
+        /// </remarks>
         public void SetVersionInfo(Action<VersionInfoBuilder> modify)
         {
             var builder = new VersionInfoBuilder();
