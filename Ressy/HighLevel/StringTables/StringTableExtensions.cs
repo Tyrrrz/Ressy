@@ -115,16 +115,12 @@ public static class StringTableExtensions
         /// </summary>
         public void RemoveStringTable()
         {
-            var identifiers = portableExecutable.GetResourceIdentifiers();
+            var resources = portableExecutable
+                .GetResources()
+                .Where(kv => kv.Key.Type.Code != ResourceType.String.Code)
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-            portableExecutable.UpdateResources(resources =>
-            {
-                foreach (var identifier in identifiers)
-                {
-                    if (identifier.Type.Code == ResourceType.String.Code)
-                        resources.Remove(identifier);
-                }
-            });
+            portableExecutable.SetResources(resources);
         }
 
         /// <summary>
@@ -151,34 +147,37 @@ public static class StringTableExtensions
             var blocks = stringTable.ToBlocks();
             var newBlockIds = blocks.Select(b => b.BlockId).ToHashSet();
 
-            portableExecutable.UpdateResources(resources =>
+            var resources = portableExecutable
+                .GetResources()
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+            foreach (var block in blocks)
             {
-                foreach (var block in blocks)
-                {
-                    resources[
-                        new ResourceIdentifier(
-                            ResourceType.String,
-                            ResourceName.FromCode(block.BlockId),
-                            targetLanguage
-                        )
-                    ] = block.Serialize();
-                }
+                resources[
+                    new ResourceIdentifier(
+                        ResourceType.String,
+                        ResourceName.FromCode(block.BlockId),
+                        targetLanguage
+                    )
+                ] = block.Serialize();
+            }
 
-                // Remove blocks that existed in the previous string table but aren't in the new one
-                foreach (var staleBlockId in existingBlockIds)
-                {
-                    if (newBlockIds.Contains(staleBlockId))
-                        continue;
+            // Remove blocks that existed in the previous string table but aren't in the new one
+            foreach (var staleBlockId in existingBlockIds)
+            {
+                if (newBlockIds.Contains(staleBlockId))
+                    continue;
 
-                    resources.Remove(
-                        new ResourceIdentifier(
-                            ResourceType.String,
-                            ResourceName.FromCode(staleBlockId),
-                            targetLanguage
-                        )
-                    );
-                }
-            });
+                resources.Remove(
+                    new ResourceIdentifier(
+                        ResourceType.String,
+                        ResourceName.FromCode(staleBlockId),
+                        targetLanguage
+                    )
+                );
+            }
+
+            portableExecutable.SetResources(resources);
         }
 
         /// <summary>

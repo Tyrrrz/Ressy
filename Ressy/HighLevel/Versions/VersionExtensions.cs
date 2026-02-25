@@ -79,16 +79,12 @@ public static class VersionExtensions
         /// </summary>
         public void RemoveVersionInfo()
         {
-            var identifiers = portableExecutable.GetResourceIdentifiers();
+            var resources = portableExecutable
+                .GetResources()
+                .Where(kv => kv.Key.Type.Code != ResourceType.Version.Code)
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-            portableExecutable.UpdateResources(resources =>
-            {
-                foreach (var identifier in identifiers)
-                {
-                    if (identifier.Type.Code == ResourceType.Version.Code)
-                        resources.Remove(identifier);
-                }
-            });
+            portableExecutable.SetResources(resources);
         }
 
         /// <summary>

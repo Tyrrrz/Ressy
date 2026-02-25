@@ -22,6 +22,12 @@ public class PortableExecutable(string filePath)
         PeFile.ReadResources(FilePath).Select(r => r.Id).ToArray();
 
     /// <summary>
+    /// Gets all existing resources as a read-only dictionary.
+    /// </summary>
+    public IReadOnlyDictionary<ResourceIdentifier, byte[]> GetResources() =>
+        PeFile.ReadResources(FilePath).ToDictionary(r => r.Id, r => r.Data);
+
+    /// <summary>
     /// Gets the raw binary data of the specified resource.
     /// Returns <c>null</c> if the resource doesn't exist.
     /// </summary>
@@ -38,20 +44,6 @@ public class PortableExecutable(string filePath)
         TryGetResource(identifier)
         ?? throw new InvalidOperationException($"Resource '{identifier}' does not exist.");
 
-    internal void UpdateResources(
-        Action<Dictionary<ResourceIdentifier, byte[]>> modify,
-        bool deleteExistingResources = false
-    )
-    {
-        var resources = deleteExistingResources
-            ? new Dictionary<ResourceIdentifier, byte[]>()
-            : PeFile.ReadResources(FilePath).ToDictionary(r => r.Id, r => r.Data);
-
-        modify(resources);
-
-        PeFile.UpdateResources(FilePath, resources);
-    }
-
     /// <summary>
     /// Removes all existing resources.
     /// </summary>
@@ -61,12 +53,27 @@ public class PortableExecutable(string filePath)
     /// <summary>
     /// Adds or overwrites the specified resource.
     /// </summary>
-    public void SetResource(ResourceIdentifier identifier, byte[] data) =>
-        UpdateResources(resources => resources[identifier] = data);
+    public void SetResource(ResourceIdentifier identifier, byte[] data)
+    {
+        var resources = GetResources().ToDictionary(kv => kv.Key, kv => kv.Value);
+        resources[identifier] = data;
+        PeFile.UpdateResources(FilePath, resources);
+    }
+
+    /// <summary>
+    /// Adds or overwrites multiple resources at once, replacing all existing resources
+    /// with exactly the specified set.
+    /// </summary>
+    public void SetResources(IReadOnlyDictionary<ResourceIdentifier, byte[]> resources) =>
+        PeFile.UpdateResources(FilePath, resources);
 
     /// <summary>
     /// Removes the specified resource.
     /// </summary>
-    public void RemoveResource(ResourceIdentifier identifier) =>
-        UpdateResources(resources => resources.Remove(identifier));
+    public void RemoveResource(ResourceIdentifier identifier)
+    {
+        var resources = GetResources().ToDictionary(kv => kv.Key, kv => kv.Value);
+        resources.Remove(identifier);
+        PeFile.UpdateResources(FilePath, resources);
+    }
 }

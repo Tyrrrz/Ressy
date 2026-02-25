@@ -77,16 +77,12 @@ public static class ManifestExtensions
         /// </summary>
         public void RemoveManifest()
         {
-            var identifiers = portableExecutable.GetResourceIdentifiers();
+            var resources = portableExecutable
+                .GetResources()
+                .Where(kv => kv.Key.Type.Code != ResourceType.Manifest.Code)
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-            portableExecutable.UpdateResources(ctx =>
-            {
-                foreach (var identifier in identifiers)
-                {
-                    if (identifier.Type.Code == ResourceType.Manifest.Code)
-                        ctx.Remove(identifier);
-                }
-            });
+            portableExecutable.SetResources(resources);
         }
 
         /// <summary>
