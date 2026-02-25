@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -34,48 +33,15 @@ public partial class StringTableBlock(int blockId, IReadOnlyList<string> strings
     /// The global string ID for index <c>i</c> is <c>(<see cref="BlockId" /> - 1) * 16 + i</c>.
     /// </remarks>
     public IReadOnlyList<string> Strings { get; } = strings;
-
-    /// <summary>
-    /// Gets the string with the specified ID.
-    /// Returns <c>null</c> if the string is absent or if the specified ID does not belong to
-    /// this block.
-    /// </summary>
-    public string? TryGetString(int stringId)
-    {
-        if (GetBlockId(stringId) != BlockId)
-            return null;
-
-        var str = Strings[GetBlockIndex(stringId)];
-        return !string.IsNullOrEmpty(str) ? str : null;
-    }
-
-    /// <summary>
-    /// Gets the string with the specified ID.
-    /// </summary>
-    public string GetString(int stringId) =>
-        TryGetString(stringId)
-        ?? throw new InvalidOperationException(
-            $"String with ID '{stringId}' does not exist in this string table block."
-        );
 }
 
 public partial class StringTableBlock
 {
-    /// <summary>
-    /// Number of strings stored in each resource block.
-    /// </summary>
-    public const int BlockSize = 16;
+    internal const int BlockSize = 16;
 
-    /// <summary>
-    /// Gets the block ID (1-based) for the resource block that contains the string with the
-    /// specified ID.
-    /// </summary>
-    public static int GetBlockId(int stringId) => (stringId >> 4) + 1;
+    internal static int GetBlockId(int stringId) => (stringId >> 4) + 1;
 
-    /// <summary>
-    /// Gets the index within the block (0-15) for the string with the specified ID.
-    /// </summary>
-    public static int GetBlockIndex(int stringId) => stringId & 0x0F;
+    internal static int GetBlockIndex(int stringId) => stringId & 0x0F;
 
     internal static Encoding Encoding { get; } = Encoding.Unicode;
 }

@@ -53,7 +53,10 @@ public static class StringTableExtensions
                 language
             );
 
-            return identifier is not null ? portableExecutable.TryGetResource(identifier) : null;
+            if (identifier is null)
+                return null;
+
+            return portableExecutable.TryGetResource(identifier);
         }
 
         /// <summary>
