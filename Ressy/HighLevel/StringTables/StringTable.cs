@@ -48,31 +48,23 @@ public partial class StringTable(IReadOnlyDictionary<int, string> strings)
         if (Strings.Count == 0)
             return [];
 
-        var blocks = new List<StringTableBlock>();
-
-        // Find the highest block ID needed
         var maxBlockId = Strings.Keys.Max(StringTableBlock.GetBlockId);
 
-        // Generate all blocks from 1 to maxBlockId
-        for (var blockId = 1; blockId <= maxBlockId; blockId++)
-        {
-            // Create a block filled with empty strings.
-            // Null strings are not allowed in string table resources.
-            var blockStrings = Enumerable
-                .Repeat(string.Empty, StringTableBlock.BlockSize)
-                .ToArray();
+        // Pre-allocate one string array per block, filled with empty strings.
+        // Null strings are not allowed in string table resources.
+        var blockStrings = new string[maxBlockId][];
+        for (var i = 0; i < maxBlockId; i++)
+            blockStrings[i] = Enumerable.Repeat(string.Empty, StringTableBlock.BlockSize).ToArray();
 
-            // Fill in strings for this block
-            foreach (var (stringId, str) in Strings)
-            {
-                if (StringTableBlock.GetBlockId(stringId) != blockId)
-                    continue;
+        // Distribute all strings into the correct blocks in a single pass
+        foreach (var (stringId, str) in Strings)
+            blockStrings[StringTableBlock.GetBlockId(stringId) - 1][
+                StringTableBlock.GetBlockIndex(stringId)
+            ] = str;
 
-                blockStrings[StringTableBlock.GetBlockIndex(stringId)] = str;
-            }
-
-            blocks.Add(new StringTableBlock(blockId, blockStrings));
-        }
+        var blocks = new List<StringTableBlock>(maxBlockId);
+        foreach (var (i, strs) in blockStrings.Index())
+            blocks.Add(new StringTableBlock(i + 1, strs));
 
         return blocks;
     }
