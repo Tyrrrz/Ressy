@@ -12,8 +12,53 @@ namespace Ressy.HighLevel.StringTables;
 public static class StringTableExtensions
 {
     /// <inheritdoc cref="StringTableExtensions" />
+    extension(Resource resource)
+    {
+        /// <summary>
+        /// Reads the specified resource as a string table resource and
+        /// deserializes its data to the corresponding structural representation.
+        /// </summary>
+        public StringTableBlock ReadAsStringTableBlock()
+        {
+            var blockId =
+                resource.Identifier.Name.Code
+                ?? throw new InvalidOperationException(
+                    "Cannot read resource as a string table block: "
+                        + "the resource name is not an ordinal."
+                );
+
+            return StringTableBlock.Deserialize(blockId, resource.Data);
+        }
+    }
+
+    /// <inheritdoc cref="StringTableExtensions" />
     extension(PortableExecutable portableExecutable)
     {
+        private ResourceIdentifier? TryGetStringTableBlockResourceIdentifier(
+            int blockId,
+            Language language
+        ) =>
+            portableExecutable
+                .GetResourceIdentifiers()
+                .FirstOrDefault(r =>
+                    r.Type.Code == ResourceType.String.Code
+                    && r.Name.Code == blockId
+                    && r.Language.Id == language.Id
+                );
+
+        private Resource? TryGetStringTableBlockResource(int blockId, Language language)
+        {
+            var identifier = portableExecutable.TryGetStringTableBlockResourceIdentifier(
+                blockId,
+                language
+            );
+
+            if (identifier is null)
+                return null;
+
+            return portableExecutable.TryGetResource(identifier);
+        }
+
         /// <summary>
         /// Gets all string table resource blocks and returns a unified view over all of them.
         /// Retrieves resource blocks in the specified language or in the neutral language if no language is specified.
@@ -29,21 +74,21 @@ public static class StringTableExtensions
                     r.Type.Code == ResourceType.String.Code && r.Language.Id == targetLanguage.Id
                 );
 
-            var blocks = new List<byte[]>();
+            var blocks = new List<StringTableBlock>();
 
             foreach (var identifier in blockIdentifiers)
             {
-                if (identifier.Name.Code is null)
+                if (identifier.Name.Code is not { } blockId)
                     continue;
 
                 var resource = portableExecutable.TryGetResource(identifier);
                 if (resource is null)
                     continue;
 
-                blocks.Add(resource.Data);
+                blocks.Add(StringTableBlock.Deserialize(blockId, resource.Data));
             }
 
-            return blocks.Count > 0 ? StringTable.Deserialize(blocks) : null;
+            return blocks.Count > 0 ? StringTable.FromBlocks(blocks) : null;
         }
 
         /// <summary>
@@ -89,20 +134,20 @@ public static class StringTableExtensions
                 .WhereNotNull()
                 .ToHashSet();
 
-            var blocks = stringTable.Serialize();
-            var newBlockIds = blocks.Select((_, i) => i + 1).ToHashSet();
+            var blocks = stringTable.ToBlocks();
+            var newBlockIds = blocks.Select(b => b.BlockId).ToHashSet();
 
             portableExecutable.UpdateResources(ctx =>
             {
-                foreach (var (i, block) in blocks.Index())
+                foreach (var block in blocks)
                 {
                     ctx.Set(
                         new ResourceIdentifier(
                             ResourceType.String,
-                            ResourceName.FromCode(i + 1),
+                            ResourceName.FromCode(block.BlockId),
                             targetLanguage
                         ),
-                        block
+                        block.Serialize()
                     );
                 }
 
