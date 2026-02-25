@@ -83,6 +83,9 @@ public class VersionInfoSpecs
         // Assert
         portableExecutable.GetVersionInfo().Should().BeEquivalentTo(versionInfo);
 
+        // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
+        // (via System.Reflection.Metadata) rather than Win32 version resources, so it
+        // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
             FileVersionInfo
@@ -159,6 +162,9 @@ public class VersionInfoSpecs
                 )
             );
 
+        // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
+        // (via System.Reflection.Metadata) rather than Win32 version resources, so it
+        // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
             FileVersionInfo
@@ -205,6 +211,9 @@ public class VersionInfoSpecs
 
         portableExecutable.TryGetVersionInfo().Should().BeNull();
 
+        // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
+        // (via System.Reflection.Metadata) rather than Win32 version resources, so it
+        // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
             FileVersionInfo
