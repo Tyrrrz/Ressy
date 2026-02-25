@@ -27,7 +27,7 @@ public partial class PortableExecutable
         public required int FirstSectionHeaderFileOffset { get; init; }
         public required int SizeOfHeadersValue { get; init; }
         public List<SectionInfo> Sections { get; } = new();
-        public int RsrcSectionIndex { get; set; } = -1;
+        public int ResourceSectionIndex { get; set; } = -1;
     }
 
     private sealed class SectionInfo
@@ -173,21 +173,136 @@ public partial class PortableExecutable
 
             info.Sections.Add(section);
             if (sectionName == ".rsrc")
-                info.RsrcSectionIndex = i;
+                info.ResourceSectionIndex = i;
         }
 
         return info;
     }
 
-    // Walks the .rsrc directory tree collecting only identifiers, without loading data bytes.
-    private static void ReadIdentifiers(
+    // Walks the .rsrc directory tree yielding identifiers without loading data bytes.
+    private static IEnumerable<ResourceIdentifier> ReadIdentifiers(
         BinaryReader reader,
         int sectionBase,
         int sectionSize,
         int dirOffset,
         ResourceType? type,
+        ResourceName? name
+    )
+    {
+        var absOffset = sectionBase + dirOffset;
+        if (absOffset + 16 > reader.BaseStream.Length)
+            yield break;
+
+        reader.BaseStream.Position = absOffset + 12;
+        var numNamed = (int)reader.ReadUInt16();
+        var numId = (int)reader.ReadUInt16();
+        var total = numNamed + numId;
+
+        for (var i = 0; i < total; i++)
+        {
+            var entryAbs = absOffset + 16 + i * 8;
+            if (entryAbs + 8 > reader.BaseStream.Length)
+                yield break;
+
+            reader.BaseStream.Position = entryAbs;
+            var nameField = reader.ReadUInt32();
+            var dataField = reader.ReadUInt32();
+
+            if ((dataField & SubdirectoryFlag) != 0)
+            {
+                var subdirOffset = (int)(dataField & ~SubdirectoryFlag);
+
+                if (type is null)
+                {
+                    var t =
+                        (nameField & NameStringFlag) != 0
+                            ? ResourceType.FromString(
+                                ReadSectionString(
+                                    reader,
+                                    sectionBase,
+                                    sectionSize,
+                                    (int)(nameField & ~NameStringFlag)
+                                )
+                            )
+                            : ResourceType.FromCode((int)(nameField & 0xFFFF));
+                    foreach (
+                        var id in ReadIdentifiers(
+                            reader,
+                            sectionBase,
+                            sectionSize,
+                            subdirOffset,
+                            t,
+                            null
+                        )
+                    )
+                        yield return id;
+                }
+                else if (name is null)
+                {
+                    var n =
+                        (nameField & NameStringFlag) != 0
+                            ? ResourceName.FromString(
+                                ReadSectionString(
+                                    reader,
+                                    sectionBase,
+                                    sectionSize,
+                                    (int)(nameField & ~NameStringFlag)
+                                )
+                            )
+                            : ResourceName.FromCode((int)(nameField & 0xFFFF));
+                    foreach (
+                        var id in ReadIdentifiers(
+                            reader,
+                            sectionBase,
+                            sectionSize,
+                            subdirOffset,
+                            type,
+                            n
+                        )
+                    )
+                        yield return id;
+                }
+                // Level 2 (language): unexpected subdirectory, skip
+            }
+            else
+            {
+                if (type is null || name is null)
+                    continue;
+
+                var langId = (int)(nameField & 0xFFFF);
+                yield return new ResourceIdentifier(type, name, new Language(langId));
+            }
+        }
+    }
+
+    private static List<Resource> ReadResourcesFromSection(BinaryReader reader, SectionInfo rsrc)
+    {
+        var result = new List<Resource>();
+
+        if (rsrc.SizeOfRawData == 0 || rsrc.PointerToRawData == 0)
+            return result;
+
+        if (rsrc.PointerToRawData > int.MaxValue || rsrc.SizeOfRawData > int.MaxValue)
+            throw new InvalidDataException("Resource section is too large to be processed.");
+
+        var sectionBase = (int)rsrc.PointerToRawData;
+        var sectionSize = (int)rsrc.SizeOfRawData;
+
+        // Walk the 3-level resource directory tree: type -> name -> language -> data
+        ReadDirectory(reader, sectionBase, sectionSize, rsrc, 0, null, null, result);
+
+        return result;
+    }
+
+    private static void ReadDirectory(
+        BinaryReader reader,
+        int sectionBase, // file offset of the start of the .rsrc section
+        int sectionSize,
+        SectionInfo rsrc,
+        int dirOffset, // offset within .rsrc section
+        ResourceType? type,
         ResourceName? name,
-        List<ResourceIdentifier> result
+        List<Resource> result
     )
     {
         var absOffset = sectionBase + dirOffset;
@@ -215,6 +330,7 @@ public partial class PortableExecutable
 
                 if (type is null)
                 {
+                    // Level 0 → resolve resource type
                     var t =
                         (nameField & NameStringFlag) != 0
                             ? ResourceType.FromString(
@@ -226,10 +342,11 @@ public partial class PortableExecutable
                                 )
                             )
                             : ResourceType.FromCode((int)(nameField & 0xFFFF));
-                    ReadIdentifiers(
+                    ReadDirectory(
                         reader,
                         sectionBase,
                         sectionSize,
+                        rsrc,
                         subdirOffset,
                         t,
                         null,
@@ -238,6 +355,7 @@ public partial class PortableExecutable
                 }
                 else if (name is null)
                 {
+                    // Level 1 → resolve resource name
                     var n =
                         (nameField & NameStringFlag) != 0
                             ? ResourceName.FromString(
@@ -249,10 +367,11 @@ public partial class PortableExecutable
                                 )
                             )
                             : ResourceName.FromCode((int)(nameField & 0xFFFF));
-                    ReadIdentifiers(
+                    ReadDirectory(
                         reader,
                         sectionBase,
                         sectionSize,
+                        rsrc,
                         subdirOffset,
                         type,
                         n,
@@ -263,11 +382,36 @@ public partial class PortableExecutable
             }
             else
             {
+                // Leaf: points to IMAGE_RESOURCE_DATA_ENTRY
                 if (type is null || name is null)
                     continue;
 
                 var langId = (int)(nameField & 0xFFFF);
-                result.Add(new ResourceIdentifier(type, name, new Language(langId)));
+                var dataEntryAbs = sectionBase + (int)dataField;
+                if (dataEntryAbs + 16 > reader.BaseStream.Length)
+                    continue;
+
+                reader.BaseStream.Position = dataEntryAbs;
+                var dataRva = reader.ReadUInt32();
+                var dataSize = (int)reader.ReadUInt32();
+
+                // Jump to the data's file offset in the stream and read it directly
+                var dataFileOffset =
+                    (long)rsrc.PointerToRawData + (long)dataRva - (long)rsrc.VirtualAddress;
+
+                if (
+                    dataFileOffset < 0
+                    || dataFileOffset > int.MaxValue
+                    || dataFileOffset + dataSize > reader.BaseStream.Length
+                )
+                    continue;
+
+                reader.BaseStream.Position = (long)dataFileOffset;
+                var data = reader.ReadBytes(dataSize);
+
+                result.Add(
+                    new Resource(new ResourceIdentifier(type, name, new Language(langId)), data)
+                );
             }
         }
     }
@@ -459,147 +603,6 @@ public partial class PortableExecutable
         return null;
     }
 
-    private static List<Resource> ReadResourcesFromSection(BinaryReader reader, SectionInfo rsrc)
-    {
-        var result = new List<Resource>();
-
-        if (rsrc.SizeOfRawData == 0 || rsrc.PointerToRawData == 0)
-            return result;
-
-        if (rsrc.PointerToRawData > int.MaxValue || rsrc.SizeOfRawData > int.MaxValue)
-            throw new InvalidDataException("Resource section is too large to be processed.");
-
-        var sectionBase = (int)rsrc.PointerToRawData;
-        var sectionSize = (int)rsrc.SizeOfRawData;
-
-        // Walk the 3-level resource directory tree: type -> name -> language -> data
-        ReadDirectory(reader, sectionBase, sectionSize, rsrc, 0, null, null, result);
-
-        return result;
-    }
-
-    private static void ReadDirectory(
-        BinaryReader reader,
-        int sectionBase, // file offset of the start of the .rsrc section
-        int sectionSize,
-        SectionInfo rsrc,
-        int dirOffset, // offset within .rsrc section
-        ResourceType? type,
-        ResourceName? name,
-        List<Resource> result
-    )
-    {
-        var absOffset = sectionBase + dirOffset;
-        if (absOffset + 16 > reader.BaseStream.Length)
-            return;
-
-        reader.BaseStream.Position = absOffset + 12;
-        var numNamed = (int)reader.ReadUInt16();
-        var numId = (int)reader.ReadUInt16();
-        var total = numNamed + numId;
-
-        for (var i = 0; i < total; i++)
-        {
-            var entryAbs = absOffset + 16 + i * 8;
-            if (entryAbs + 8 > reader.BaseStream.Length)
-                break;
-
-            reader.BaseStream.Position = entryAbs;
-            var nameField = reader.ReadUInt32();
-            var dataField = reader.ReadUInt32();
-
-            if ((dataField & SubdirectoryFlag) != 0)
-            {
-                var subdirOffset = (int)(dataField & ~SubdirectoryFlag);
-
-                if (type is null)
-                {
-                    // Level 0 → resolve resource type
-                    var t =
-                        (nameField & NameStringFlag) != 0
-                            ? ResourceType.FromString(
-                                ReadSectionString(
-                                    reader,
-                                    sectionBase,
-                                    sectionSize,
-                                    (int)(nameField & ~NameStringFlag)
-                                )
-                            )
-                            : ResourceType.FromCode((int)(nameField & 0xFFFF));
-                    ReadDirectory(
-                        reader,
-                        sectionBase,
-                        sectionSize,
-                        rsrc,
-                        subdirOffset,
-                        t,
-                        null,
-                        result
-                    );
-                }
-                else if (name is null)
-                {
-                    // Level 1 → resolve resource name
-                    var n =
-                        (nameField & NameStringFlag) != 0
-                            ? ResourceName.FromString(
-                                ReadSectionString(
-                                    reader,
-                                    sectionBase,
-                                    sectionSize,
-                                    (int)(nameField & ~NameStringFlag)
-                                )
-                            )
-                            : ResourceName.FromCode((int)(nameField & 0xFFFF));
-                    ReadDirectory(
-                        reader,
-                        sectionBase,
-                        sectionSize,
-                        rsrc,
-                        subdirOffset,
-                        type,
-                        n,
-                        result
-                    );
-                }
-                // Level 2 (language): unexpected subdirectory, skip
-            }
-            else
-            {
-                // Leaf: points to IMAGE_RESOURCE_DATA_ENTRY
-                if (type is null || name is null)
-                    continue;
-
-                var langId = (int)(nameField & 0xFFFF);
-                var dataEntryAbs = sectionBase + (int)dataField;
-                if (dataEntryAbs + 16 > reader.BaseStream.Length)
-                    continue;
-
-                reader.BaseStream.Position = dataEntryAbs;
-                var dataRva = reader.ReadUInt32();
-                var dataSize = (int)reader.ReadUInt32();
-
-                // Jump to the data's file offset in the stream and read it directly
-                var dataFileOffset =
-                    (long)rsrc.PointerToRawData + (long)dataRva - (long)rsrc.VirtualAddress;
-
-                if (
-                    dataFileOffset < 0
-                    || dataFileOffset > int.MaxValue
-                    || dataFileOffset + dataSize > reader.BaseStream.Length
-                )
-                    continue;
-
-                reader.BaseStream.Position = (long)dataFileOffset;
-                var data = reader.ReadBytes(dataSize);
-
-                result.Add(
-                    new Resource(new ResourceIdentifier(type, name, new Language(langId)), data)
-                );
-            }
-        }
-    }
-
     private static string ReadSectionString(
         BinaryReader reader,
         int sectionBase,
@@ -618,6 +621,7 @@ public partial class PortableExecutable
         if (absOffset + 2 + byteCount > reader.BaseStream.Length)
             return "";
 
+        // Resource string names are always encoded as UTF-16LE per the PE format spec.
         return Encoding.Unicode.GetString(reader.ReadBytes(byteCount));
     }
 }

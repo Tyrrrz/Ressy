@@ -30,13 +30,17 @@ public static class IconExtensions
         public void SetIcon(Stream iconFileStream)
         {
             var iconGroup = IconGroup.Deserialize(iconFileStream);
-            var resources = new Dictionary<ResourceIdentifier, byte[]>();
+            var resources = new List<Resource>();
 
             // Icon resources (written as-is)
             foreach (var (i, icon) in iconGroup.Icons.Index())
             {
-                resources[new ResourceIdentifier(ResourceType.Icon, ResourceName.FromCode(i + 1))] =
-                    icon.Data;
+                resources.Add(
+                    new Resource(
+                        new ResourceIdentifier(ResourceType.Icon, ResourceName.FromCode(i + 1)),
+                        icon.Data
+                    )
+                );
             }
 
             // Icon group resource (offset is replaced with icon index)
@@ -62,14 +66,15 @@ public static class IconExtensions
                     writer.Write((ushort)(i + 1));
                 }
 
-                resources[
-                    new ResourceIdentifier(ResourceType.IconGroup, ResourceName.FromCode(1))
-                ] = buffer.ToArray();
+                resources.Add(
+                    new Resource(
+                        new ResourceIdentifier(ResourceType.IconGroup, ResourceName.FromCode(1)),
+                        buffer.ToArray()
+                    )
+                );
             }
 
-            portableExecutable.SetResources(
-                resources.Select(kv => new Resource(kv.Key, kv.Value)).ToArray()
-            );
+            portableExecutable.SetResources(resources);
         }
 
         /// <summary>

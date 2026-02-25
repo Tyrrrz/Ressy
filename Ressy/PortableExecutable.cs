@@ -19,10 +19,8 @@ public partial class PortableExecutable : IDisposable
     internal string? FilePath { get; }
 
     /// <summary>
-    /// Wraps a seekable, readable, and writable stream as a portable executable.
+    /// Wraps a seekable stream as a portable executable.
     /// </summary>
-    /// <param name="stream">A seekable stream positioned at the start of a PE file.</param>
-    /// <param name="disposeStream">Whether to dispose the stream when this instance is disposed.</param>
     public PortableExecutable(Stream stream, bool disposeStream = false)
     {
         _stream = stream;
@@ -42,35 +40,26 @@ public partial class PortableExecutable : IDisposable
         FilePath = filePath;
     }
 
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        if (_disposeStream)
-            _stream.Dispose();
-    }
-
     /// <summary>
     /// Gets the identifiers of all existing resources.
     /// </summary>
     public IReadOnlyList<ResourceIdentifier> GetResourceIdentifiers()
     {
-        if (_info.RsrcSectionIndex < 0)
+        if (_info.ResourceSectionIndex < 0)
             return [];
 
-        var rsrc = _info.Sections[_info.RsrcSectionIndex];
-        if (rsrc.SizeOfRawData == 0 || rsrc.PointerToRawData == 0)
+        var resource = _info.Sections[_info.ResourceSectionIndex];
+        if (resource.SizeOfRawData == 0 || resource.PointerToRawData == 0)
             return [];
 
-        if (rsrc.PointerToRawData > int.MaxValue || rsrc.SizeOfRawData > int.MaxValue)
+        if (resource.PointerToRawData > int.MaxValue || resource.SizeOfRawData > int.MaxValue)
             throw new InvalidDataException("Resource section is too large to be processed.");
 
-        var sectionBase = (int)rsrc.PointerToRawData;
-        var sectionSize = (int)rsrc.SizeOfRawData;
+        var sectionBase = (int)resource.PointerToRawData;
+        var sectionSize = (int)resource.SizeOfRawData;
 
         using var reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true);
-        var result = new List<ResourceIdentifier>();
-        ReadIdentifiers(reader, sectionBase, sectionSize, 0, null, null, result);
-        return result;
+        return ReadIdentifiers(reader, sectionBase, sectionSize, 0, null, null).ToList();
     }
 
     /// <summary>
@@ -78,11 +67,11 @@ public partial class PortableExecutable : IDisposable
     /// </summary>
     public IReadOnlyList<Resource> GetResources()
     {
-        if (_info.RsrcSectionIndex < 0)
+        if (_info.ResourceSectionIndex < 0)
             return [];
 
         using var reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true);
-        return ReadResourcesFromSection(reader, _info.Sections[_info.RsrcSectionIndex]);
+        return ReadResourcesFromSection(reader, _info.Sections[_info.ResourceSectionIndex]);
     }
 
     /// <summary>
@@ -91,22 +80,22 @@ public partial class PortableExecutable : IDisposable
     /// </summary>
     public Resource? TryGetResource(ResourceIdentifier identifier)
     {
-        if (_info.RsrcSectionIndex < 0)
+        if (_info.ResourceSectionIndex < 0)
             return null;
 
-        var rsrc = _info.Sections[_info.RsrcSectionIndex];
-        if (rsrc.SizeOfRawData == 0 || rsrc.PointerToRawData == 0)
+        var resource = _info.Sections[_info.ResourceSectionIndex];
+        if (resource.SizeOfRawData == 0 || resource.PointerToRawData == 0)
             return null;
 
-        if (rsrc.PointerToRawData > int.MaxValue || rsrc.SizeOfRawData > int.MaxValue)
+        if (resource.PointerToRawData > int.MaxValue || resource.SizeOfRawData > int.MaxValue)
             throw new InvalidDataException("Resource section is too large to be processed.");
 
         using var reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true);
         var data = FindResourceData(
             reader,
-            (int)rsrc.PointerToRawData,
-            (int)rsrc.SizeOfRawData,
-            rsrc,
+            (int)resource.PointerToRawData,
+            (int)resource.SizeOfRawData,
+            resource,
             identifier,
             0
         );
@@ -128,15 +117,14 @@ public partial class PortableExecutable : IDisposable
     {
         if (removeOthers)
         {
-            UpdateResources(resources.ToDictionary(r => r.Identifier, r => r.Data));
+            UpdateResources(resources);
+            return;
         }
-        else
-        {
-            var existing = GetResources().ToDictionary(r => r.Identifier, r => r.Data);
-            foreach (var resource in resources)
-                existing[resource.Identifier] = resource.Data;
-            UpdateResources(existing);
-        }
+
+        var merged = GetResources().ToDictionary(r => r.Identifier);
+        foreach (var resource in resources)
+            merged[resource.Identifier] = resource;
+        UpdateResources(merged.Values.ToArray());
     }
 
     /// <summary>
@@ -147,30 +135,29 @@ public partial class PortableExecutable : IDisposable
     /// <summary>
     /// Removes all resources matching the specified predicate.
     /// </summary>
-    public void RemoveResources(Func<ResourceIdentifier, bool> predicate)
-    {
-        var remaining = GetResources()
-            .Where(r => !predicate(r.Identifier))
-            .ToDictionary(r => r.Identifier, r => r.Data);
-        UpdateResources(remaining);
-    }
+    public void RemoveResources(Func<ResourceIdentifier, bool> predicate) =>
+        UpdateResources(GetResources().Where(r => !predicate(r.Identifier)).ToArray());
 
     /// <summary>
     /// Removes the specified resources.
     /// </summary>
-    public void RemoveResources(IReadOnlyList<ResourceIdentifier> identifiers)
-    {
-        var identifierSet = identifiers.ToHashSet();
-        RemoveResources(id => identifierSet.Contains(id));
-    }
+    public void RemoveResources(IReadOnlyList<ResourceIdentifier> identifiers) =>
+        RemoveResources(identifiers.ToHashSet().Contains);
 
     /// <summary>
     /// Removes all existing resources.
     /// </summary>
-    public void RemoveResources() => UpdateResources(new Dictionary<ResourceIdentifier, byte[]>());
+    public void RemoveResources() => UpdateResources([]);
 
     /// <summary>
     /// Removes the specified resource.
     /// </summary>
     public void RemoveResource(ResourceIdentifier identifier) => RemoveResources([identifier]);
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        if (_disposeStream)
+            _stream.Dispose();
+    }
 }

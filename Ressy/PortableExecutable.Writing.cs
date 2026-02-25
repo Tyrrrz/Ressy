@@ -14,7 +14,7 @@ public partial class PortableExecutable
 
     // Reads the full PE file from the stream, rebuilds the .rsrc section with the given resources,
     // writes the modified bytes back to the stream, and re-parses the PE metadata.
-    private void UpdateResources(IReadOnlyDictionary<ResourceIdentifier, byte[]> resources)
+    private void UpdateResources(IReadOnlyList<Resource> resources)
     {
         if (_stream.Length > int.MaxValue)
             throw new InvalidDataException("PE file is too large to be processed.");
@@ -24,20 +24,19 @@ public partial class PortableExecutable
         var fileBytes = reader.ReadBytes((int)_stream.Length);
 
         var info = _info;
-        var rsrcList = resources.Select(kv => (kv.Key, kv.Value)).ToList();
 
         // Determine VirtualAddress for the new .rsrc section.
         // Keep the existing VA when the new aligned virtual size fits in the same allocation;
         // otherwise pick a new VA after all other sections.
         uint newVirtualAddress;
 
-        if (info.RsrcSectionIndex >= 0)
+        if (info.ResourceSectionIndex >= 0)
         {
-            var old = info.Sections[info.RsrcSectionIndex];
+            var old = info.Sections[info.ResourceSectionIndex];
             var oldAligned = Arithmetic.AlignUp(old.VirtualSize, info.SectionAlignment);
 
             // Tentatively build with the old VA to measure the size
-            var probe = BuildResourceSection(rsrcList, old.VirtualAddress);
+            var probe = BuildResourceSection(resources, old.VirtualAddress);
             var newAligned = Arithmetic.AlignUp((uint)probe.Length, info.SectionAlignment);
 
             newVirtualAddress =
@@ -50,7 +49,7 @@ public partial class PortableExecutable
             newVirtualAddress = FindNextVirtualAddress(info, excludeRsrc: false);
         }
 
-        var newRsrcContent = BuildResourceSection(rsrcList, newVirtualAddress);
+        var newRsrcContent = BuildResourceSection(resources, newVirtualAddress);
 
         // Pad to FileAlignment
         var alignedSize = Arithmetic.AlignUp(newRsrcContent.Length, (int)info.FileAlignment);
@@ -60,9 +59,9 @@ public partial class PortableExecutable
         byte[] newFileBytes;
         int filePosition;
 
-        if (info.RsrcSectionIndex >= 0)
+        if (info.ResourceSectionIndex >= 0)
         {
-            var old = info.Sections[info.RsrcSectionIndex];
+            var old = info.Sections[info.ResourceSectionIndex];
 
             if (alignedSize <= (int)old.SizeOfRawData)
             {
@@ -191,14 +190,30 @@ public partial class PortableExecutable
         _info = ParsePEInfo(_stream);
     }
 
+    private static uint FindNextVirtualAddress(PEInfo info, bool excludeRsrc)
+    {
+        uint maxEnd = 0;
+        for (var i = 0; i < info.Sections.Count; i++)
+        {
+            if (excludeRsrc && i == info.ResourceSectionIndex)
+                continue;
+            var s = info.Sections[i];
+            var end = Arithmetic.AlignUp(s.VirtualAddress + s.VirtualSize, info.SectionAlignment);
+            if (end > maxEnd)
+                maxEnd = end;
+        }
+
+        return Arithmetic.AlignUp(maxEnd, info.SectionAlignment);
+    }
+
     // Builds the binary content of a .rsrc section for the given list of resources.
     // sectionVirtualAddress: the RVA at which the section will be loaded.
     private static byte[] BuildResourceSection(
-        IReadOnlyList<(ResourceIdentifier Id, byte[] Data)> resources,
+        IReadOnlyList<Resource> resources,
         uint sectionVirtualAddress
     )
     {
-        if (resources.Count == 0)
+        if (!resources.Any())
         {
             // An empty root directory: 16 bytes header, zero entries
             return new byte[16];
@@ -206,7 +221,7 @@ public partial class PortableExecutable
 
         // Group and sort: named types first (Code is null), then IDs ascending
         var byType = resources
-            .GroupBy(r => r.Id.Type)
+            .GroupBy(r => r.Identifier.Type)
             .OrderBy(g => g.Key.Code.HasValue ? 1 : 0)
             .ThenBy(g => g.Key.Code ?? int.MaxValue)
             .ThenBy(g => g.Key.Code is null ? g.Key.Label : "")
@@ -219,7 +234,7 @@ public partial class PortableExecutable
             if (tg.Key.Code is null)
                 namedStrings.TryAdd(tg.Key.Label, 0);
 
-            foreach (var ng in tg.GroupBy(r => r.Id.Name))
+            foreach (var ng in tg.GroupBy(r => r.Identifier.Name))
             {
                 if (ng.Key.Code is null)
                     namedStrings.TryAdd(ng.Key.Label, 0);
@@ -409,6 +424,24 @@ public partial class PortableExecutable
         return result;
     }
 
+    private static List<IGrouping<ResourceName, Resource>> GetSortedNameGroups(
+        IGrouping<ResourceType, Resource> typeGroup
+    ) =>
+        typeGroup
+            .GroupBy(r => r.Identifier.Name)
+            .OrderBy(g => g.Key.Code.HasValue ? 1 : 0)
+            .ThenBy(g => g.Key.Code ?? int.MaxValue)
+            .ThenBy(g => g.Key.Code is null ? g.Key.Label : "")
+            .ToList();
+
+    private static List<(Language Lang, byte[] Data)> GetSortedLanguageEntries(
+        IGrouping<ResourceName, Resource> nameGroup
+    ) =>
+        nameGroup
+            .OrderBy(r => r.Identifier.Language.Id)
+            .Select(r => (r.Identifier.Language, r.Data))
+            .ToList();
+
     private static void WriteDirectory(
         BinaryWriter writer,
         int offset,
@@ -448,38 +481,6 @@ public partial class PortableExecutable
             writer.Write((uint)(name.Code.Value & 0xFFFF));
         else
             writer.Write((uint)namedStrings[name.Label] | NameStringFlag);
-    }
-
-    private static List<
-        IGrouping<ResourceName, (ResourceIdentifier Id, byte[] Data)>
-    > GetSortedNameGroups(
-        IGrouping<ResourceType, (ResourceIdentifier Id, byte[] Data)> typeGroup
-    ) =>
-        typeGroup
-            .GroupBy(r => r.Id.Name)
-            .OrderBy(g => g.Key.Code.HasValue ? 1 : 0)
-            .ThenBy(g => g.Key.Code ?? int.MaxValue)
-            .ThenBy(g => g.Key.Code is null ? g.Key.Label : "")
-            .ToList();
-
-    private static List<(Language Lang, byte[] Data)> GetSortedLanguageEntries(
-        IGrouping<ResourceName, (ResourceIdentifier Id, byte[] Data)> nameGroup
-    ) => nameGroup.OrderBy(r => r.Id.Language.Id).Select(r => (r.Id.Language, r.Data)).ToList();
-
-    private static uint FindNextVirtualAddress(PEInfo info, bool excludeRsrc)
-    {
-        uint maxEnd = 0;
-        for (var i = 0; i < info.Sections.Count; i++)
-        {
-            if (excludeRsrc && i == info.RsrcSectionIndex)
-                continue;
-            var s = info.Sections[i];
-            var end = Arithmetic.AlignUp(s.VirtualAddress + s.VirtualSize, info.SectionAlignment);
-            if (end > maxEnd)
-                maxEnd = end;
-        }
-
-        return Arithmetic.AlignUp(maxEnd, info.SectionAlignment);
     }
 
     private static void WriteSectionHeader(
