@@ -14,18 +14,10 @@ public static class IconExtensions
         /// <summary>
         /// Removes all existing icon and icon group resources.
         /// </summary>
-        public void RemoveIcon()
-        {
-            var identifiers = portableExecutable
-                .GetResources()
-                .Where(r =>
-                    r.Identifier.Type.Code == ResourceType.Icon.Code
-                    || r.Identifier.Type.Code == ResourceType.IconGroup.Code
-                )
-                .Select(r => r.Identifier);
-
-            portableExecutable.RemoveResources(identifiers);
-        }
+        public void RemoveIcon() =>
+            portableExecutable.RemoveResources(r =>
+                r.Type.Code == ResourceType.Icon.Code || r.Type.Code == ResourceType.IconGroup.Code
+            );
 
         /// <summary>
         /// Adds or overwrites icon and icon group resources based on the specified ICO file stream.
@@ -77,7 +69,10 @@ public static class IconExtensions
                 ] = buffer.ToArray();
             }
 
-            portableExecutable.SetResources(resources.Select(kv => new Resource(kv.Key, kv.Value)));
+            portableExecutable.SetResources(
+                resources.Select(kv => new Resource(kv.Key, kv.Value)).ToArray(),
+                removeOthers: true
+            );
         }
 
         /// <summary>

@@ -9,6 +9,120 @@ internal static partial class PeFile
 {
     #region Resource reading
 
+    // Walks the .rsrc directory tree collecting only identifiers, without loading data bytes.
+    public static List<ResourceIdentifier> ReadResourceIdentifiers(string filePath)
+    {
+        var fileBytes = File.ReadAllBytes(filePath);
+        var info = ParsePeInfo(fileBytes);
+
+        if (info.RsrcSectionIndex < 0)
+            return new List<ResourceIdentifier>();
+
+        var rsrc = info.Sections[info.RsrcSectionIndex];
+        if (rsrc.SizeOfRawData == 0 || rsrc.PointerToRawData == 0)
+            return new List<ResourceIdentifier>();
+
+        if (rsrc.PointerToRawData > int.MaxValue || rsrc.SizeOfRawData > int.MaxValue)
+            throw new InvalidDataException("Resource section is too large to be processed.");
+
+        var sectionBase = (int)rsrc.PointerToRawData;
+        var sectionSize = (int)rsrc.SizeOfRawData;
+
+        var result = new List<ResourceIdentifier>();
+        ReadIdentifiers(fileBytes, sectionBase, sectionSize, 0, null, null, result);
+        return result;
+    }
+
+    private static void ReadIdentifiers(
+        byte[] fileBytes,
+        int sectionBase,
+        int sectionSize,
+        int dirOffset,
+        ResourceType? type,
+        ResourceName? name,
+        List<ResourceIdentifier> result
+    )
+    {
+        var absOffset = sectionBase + dirOffset;
+        if (absOffset + 16 > fileBytes.Length)
+            return;
+
+        var numNamed = (int)ReadUInt16(fileBytes, absOffset + 12);
+        var numId = (int)ReadUInt16(fileBytes, absOffset + 14);
+        var total = numNamed + numId;
+
+        for (var i = 0; i < total; i++)
+        {
+            var entryAbs = absOffset + 16 + i * 8;
+            if (entryAbs + 8 > fileBytes.Length)
+                break;
+
+            var nameField = ReadUInt32(fileBytes, entryAbs);
+            var dataField = ReadUInt32(fileBytes, entryAbs + 4);
+
+            if ((dataField & SubdirectoryFlag) != 0)
+            {
+                var subdirOffset = (int)(dataField & ~SubdirectoryFlag);
+
+                if (type is null)
+                {
+                    var t =
+                        (nameField & NameStringFlag) != 0
+                            ? ResourceType.FromString(
+                                ReadSectionString(
+                                    fileBytes,
+                                    sectionBase,
+                                    sectionSize,
+                                    (int)(nameField & ~NameStringFlag)
+                                )
+                            )
+                            : ResourceType.FromCode((int)(nameField & 0xFFFF));
+                    ReadIdentifiers(
+                        fileBytes,
+                        sectionBase,
+                        sectionSize,
+                        subdirOffset,
+                        t,
+                        null,
+                        result
+                    );
+                }
+                else if (name is null)
+                {
+                    var n =
+                        (nameField & NameStringFlag) != 0
+                            ? ResourceName.FromString(
+                                ReadSectionString(
+                                    fileBytes,
+                                    sectionBase,
+                                    sectionSize,
+                                    (int)(nameField & ~NameStringFlag)
+                                )
+                            )
+                            : ResourceName.FromCode((int)(nameField & 0xFFFF));
+                    ReadIdentifiers(
+                        fileBytes,
+                        sectionBase,
+                        sectionSize,
+                        subdirOffset,
+                        type,
+                        n,
+                        result
+                    );
+                }
+                // Level 2 (language): unexpected subdirectory, skip
+            }
+            else
+            {
+                if (type is null || name is null)
+                    continue;
+
+                var langId = (int)(nameField & 0xFFFF);
+                result.Add(new ResourceIdentifier(type, name, new Language(langId)));
+            }
+        }
+    }
+
     public static List<Resource> ReadResources(string filePath)
     {
         var fileBytes = File.ReadAllBytes(filePath);

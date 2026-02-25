@@ -113,15 +113,8 @@ public static class StringTableExtensions
         /// <summary>
         /// Removes all existing string table resources.
         /// </summary>
-        public void RemoveStringTable()
-        {
-            var identifiers = portableExecutable
-                .GetResources()
-                .Where(r => r.Identifier.Type.Code == ResourceType.String.Code)
-                .Select(r => r.Identifier);
-
-            portableExecutable.RemoveResources(identifiers);
-        }
+        public void RemoveStringTable() =>
+            portableExecutable.RemoveResources(r => r.Type.Code == ResourceType.String.Code);
 
         /// <summary>
         /// Adds or overwrites string table resource blocks with the specified data.
@@ -177,7 +170,10 @@ public static class StringTableExtensions
                 );
             }
 
-            portableExecutable.SetResources(resources.Select(kv => new Resource(kv.Key, kv.Value)));
+            portableExecutable.SetResources(
+                resources.Select(kv => new Resource(kv.Key, kv.Value)).ToArray(),
+                removeOthers: true
+            );
         }
 
         /// <summary>

@@ -77,15 +77,8 @@ public static class VersionExtensions
         /// <summary>
         /// Removes all existing version info resources.
         /// </summary>
-        public void RemoveVersionInfo()
-        {
-            var identifiers = portableExecutable
-                .GetResources()
-                .Where(r => r.Identifier.Type.Code == ResourceType.Version.Code)
-                .Select(r => r.Identifier);
-
-            portableExecutable.RemoveResources(identifiers);
-        }
+        public void RemoveVersionInfo() =>
+            portableExecutable.RemoveResources(r => r.Type.Code == ResourceType.Version.Code);
 
         /// <summary>
         /// Adds or overwrites a version info resource with the specified data.
