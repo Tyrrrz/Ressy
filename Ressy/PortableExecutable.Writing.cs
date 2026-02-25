@@ -7,60 +7,10 @@ using Ressy.Utils;
 
 namespace Ressy;
 
-public sealed partial class PortableExecutable
+public partial class PortableExecutable
 {
-    /// <summary>
-    /// Adds or overwrites the specified resources, optionally removing the rest.
-    /// </summary>
-    public void SetResources(IReadOnlyList<Resource> resources, bool removeOthers = false)
-    {
-        if (removeOthers)
-        {
-            UpdateResources(resources.ToDictionary(r => r.Identifier, r => r.Data));
-        }
-        else
-        {
-            var existing = GetResources().ToDictionary(r => r.Identifier, r => r.Data);
-            foreach (var resource in resources)
-                existing[resource.Identifier] = resource.Data;
-            UpdateResources(existing);
-        }
-    }
-
-    /// <summary>
-    /// Adds or overwrites the specified resource.
-    /// </summary>
-    public void SetResource(Resource resource) => SetResources([resource]);
-
-    /// <summary>
-    /// Removes all resources matching the specified predicate.
-    /// </summary>
-    public void RemoveResources(Func<ResourceIdentifier, bool> predicate)
-    {
-        var remaining = GetResources()
-            .Where(r => !predicate(r.Identifier))
-            .ToDictionary(r => r.Identifier, r => r.Data);
-        UpdateResources(remaining);
-    }
-
-    /// <summary>
-    /// Removes the specified resources.
-    /// </summary>
-    public void RemoveResources(IReadOnlyList<ResourceIdentifier> identifiers)
-    {
-        var identifierSet = identifiers.ToHashSet();
-        RemoveResources(id => identifierSet.Contains(id));
-    }
-
-    /// <summary>
-    /// Removes all existing resources.
-    /// </summary>
-    public void RemoveResources() => UpdateResources(new Dictionary<ResourceIdentifier, byte[]>());
-
-    /// <summary>
-    /// Removes the specified resource.
-    /// </summary>
-    public void RemoveResource(ResourceIdentifier identifier) => RemoveResources([identifier]);
+    // IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE
+    private const uint RsrcSectionCharacteristics = 0xC0000040u;
 
     // Reads the full PE file from the stream, rebuilds the .rsrc section with the given resources,
     // writes the modified bytes back to the stream, and re-parses the PE metadata.
@@ -84,11 +34,11 @@ public sealed partial class PortableExecutable
         if (info.RsrcSectionIndex >= 0)
         {
             var old = info.Sections[info.RsrcSectionIndex];
-            var oldAligned = MathUtils.AlignUp(old.VirtualSize, info.SectionAlignment);
+            var oldAligned = Arithmetic.AlignUp(old.VirtualSize, info.SectionAlignment);
 
             // Tentatively build with the old VA to measure the size
             var probe = BuildResourceSection(rsrcList, old.VirtualAddress);
-            var newAligned = MathUtils.AlignUp((uint)probe.Length, info.SectionAlignment);
+            var newAligned = Arithmetic.AlignUp((uint)probe.Length, info.SectionAlignment);
 
             newVirtualAddress =
                 newAligned <= oldAligned
@@ -103,7 +53,7 @@ public sealed partial class PortableExecutable
         var newRsrcContent = BuildResourceSection(rsrcList, newVirtualAddress);
 
         // Pad to FileAlignment
-        var alignedSize = MathUtils.AlignUp(newRsrcContent.Length, (int)info.FileAlignment);
+        var alignedSize = Arithmetic.AlignUp(newRsrcContent.Length, (int)info.FileAlignment);
         var alignedRsrcContent = new byte[alignedSize];
         Array.Copy(newRsrcContent, alignedRsrcContent, newRsrcContent.Length);
 
@@ -139,7 +89,7 @@ public sealed partial class PortableExecutable
             else
             {
                 // Append: new data is larger than the existing raw allocation
-                filePosition = MathUtils.AlignUp(fileBytes.Length, (int)info.FileAlignment);
+                filePosition = Arithmetic.AlignUp(fileBytes.Length, (int)info.FileAlignment);
                 newFileBytes = new byte[filePosition + alignedSize];
                 Array.Copy(fileBytes, newFileBytes, fileBytes.Length);
                 Array.Copy(alignedRsrcContent, 0, newFileBytes, filePosition, alignedSize);
@@ -158,7 +108,7 @@ public sealed partial class PortableExecutable
         else
         {
             // No existing .rsrc section – append data and add a new section header entry
-            filePosition = MathUtils.AlignUp(fileBytes.Length, (int)info.FileAlignment);
+            filePosition = Arithmetic.AlignUp(fileBytes.Length, (int)info.FileAlignment);
             newFileBytes = new byte[filePosition + alignedSize];
             Array.Copy(fileBytes, newFileBytes, fileBytes.Length);
             Array.Copy(alignedRsrcContent, 0, newFileBytes, filePosition, alignedSize);
@@ -217,9 +167,9 @@ public sealed partial class PortableExecutable
             bwWriter.Write((uint)newRsrcContent.Length);
 
             // Update SizeOfImage if the new section extends beyond the current image size
-            var requiredSizeOfImage = MathUtils.AlignUp(
+            var requiredSizeOfImage = Arithmetic.AlignUp(
                 newVirtualAddress
-                    + MathUtils.AlignUp((uint)newRsrcContent.Length, info.SectionAlignment),
+                    + Arithmetic.AlignUp((uint)newRsrcContent.Length, info.SectionAlignment),
                 info.SectionAlignment
             );
             ms.Position = info.SizeOfImageFileOffset;
@@ -238,7 +188,7 @@ public sealed partial class PortableExecutable
         _stream.Flush();
 
         // Re-parse PE metadata since the structure may have changed
-        _info = ParsePeInfo(_stream);
+        _info = ParsePEInfo(_stream);
     }
 
     // Builds the binary content of a .rsrc section for the given list of resources.
@@ -332,7 +282,7 @@ public sealed partial class PortableExecutable
         }
 
         // Resource data (DWORD-aligned between entries)
-        offset = MathUtils.AlignUp(offset, 4);
+        offset = Arithmetic.AlignUp(offset, 4);
         var resourceDataOffsets = new int[byType.Count][][];
         for (var ti = 0; ti < byType.Count; ti++)
         {
@@ -345,7 +295,7 @@ public sealed partial class PortableExecutable
                 for (var li = 0; li < langs.Count; li++)
                 {
                     resourceDataOffsets[ti][ni][li] = offset;
-                    offset = MathUtils.AlignUp(offset + langs[li].Data.Length, 4);
+                    offset = Arithmetic.AlignUp(offset + langs[li].Data.Length, 4);
                 }
             }
         }
@@ -516,7 +466,7 @@ public sealed partial class PortableExecutable
         IGrouping<ResourceName, (ResourceIdentifier Id, byte[] Data)> nameGroup
     ) => nameGroup.OrderBy(r => r.Id.Language.Id).Select(r => (r.Id.Language, r.Data)).ToList();
 
-    private static uint FindNextVirtualAddress(PeInfo info, bool excludeRsrc)
+    private static uint FindNextVirtualAddress(PEInfo info, bool excludeRsrc)
     {
         uint maxEnd = 0;
         for (var i = 0; i < info.Sections.Count; i++)
@@ -524,12 +474,12 @@ public sealed partial class PortableExecutable
             if (excludeRsrc && i == info.RsrcSectionIndex)
                 continue;
             var s = info.Sections[i];
-            var end = MathUtils.AlignUp(s.VirtualAddress + s.VirtualSize, info.SectionAlignment);
+            var end = Arithmetic.AlignUp(s.VirtualAddress + s.VirtualSize, info.SectionAlignment);
             if (end > maxEnd)
                 maxEnd = end;
         }
 
-        return MathUtils.AlignUp(maxEnd, info.SectionAlignment);
+        return Arithmetic.AlignUp(maxEnd, info.SectionAlignment);
     }
 
     private static void WriteSectionHeader(

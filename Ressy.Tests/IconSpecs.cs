@@ -68,7 +68,7 @@ public class IconSpecs
         if (OperatingSystem.IsWindows())
         {
             using var sourceIcon = new Icon(iconFilePath);
-            using var actualIcon = Icon.ExtractAssociatedIcon(portableExecutable.FilePath);
+            using var actualIcon = Icon.ExtractAssociatedIcon(file.Path);
             actualIcon.Should().NotBeNull();
             actualIcon?.ToBitmap().GetData().Should().Equal(sourceIcon.ToBitmap().GetData());
         }

@@ -89,7 +89,7 @@ public class VersionInfoSpecs
         if (OperatingSystem.IsWindows())
         {
             FileVersionInfo
-                .GetVersionInfo(portableExecutable.FilePath)
+                .GetVersionInfo(file.Path)
                 .Should()
                 .BeEquivalentTo(
                     new
@@ -168,7 +168,7 @@ public class VersionInfoSpecs
         if (OperatingSystem.IsWindows())
         {
             FileVersionInfo
-                .GetVersionInfo(portableExecutable.FilePath)
+                .GetVersionInfo(file.Path)
                 .Should()
                 .BeEquivalentTo(
                     new
@@ -217,7 +217,7 @@ public class VersionInfoSpecs
         if (OperatingSystem.IsWindows())
         {
             FileVersionInfo
-                .GetVersionInfo(portableExecutable.FilePath)
+                .GetVersionInfo(file.Path)
                 .Should()
                 .BeEquivalentTo(
                     new

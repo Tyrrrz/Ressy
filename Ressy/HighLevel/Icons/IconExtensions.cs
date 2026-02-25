@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -29,10 +30,7 @@ public static class IconExtensions
         public void SetIcon(Stream iconFileStream)
         {
             var iconGroup = IconGroup.Deserialize(iconFileStream);
-
-            var resources = portableExecutable
-                .GetResources()
-                .ToDictionary(r => r.Identifier, r => r.Data);
+            var resources = new Dictionary<ResourceIdentifier, byte[]>();
 
             // Icon resources (written as-is)
             foreach (var (i, icon) in iconGroup.Icons.Index())
@@ -70,8 +68,7 @@ public static class IconExtensions
             }
 
             portableExecutable.SetResources(
-                resources.Select(kv => new Resource(kv.Key, kv.Value)).ToArray(),
-                removeOthers: true
+                resources.Select(kv => new Resource(kv.Key, kv.Value)).ToArray()
             );
         }
 
