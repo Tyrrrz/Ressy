@@ -19,8 +19,10 @@ public class Resource(ResourceIdentifier identifier, byte[] data)
 
     /// <summary>
     /// Decodes resource binary data as a text string.
-    /// Uses Unicode (UTF-16) encoding by default.
     /// </summary>
+    /// <remarks>
+    /// If encoding is not specified, Unicode (UTF-16) is used by default.
+    /// </remarks>
     public string ReadAsString(Encoding? encoding = null) =>
         (encoding ?? Encoding.Unicode).GetString(Data);
 }

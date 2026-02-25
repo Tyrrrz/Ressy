@@ -29,7 +29,7 @@ public partial class ResourceIdentifier(
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
-    public override string ToString() => $"{Type} / {Name} / {Language}";
+    public override string ToString() => $"{Type} | {Name} | {Language}";
 }
 
 public partial class ResourceIdentifier : IEquatable<ResourceIdentifier>
