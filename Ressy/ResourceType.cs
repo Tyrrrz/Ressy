@@ -252,3 +252,12 @@ public partial class ResourceType
     /// </summary>
     public static ResourceType Manifest { get; } = FromCode(24);
 }
+
+// https://learn.microsoft.com/windows/win32/intl/mui-resource-technology
+public partial class ResourceType
+{
+    /// <summary>
+    /// Corresponds to the "MUI" resource type used for multilingual user interface resources.
+    /// </summary>
+    public static ResourceType Mui { get; } = FromString("MUI");
+}

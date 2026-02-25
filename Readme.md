@@ -560,3 +560,73 @@ using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.RemoveStringTable();
 ```
+
+#### MUI resources
+
+A MUI (Multilingual User Interface) resource (type `"MUI"`) stores language configuration metadata used by Windows to locate localized resources for a portable executable file.
+It identifies the language of the file, along with fallback languages to use when the requested language is not available.
+
+> [!NOTE]
+> To learn more about MUI resources, see [this article](https://learn.microsoft.com/windows/win32/intl/mui-resource-technology).
+
+##### Retrieve MUI info
+
+To get the MUI resource, call the `GetMuiInfo()` extension method.
+This returns a `MultilingualUserInterfaceInfo` object that represents the deserialized binary data stored in the resource:
+
+```csharp
+using Ressy;
+using Ressy.MultilingualUserInterface;
+
+using var portableExecutable = PortableExecutable.OpenRead("some_app.exe");
+
+var muiInfo = portableExecutable.GetMuiInfo();
+// -or-
+// var muiInfo = portableExecutable.TryGetMuiInfo();
+```
+
+Returned object should contain data similar to this:
+
+```jsonc
+// Formatted as JSON in this example for better readability
+{
+  "FileType": "LanguageSpecific",
+  "Language": "en-US",
+  "FallbackLanguage": "en-US",
+  "UltimateFallbackLanguage": "en"
+}
+```
+
+> [!NOTE]
+> If there are multiple MUI resources, this method retrieves the first one it finds, giving preference to resources with lower ordinal name (ID) and in the neutral language.
+
+##### Set MUI info
+
+To add or overwrite a MUI resource, call the `SetMuiInfo(...)` extension method:
+
+```csharp
+using Ressy;
+using Ressy.MultilingualUserInterface;
+
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
+
+portableExecutable.SetMuiInfo(new MultilingualUserInterfaceInfo(
+    MuiFileType.LanguageSpecific,
+    language: "en-US",
+    fallbackLanguage: "en-US",
+    ultimateFallbackLanguage: "en"
+));
+```
+
+##### Remove MUI info
+
+To remove all MUI resources, call the `RemoveMuiInfo()` extension method:
+
+```csharp
+using Ressy;
+using Ressy.MultilingualUserInterface;
+
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
+
+portableExecutable.RemoveMuiInfo();
+```
