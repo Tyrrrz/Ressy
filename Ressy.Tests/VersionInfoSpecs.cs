@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Ressy.Tests;
 
-public class VersionsSpecs
+public class VersionInfoSpecs
 {
     [Fact]
     public void I_can_get_the_version_info()

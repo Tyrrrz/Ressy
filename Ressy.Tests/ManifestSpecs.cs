@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Ressy.Tests;
 
-public class ManifestsSpecs
+public class ManifestSpecs
 {
     [Fact]
     public void I_can_get_the_manifest()

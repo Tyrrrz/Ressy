@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Ressy.Tests;
 
-public class StringTablesSpecs
+public class StringTableSpecs
 {
     [Fact]
     public void I_can_get_the_string_table()

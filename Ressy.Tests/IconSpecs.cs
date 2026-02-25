@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Ressy.Tests;
 
-public class IconsSpecs
+public class IconSpecs
 {
     [Fact]
     public void I_can_set_the_icon()
