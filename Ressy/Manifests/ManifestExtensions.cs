@@ -92,7 +92,7 @@ public static class ManifestExtensions
                 new Resource(identifier, (encoding ?? DefaultManifestEncoding).GetBytes(manifest))
             );
         }
-        
+
         /// <summary>
         /// Removes all existing manifest resources.
         /// </summary>

@@ -105,14 +105,14 @@ public static class VersionExtensions
                 ?? new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1));
 
             // If the resource already exists, use the data as base
-            if (existingResource is not null) 
+            if (existingResource is not null)
                 builder.SetAll(existingResource.ReadAsVersionInfo());
 
             modify(builder);
 
             portableExecutable.SetResource(new Resource(identifier, builder.Build().Serialize()));
         }
-        
+
         /// <summary>
         /// Removes all existing version info resources.
         /// </summary>
