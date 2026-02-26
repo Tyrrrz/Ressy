@@ -40,13 +40,12 @@ public partial class MuiInfo(
     public byte[] ServiceChecksum { get; } = serviceChecksum;
 
     /// <summary>
-    /// Ordinal resource types that exist in the language-specific satellite file.
+    /// Ordinal resource types that remain in the main (language-neutral) file.
     /// </summary>
     public IReadOnlyList<ResourceType> MainResourceTypes { get; } = mainResourceTypes;
 
     /// <summary>
-    /// Ordinal resource types that exist only in the language-neutral (LN) file
-    /// and should fall back to it at runtime.
+    /// Ordinal resource types that are split into the language-specific satellite (.mui) file.
     /// </summary>
     public IReadOnlyList<ResourceType> FallbackResourceTypes { get; } = fallbackResourceTypes;
 

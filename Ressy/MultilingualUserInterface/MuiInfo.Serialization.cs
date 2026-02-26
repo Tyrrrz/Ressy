@@ -57,7 +57,7 @@ public partial class MuiInfo
             ref currentOffset
         );
 
-        var (typeIDFallbackOffset, typeIDFallbackSize, typeIDFallbackBytes) = BuildTypeIDListEntry(
+        var (typeIDMuiOffset, typeIDMuiSize, typeIDMuiBytes) = BuildTypeIDListEntry(
             FallbackResourceTypes,
             ref currentOffset
         );
@@ -83,6 +83,12 @@ public partial class MuiInfo
         // dwSize (total binary size including all variable-length data appended after the header)
         writer.Write(currentOffset);
 
+        // dwVersion
+        writer.Write(MuiVersion);
+
+        // dwPathType (reserved, always 0)
+        writer.Write(0u);
+
         // dwFileType
         writer.Write((uint)FileType);
 
@@ -92,30 +98,27 @@ public partial class MuiInfo
         // dwUltimateFallbackLocation
         writer.Write(0u);
 
-        // bReserved[8]
-        writer.Write(new byte[8]);
-
         // abChecksum[16]
         writer.Write(Checksum.Length == 16 ? Checksum : new byte[16]);
 
         // abServiceChecksum[16]
         writer.Write(ServiceChecksum.Length == 16 ? ServiceChecksum : new byte[16]);
 
-        // dwTypeNameListOffset, dwTypeNameListSize
+        // dwTypeNameMainOffset, dwTypeNameMainSize (named resource types in main file)
         writer.Write(0u);
         writer.Write(0u);
 
-        // dwTypeIDFallbackListOffset, dwTypeIDFallbackListSize
-        writer.Write(typeIDFallbackOffset);
-        writer.Write(typeIDFallbackSize);
-
-        // dwTypeIDMainListOffset, dwTypeIDMainListSize
+        // dwTypeIDMainOffset, dwTypeIDMainSize (ordinal resource type IDs in main file)
         writer.Write(typeIDMainOffset);
         writer.Write(typeIDMainSize);
 
-        // dwNameListOffset, dwNameListSize
+        // dwTypeNameMuiOffset, dwTypeNameMuiSize (named resource types in MUI satellite)
         writer.Write(0u);
         writer.Write(0u);
+
+        // dwTypeIDMuiOffset, dwTypeIDMuiSize (ordinal resource type IDs in MUI satellite)
+        writer.Write(typeIDMuiOffset);
+        writer.Write(typeIDMuiSize);
 
         // dwLanguageOffset, dwLanguageSize
         writer.Write(languageOffset);
@@ -132,12 +135,12 @@ public partial class MuiInfo
         // Reserved padding to complete the 124-byte header
         writer.Write(new byte[8]);
 
-        // Write variable-length data (in header offset order: main, fallback, then languages)
+        // Write variable-length data
         if (typeIDMainBytes.Length > 0)
             writer.Write(typeIDMainBytes);
 
-        if (typeIDFallbackBytes.Length > 0)
-            writer.Write(typeIDFallbackBytes);
+        if (typeIDMuiBytes.Length > 0)
+            writer.Write(typeIDMuiBytes);
 
         if (languageBytes.Length > 0)
             writer.Write(languageBytes);

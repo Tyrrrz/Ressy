@@ -25,8 +25,8 @@ public class MuiSpecs
         muiInfo.Language.Should().BeNull();
         muiInfo.FallbackLanguage.Should().BeNull();
         muiInfo.UltimateFallbackLanguage.Should().Be("en");
-        muiInfo.MainResourceTypes.Should().BeEmpty();
-        muiInfo.FallbackResourceTypes.Should().Equal(ResourceType.Version);
+        muiInfo.MainResourceTypes.Should().Equal(ResourceType.Version);
+        muiInfo.FallbackResourceTypes.Should().BeEmpty();
     }
 
     [Fact]

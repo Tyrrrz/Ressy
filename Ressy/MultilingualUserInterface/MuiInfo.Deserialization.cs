@@ -8,6 +8,7 @@ public partial class MuiInfo
 {
     // https://learn.microsoft.com/windows/win32/intl/mui-resource-technology
     private const uint MuiSignature = 0xFECDFECDu;
+    private const uint MuiVersion = 0x00010001u;
 
     private static string? ReadLanguageString(byte[] data, uint offset, uint size)
     {
@@ -56,6 +57,12 @@ public partial class MuiInfo
         // dwSize (total binary size)
         _ = reader.ReadUInt32();
 
+        // dwVersion
+        _ = reader.ReadUInt32();
+
+        // dwPathType (reserved)
+        _ = reader.ReadUInt32();
+
         // dwFileType
         var fileType = (MuiFileType)reader.ReadUInt32();
 
@@ -65,32 +72,27 @@ public partial class MuiInfo
         // dwUltimateFallbackLocation
         _ = reader.ReadUInt32();
 
-        // bReserved[8]
-        _ = reader.ReadBytes(8);
-
         // abChecksum[16]
         var checksum = reader.ReadBytes(16);
 
         // abServiceChecksum[16]
-        // This is a secondary checksum used by Windows servicing/update, covering different
-        // data than abChecksum. It lets Windows detect independently patched MUI files.
         var serviceChecksum = reader.ReadBytes(16);
 
-        // dwTypeNameListOffset, dwTypeNameListSize
+        // dwTypeNameMainOffset, dwTypeNameMainSize
         _ = reader.ReadUInt32();
         _ = reader.ReadUInt32();
 
-        // dwTypeIDFallbackListOffset, dwTypeIDFallbackListSize
-        var typeIDFallbackOffset = reader.ReadUInt32();
-        var typeIDFallbackSize = reader.ReadUInt32();
-
-        // dwTypeIDMainListOffset, dwTypeIDMainListSize
+        // dwTypeIDMainOffset, dwTypeIDMainSize
         var typeIDMainOffset = reader.ReadUInt32();
         var typeIDMainSize = reader.ReadUInt32();
 
-        // dwNameListOffset, dwNameListSize
+        // dwTypeNameMuiOffset, dwTypeNameMuiSize
         _ = reader.ReadUInt32();
         _ = reader.ReadUInt32();
+
+        // dwTypeIDMuiOffset, dwTypeIDMuiSize
+        var typeIDMuiOffset = reader.ReadUInt32();
+        var typeIDMuiSize = reader.ReadUInt32();
 
         // dwLanguageOffset, dwLanguageSize
         var languageOffset = reader.ReadUInt32();
@@ -105,7 +107,7 @@ public partial class MuiInfo
         var ultimateFallbackSize = reader.ReadUInt32();
 
         var mainResourceTypes = ReadTypeIDList(data, typeIDMainOffset, typeIDMainSize);
-        var fallbackResourceTypes = ReadTypeIDList(data, typeIDFallbackOffset, typeIDFallbackSize);
+        var fallbackResourceTypes = ReadTypeIDList(data, typeIDMuiOffset, typeIDMuiSize);
         var language = ReadLanguageString(data, languageOffset, languageSize);
         var fallbackLanguage = ReadLanguageString(data, fallbackOffset, fallbackSize);
         var ultimateFallbackLanguage = ReadLanguageString(
