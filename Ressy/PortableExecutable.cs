@@ -142,6 +142,8 @@ public partial class PortableExecutable(
     /// <inheritdoc />
     public void Dispose()
     {
+        stream.Flush();
+
         if (disposeStream)
             stream.Dispose();
     }
@@ -167,14 +169,14 @@ public partial class PortableExecutable
     /// Opens the portable executable at the specified file path with read and write access.
     /// </summary>
     public static PortableExecutable OpenWrite(string filePath) =>
-        Open(filePath, FileAccess.ReadWrite, FileShare.ReadWrite);
+        Open(filePath, FileAccess.ReadWrite, FileShare.None);
 
     /// <summary>
     /// Opens the portable executable at the specified file path with read-only access.
     /// </summary>
     /// <remarks>
-    /// Opening a PE file with read-only access allows reading data when it's in use by another process,
-    /// but prevents any modifications to it.
+    /// Opening a PE file with read-only access allows reading data when the file is in use by another process
+    /// (e.g. to extract resources from a currently running executable), but prevents any modifications to it.
     /// </remarks>
     public static PortableExecutable OpenRead(string filePath) =>
         Open(filePath, FileAccess.Read, FileShare.Read);

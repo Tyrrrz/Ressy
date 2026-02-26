@@ -182,7 +182,6 @@ public partial class PortableExecutable
         stream.Position = 0;
         stream.Write(newFileBytes, 0, newFileBytes.Length);
         stream.SetLength(newFileBytes.Length);
-        stream.Flush();
 
         // Re-parse PE metadata since the structure may have changed
         _info = ParsePEInfo(stream);

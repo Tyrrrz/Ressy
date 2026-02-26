@@ -117,7 +117,7 @@ public class VersionInfoSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        VersionInfo versionInfo;
+        VersionInfo? versionInfo;
         using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
         {
             // Act
