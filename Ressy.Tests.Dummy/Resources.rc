@@ -1,14 +1,15 @@
 ﻿#include <windows.h>
 
-LANGUAGE 0x0000, SUBLANG_NEUTRAL
-
 // Icon
+LANGUAGE 0x0000, SUBLANG_NEUTRAL
 1 ICON "Icon.ico"
 
 // Manifest
+LANGUAGE 0x0000, SUBLANG_NEUTRAL
 1 RT_MANIFEST "Manifest.xml"
 
 // Version info
+LANGUAGE 0x0000, SUBLANG_NEUTRAL
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 1,2,3,4
  PRODUCTVERSION 5,6,7,8
@@ -45,9 +46,8 @@ BEGIN
     END
 END
 
-// String table (NeutralDefault)
+// String table (Neutral + Default)
 LANGUAGE 0x0400, SUBLANG_DEFAULT
-
 STRINGTABLE
 BEGIN
     1   "Hello, World!"
@@ -57,7 +57,6 @@ END
 
 // String table (French)
 LANGUAGE 0x040C, SUBLANG_DEFAULT
-
 STRINGTABLE
 BEGIN
     1   "Bonjour, le monde !"
@@ -67,4 +66,4 @@ END
 
 // MUI resource
 LANGUAGE 0x0000, SUBLANG_NEUTRAL
-1 "MUI" "Mui.bin"
+1 MUI "Localization.mui"

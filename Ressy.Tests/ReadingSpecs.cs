@@ -1,12 +1,15 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Text;
 using FluentAssertions;
 using Ressy.Tests.Utils;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Ressy.Tests;
 
-public class ReadingSpecs
+public class ReadingSpecs(ITestOutputHelper testOutput)
 {
     [Fact]
     public void I_can_get_a_list_of_resource_identifiers()
@@ -105,6 +108,10 @@ public class ReadingSpecs
                     Language.Neutral
                 ),
             ]);
+
+        testOutput.WriteLine(
+            string.Join(Environment.NewLine, identifiers.Select(i => i.ToString()))
+        );
     }
 
     [Fact]
