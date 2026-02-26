@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using FluentAssertions;
-using Ressy.MultilingualUserInterface;
 using Ressy.Tests.Utils;
 using Ressy.Versions;
 using Xunit;
@@ -84,7 +83,6 @@ public class VersionInfoSpecs
 
             // Assert
             portableExecutable.GetVersionInfo().Should().BeEquivalentTo(versionInfo);
-            portableExecutable.RemoveMuiInfo();
         }
 
         // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
@@ -92,6 +90,9 @@ public class VersionInfoSpecs
         // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
+            // Create a language-specific satellite alongside the temp file so that Windows'
+            // MUI-aware FileVersionInfo can resolve the version strings from it.
+            using var _ = TempMuiSatellite.Create(file.Path);
             FileVersionInfo
                 .GetVersionInfo(file.Path)
                 .Should()
@@ -134,7 +135,6 @@ public class VersionInfoSpecs
 
             // Assert
             versionInfo = portableExecutable.GetVersionInfo();
-            portableExecutable.RemoveMuiInfo();
         }
 
         versionInfo
@@ -174,6 +174,9 @@ public class VersionInfoSpecs
         // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
+            // Create a language-specific satellite alongside the temp file so that Windows'
+            // MUI-aware FileVersionInfo can resolve the version strings from it.
+            using var _ = TempMuiSatellite.Create(file.Path);
             FileVersionInfo
                 .GetVersionInfo(file.Path)
                 .Should()
@@ -217,7 +220,6 @@ public class VersionInfoSpecs
                 .NotContain(r => r.Type.Code == ResourceType.Version.Code);
 
             portableExecutable.TryGetVersionInfo().Should().BeNull();
-            portableExecutable.RemoveMuiInfo();
         }
 
         // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
@@ -225,6 +227,9 @@ public class VersionInfoSpecs
         // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
+            // Version info was removed from the neutral file, so the satellite (if any)
+            // would also have no version info. No satellite creation needed here since
+            // returning null strings is the expected result regardless of MUI lookup.
             FileVersionInfo
                 .GetVersionInfo(file.Path)
                 .Should()
