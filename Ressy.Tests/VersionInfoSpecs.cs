@@ -90,9 +90,8 @@ public class VersionInfoSpecs
         // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
-            // Create a language-specific satellite alongside the temp file so that Windows'
-            // MUI-aware FileVersionInfo can resolve the version strings from it.
-            using var _ = TempMuiSatellite.Create(file.Path);
+            // The dummy PE's MUI resource declares RT_VERSION as a fallback resource,
+            // so GetFileVersionInfoEx reads version strings from the neutral file directly.
             FileVersionInfo
                 .GetVersionInfo(file.Path)
                 .Should()
@@ -174,9 +173,8 @@ public class VersionInfoSpecs
         // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
-            // Create a language-specific satellite alongside the temp file so that Windows'
-            // MUI-aware FileVersionInfo can resolve the version strings from it.
-            using var _ = TempMuiSatellite.Create(file.Path);
+            // The dummy PE's MUI resource declares RT_VERSION as a fallback resource,
+            // so GetFileVersionInfoEx reads version strings from the neutral file directly.
             FileVersionInfo
                 .GetVersionInfo(file.Path)
                 .Should()
@@ -227,9 +225,6 @@ public class VersionInfoSpecs
         // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
-            // Version info was removed from the neutral file, so the satellite (if any)
-            // would also have no version info. No satellite creation needed here since
-            // returning null strings is the expected result regardless of MUI lookup.
             FileVersionInfo
                 .GetVersionInfo(file.Path)
                 .Should()
