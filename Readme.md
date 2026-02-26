@@ -560,3 +560,103 @@ using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 
 portableExecutable.RemoveStringTable();
 ```
+
+#### MUI resources
+
+A MUI (Multilingual User Interface) resource (type `"MUI"`) stores language configuration metadata used by Windows to locate localized resources for a portable executable file.
+It identifies the language of the file, along with fallback languages to use when the requested language is not available.
+
+> [!NOTE]
+> To learn more about MUI resources, see [this article](https://learn.microsoft.com/windows/win32/intl/mui-resource-technology).
+
+##### Retrieve MUI info
+
+To get the MUI resource, call the `GetMuiInfo()` extension method.
+This returns a `MuiInfo` object that represents the deserialized binary data stored in the resource:
+
+```csharp
+using Ressy;
+using Ressy.MultilingualUserInterface;
+
+using var portableExecutable = PortableExecutable.OpenRead("some_app.exe");
+
+var muiInfo = portableExecutable.GetMuiInfo();
+// -or-
+// var muiInfo = portableExecutable.TryGetMuiInfo();
+```
+
+Returned object should contain data similar to this:
+
+```jsonc
+// Formatted as JSON in this example for better readability
+{
+  "FileType": "LanguageNeutral",
+  "TypeIDMainList": [6],
+  "TypeIDFallbackList": [16, 24],
+  "Language": null,
+  "FallbackLanguage": null,
+  "UltimateFallbackLanguage": "en"
+}
+```
+
+> [!NOTE]
+> If there are multiple MUI resources, this method retrieves the first one it finds, giving preference to resources with lower ordinal name (ID) and in the neutral language.
+
+Language-specific resources are split out into satellite `.mui` files placed in a language-named subdirectory next to the original executable.
+You can use `GetSatelliteFilePath(...)` on a `MuiInfo` instance to compute the path to the satellite file, then open it with `PortableExecutable.OpenRead(...)`:
+
+```csharp
+using Ressy;
+using Ressy.MultilingualUserInterface;
+using Ressy.Strings;
+
+// Read the language-neutral EXE to find the satellite path
+using var pe = PortableExecutable.OpenRead("notepad.exe");
+var muiInfo = pe.GetMuiInfo();
+
+// Compute path to the satellite MUI file
+var satellitePath = muiInfo.GetSatelliteFilePath("notepad.exe");
+// => "en-US\notepad.exe.mui"  (uses muiInfo.Language internally)
+
+// Open the satellite MUI file and read its localized string table
+using var satellitePe = PortableExecutable.OpenRead(satellitePath);
+var stringTable = satellitePe.GetStringTable();
+
+// stringTable.GetString(1) => "Open"
+// stringTable.GetString(2) => "Save"
+```
+
+##### Set MUI info
+
+To add or overwrite a MUI resource, call the `SetMuiInfo(...)` extension method:
+
+```csharp
+using Ressy;
+using Ressy.MultilingualUserInterface;
+
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
+
+portableExecutable.SetMuiInfo(new MuiInfo(
+    MuiFileType.LanguageSpecific,
+    checksum: new byte[16],
+    serviceChecksum: new byte[16],
+    mainResourceTypes: [ResourceType.String, ResourceType.Version],
+    fallbackResourceTypes: [],
+    language: "en-US",
+    fallbackLanguage: "en-US",
+    ultimateFallbackLanguage: "en"
+));
+```
+
+##### Remove MUI info
+
+To remove all MUI resources, call the `RemoveMuiInfo()` extension method:
+
+```csharp
+using Ressy;
+using Ressy.MultilingualUserInterface;
+
+using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
+
+portableExecutable.RemoveMuiInfo();
+```

@@ -81,7 +81,7 @@ public static class IconExtensions
             using var iconStream = File.OpenRead(iconFilePath);
             portableExecutable.SetIcon(iconStream);
         }
-        
+
         /// <summary>
         /// Removes all existing icon and icon group resources.
         /// </summary>

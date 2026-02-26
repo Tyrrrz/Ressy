@@ -90,6 +90,8 @@ public class VersionInfoSpecs
         // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
+            // The dummy PE's MUI resource declares RT_VERSION as a fallback resource,
+            // so GetFileVersionInfoEx reads version strings from the neutral file directly.
             FileVersionInfo
                 .GetVersionInfo(file.Path)
                 .Should()
@@ -171,6 +173,8 @@ public class VersionInfoSpecs
         // returns the original assembly attributes regardless of Win32 resource changes.
         if (OperatingSystem.IsWindows())
         {
+            // The dummy PE's MUI resource declares RT_VERSION as a fallback resource,
+            // so GetFileVersionInfoEx reads version strings from the neutral file directly.
             FileVersionInfo
                 .GetVersionInfo(file.Path)
                 .Should()
