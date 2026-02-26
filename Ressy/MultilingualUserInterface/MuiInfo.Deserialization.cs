@@ -57,7 +57,7 @@ public partial class MuiInfo
         // dwSize (total binary size)
         _ = reader.ReadUInt32();
 
-        // dwVersion
+        // dwVersion (currently only 0x00010001 is known; not validated to allow forward compatibility)
         _ = reader.ReadUInt32();
 
         // dwPathType (reserved)
