@@ -84,7 +84,7 @@ public static class MuiExtensions
 
             portableExecutable.SetResource(new Resource(identifier, muiInfo.Serialize()));
         }
-        
+
         /// <summary>
         /// Removes all existing MUI resources.
         /// </summary>
