@@ -67,7 +67,7 @@ public partial class ResourceType
                 };
 
                 return !string.IsNullOrWhiteSpace(standardTypePortion)
-                    ? codePortion + ' ' + '(' + standardTypePortion + ')'
+                    ? codePortion + ' ' + standardTypePortion
                     : codePortion;
             }
         }
