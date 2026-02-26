@@ -95,8 +95,8 @@ public partial class MuiInfo
         // dwSystemAttributes
         writer.Write(0u);
 
-        // dwUltimateFallbackLocation
-        writer.Write(0u);
+        // dwUltimateFallbackLocation (1 = internal, resources are in this file)
+        writer.Write(1u);
 
         // abChecksum[16]
         writer.Write(Checksum.Length == 16 ? Checksum : new byte[16]);
