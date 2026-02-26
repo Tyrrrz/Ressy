@@ -67,12 +67,6 @@ public static class MuiExtensions
             ?? throw new InvalidOperationException("MUI resource does not exist.");
 
         /// <summary>
-        /// Removes all existing MUI resources.
-        /// </summary>
-        public void RemoveMuiInfo() =>
-            portableExecutable.RemoveResources(r => r.Type.Equals(ResourceType.Mui));
-
-        /// <summary>
         /// Adds or overwrites a MUI resource with the specified data.
         /// </summary>
         /// <remarks>
@@ -90,5 +84,11 @@ public static class MuiExtensions
 
             portableExecutable.SetResource(new Resource(identifier, muiInfo.Serialize()));
         }
+        
+        /// <summary>
+        /// Removes all existing MUI resources.
+        /// </summary>
+        public void RemoveMuiInfo() =>
+            portableExecutable.RemoveResources(r => r.Type.Equals(ResourceType.Mui));
     }
 }
