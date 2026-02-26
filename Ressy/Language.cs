@@ -28,13 +28,6 @@ public partial struct Language
     public static Language Neutral { get; } = new(0);
 
     /// <summary>
-    /// Neutral language with the default sublanguage (<c>LANG_NEUTRAL + SUBLANG_DEFAULT</c>, <c>0x0400</c> / <c>1024</c>).
-    /// Used as the Win32 neutral UI fallback.
-    /// </summary>
-    // ReSharper disable once InconsistentNaming
-    public static Language UINeutral { get; } = new(1024);
-
-    /// <summary>
     /// Creates a language identifier from a culture descriptor.
     /// </summary>
     // https://learn.microsoft.com/windows/win32/intl/locale-identifiers
