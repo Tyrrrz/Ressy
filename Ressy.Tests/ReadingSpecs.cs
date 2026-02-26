@@ -81,13 +81,13 @@ public class ReadingSpecs(ITestOutputHelper testOutput)
                 new ResourceIdentifier(
                     ResourceType.String,
                     ResourceName.FromCode(1),
-                    Language.UINeutral
+                    Language.Neutral
                 ),
                 // -- RT_STRING/2/English
                 new ResourceIdentifier(
                     ResourceType.String,
                     ResourceName.FromCode(2),
-                    Language.UINeutral
+                    Language.Neutral
                 ),
                 // -- RT_STRING/1/French
                 new ResourceIdentifier(

@@ -13,7 +13,7 @@ public class GetStringTableCommand : ICommand
     public required string FilePath { get; init; }
 
     [CommandOption("lang", 'l', Description = "Language of the string to read.")]
-    public int Language { get; init; } = Ressy.Language.UINeutral.Id;
+    public int Language { get; init; } = Ressy.Language.Neutral.Id;
 
     public ValueTask ExecuteAsync(IConsole console)
     {

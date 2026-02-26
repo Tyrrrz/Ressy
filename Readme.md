@@ -507,7 +507,7 @@ var str = stringTable.GetString(1);
 
 > [!NOTE]
 > You can optionally pass a `Language` parameter to `GetStringTable()` to retrieve strings for a specific language.
-> If no language is specified, the method looks for strings in the neutral UI language.
+> If no language is specified, the method looks for strings in the neutral language.
 
 ##### Set the string table
 
@@ -546,7 +546,7 @@ portableExecutable.SetStringTable(b =>
 
 > [!NOTE]
 > You can optionally pass a `Language` parameter to set the strings for a specific language.
-> If no language is specified, the strings are stored in the neutral UI language.
+> If no language is specified, the strings are stored in the neutral language.
 
 ##### Remove string table resources
 
