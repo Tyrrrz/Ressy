@@ -17,7 +17,7 @@ public readonly partial struct Language(int id)
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
-    public override string ToString() => $"ID: {Id}";
+    public override string ToString() => Id.ToString(CultureInfo.InvariantCulture);
 }
 
 public partial struct Language

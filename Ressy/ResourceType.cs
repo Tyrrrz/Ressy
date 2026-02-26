@@ -148,107 +148,107 @@ public partial class ResourceType
 public partial class ResourceType
 {
     /// <summary>
-    /// Corresponds to "RT_CURSOR".
+    /// Corresponds to RT_CURSOR.
     /// </summary>
     public static ResourceType Cursor { get; } = FromCode(1);
 
     /// <summary>
-    /// Corresponds to "RT_BITMAP".
+    /// Corresponds to RT_BITMAP.
     /// </summary>
     public static ResourceType Bitmap { get; } = FromCode(2);
 
     /// <summary>
-    /// Corresponds to "RT_ICON".
+    /// Corresponds to RT_ICON.
     /// </summary>
     public static ResourceType Icon { get; } = FromCode(3);
 
     /// <summary>
-    /// Corresponds to "RT_MENU".
+    /// Corresponds to RT_MENU.
     /// </summary>
     public static ResourceType Menu { get; } = FromCode(4);
 
     /// <summary>
-    /// Corresponds to "RT_DIALOG".
+    /// Corresponds to RT_DIALOG.
     /// </summary>
     public static ResourceType Dialog { get; } = FromCode(5);
 
     /// <summary>
-    /// Corresponds to "RT_STRING".
+    /// Corresponds to RT_STRING.
     /// </summary>
     public static ResourceType String { get; } = FromCode(6);
 
     /// <summary>
-    /// Corresponds to "RT_FONTDIR".
+    /// Corresponds to RT_FONTDIR.
     /// </summary>
     public static ResourceType FontDir { get; } = FromCode(7);
 
     /// <summary>
-    /// Corresponds to "RT_FONT".
+    /// Corresponds to RT_FONT.
     /// </summary>
     public static ResourceType Font { get; } = FromCode(8);
 
     /// <summary>
-    /// Corresponds to "RT_ACCELERATOR".
+    /// Corresponds to RT_ACCELERATOR.
     /// </summary>
     public static ResourceType Accelerator { get; } = FromCode(9);
 
     /// <summary>
-    /// Corresponds to "RT_RCDATA".
+    /// Corresponds to RT_RCDATA.
     /// </summary>
     public static ResourceType RawData { get; } = FromCode(10);
 
     /// <summary>
-    /// Corresponds to "RT_MESSAGETABLE".
+    /// Corresponds to RT_MESSAGETABLE.
     /// </summary>
     public static ResourceType MessageTable { get; } = FromCode(11);
 
     /// <summary>
-    /// Corresponds to "RT_GROUP_CURSOR".
+    /// Corresponds to RT_GROUP_CURSOR.
     /// </summary>
     public static ResourceType CursorGroup { get; } = FromCode(12);
 
     /// <summary>
-    /// Corresponds to "RT_GROUP_ICON".
+    /// Corresponds to RT_GROUP_ICON.
     /// </summary>
     public static ResourceType IconGroup { get; } = FromCode(14);
 
     /// <summary>
-    /// Corresponds to "RT_VERSION".
+    /// Corresponds to RT_VERSION.
     /// </summary>
     public static ResourceType Version { get; } = FromCode(16);
 
     /// <summary>
-    /// Corresponds to "RT_DLGINCLUDE".
+    /// Corresponds to RT_DLGINCLUDE.
     /// </summary>
     public static ResourceType DialogInclude { get; } = FromCode(17);
 
     /// <summary>
-    /// Corresponds to "RT_PLUGPLAY".
+    /// Corresponds to RT_PLUGPLAY.
     /// </summary>
     public static ResourceType PlugAndPlay { get; } = FromCode(19);
 
     /// <summary>
-    /// Corresponds to "RT_VXD".
+    /// Corresponds to RT_VXD.
     /// </summary>
     public static ResourceType Vxd { get; } = FromCode(20);
 
     /// <summary>
-    /// Corresponds to "RT_ANICURSOR".
+    /// Corresponds to RT_ANICURSOR.
     /// </summary>
     public static ResourceType AnimatedCursor { get; } = FromCode(21);
 
     /// <summary>
-    /// Corresponds to "RT_ANIICON".
+    /// Corresponds to RT_ANIICON.
     /// </summary>
     public static ResourceType AnimatedIcon { get; } = FromCode(22);
 
     /// <summary>
-    /// Corresponds to "RT_HTML".
+    /// Corresponds to RT_HTML.
     /// </summary>
     public static ResourceType Html { get; } = FromCode(23);
 
     /// <summary>
-    /// Corresponds to "RT_MANIFEST".
+    /// Corresponds to RT_MANIFEST.
     /// </summary>
     public static ResourceType Manifest { get; } = FromCode(24);
 }
