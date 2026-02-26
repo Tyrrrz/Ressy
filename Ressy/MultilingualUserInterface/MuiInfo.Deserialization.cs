@@ -53,7 +53,7 @@ public partial class MuiInfo
         if (signature != MuiSignature)
             throw new InvalidOperationException("Invalid MUI resource: wrong signature.");
 
-        // dwHeaderSize
+        // dwSize (total binary size)
         _ = reader.ReadUInt32();
 
         // dwFileType

@@ -80,8 +80,8 @@ public partial class MuiInfo
         // dwSignature
         writer.Write(MuiSignature);
 
-        // dwHeaderSize
-        writer.Write(HeaderSize);
+        // dwSize (total binary size including all variable-length data appended after the header)
+        writer.Write(currentOffset);
 
         // dwFileType
         writer.Write((uint)FileType);
