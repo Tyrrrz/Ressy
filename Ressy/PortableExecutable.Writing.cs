@@ -16,12 +16,12 @@ public partial class PortableExecutable
     // writes the modified bytes back to the stream, and re-parses the PE metadata.
     private void UpdateResources(IReadOnlyList<Resource> resources)
     {
-        if (stream.Length > int.MaxValue)
+        if (Stream.Length > int.MaxValue)
             throw new InvalidDataException("PE file is too large to be processed.");
 
-        stream.Position = 0;
-        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
-        var fileBytes = reader.ReadBytes((int)stream.Length);
+        Stream.Position = 0;
+        using var reader = new BinaryReader(Stream, Encoding.UTF8, true);
+        var fileBytes = reader.ReadBytes((int)Stream.Length);
 
         var info = _info;
 
@@ -179,13 +179,13 @@ public partial class PortableExecutable
         }
 
         // Write modified bytes back.
-        stream.Position = 0;
-        stream.Write(newFileBytes, 0, newFileBytes.Length);
-        stream.SetLength(newFileBytes.Length);
-        stream.Flush();
+        Stream.Position = 0;
+        Stream.Write(newFileBytes, 0, newFileBytes.Length);
+        Stream.SetLength(newFileBytes.Length);
+        Stream.Flush();
 
         // Re-parse PE metadata since the structure may have changed
-        _info = ParsePEInfo(stream);
+        _info = ParsePEInfo(Stream);
     }
 
     private static uint FindNextVirtualAddress(PEInfo info, bool excludeRsrc)

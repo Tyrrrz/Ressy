@@ -18,6 +18,16 @@ public partial class PortableExecutable(
     private PEInfo _info = ParsePEInfo(stream);
 
     /// <summary>
+    /// Underlying stream of the portable executable.
+    /// </summary>
+    public Stream Stream { get; } = stream;
+
+    /// <summary>
+    /// Whether the portable executable is opened in read-only mode.
+    /// </summary>
+    public bool IsReadOnly { get; } = isReadOnly;
+
+    /// <summary>
     /// Gets the identifiers of all existing resources.
     /// </summary>
     public IReadOnlyList<ResourceIdentifier> GetResourceIdentifiers()
@@ -35,7 +45,7 @@ public partial class PortableExecutable(
         var sectionBase = (int)resource.PointerToRawData;
         var sectionSize = (int)resource.SizeOfRawData;
 
-        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
+        using var reader = new BinaryReader(Stream, Encoding.UTF8, true);
         return ReadIdentifiers(reader, sectionBase, sectionSize, 0, null, null).ToList();
     }
 
@@ -47,7 +57,7 @@ public partial class PortableExecutable(
         if (_info.ResourceSectionIndex < 0)
             return [];
 
-        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
+        using var reader = new BinaryReader(Stream, Encoding.UTF8, true);
         return ReadResourcesFromSection(reader, _info.Sections[_info.ResourceSectionIndex]);
     }
 
@@ -67,7 +77,7 @@ public partial class PortableExecutable(
         if (resource.PointerToRawData > int.MaxValue || resource.SizeOfRawData > int.MaxValue)
             throw new InvalidDataException("Resource section is too large to be processed.");
 
-        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
+        using var reader = new BinaryReader(Stream, Encoding.UTF8, true);
         var data = FindResourceData(
             reader,
             (int)resource.PointerToRawData,
@@ -92,7 +102,7 @@ public partial class PortableExecutable(
     /// </summary>
     public void SetResources(IReadOnlyList<Resource> resources, bool removeOthers = false)
     {
-        if (isReadOnly)
+        if (IsReadOnly)
             throw new InvalidOperationException("Cannot modify resources in a read-only PE file.");
 
         if (removeOthers)
@@ -139,11 +149,16 @@ public partial class PortableExecutable(
     /// </summary>
     public void RemoveResource(ResourceIdentifier identifier) => RemoveResources([identifier]);
 
+    /// <summary>
+    /// Flushes the underlying stream, ensuring that all changes are written to the PE file.
+    /// </summary>
+    public void Flush() => Stream.Flush();
+
     /// <inheritdoc />
     public void Dispose()
     {
         if (disposeStream)
-            stream.Dispose();
+            Stream.Dispose();
     }
 }
 
