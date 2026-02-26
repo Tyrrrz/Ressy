@@ -101,12 +101,6 @@ public class ReadingSpecs(ITestOutputHelper testOutput)
                     ResourceName.FromCode(2),
                     new Language(1036)
                 ),
-                // -- MUI/1/Neutral
-                new ResourceIdentifier(
-                    ResourceType.Mui,
-                    ResourceName.FromCode(1),
-                    Language.Neutral
-                ),
             ]);
 
         testOutput.WriteLine(
