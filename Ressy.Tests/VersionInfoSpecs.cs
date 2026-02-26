@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using FluentAssertions;
+using Ressy.MultilingualUserInterface;
 using Ressy.Tests.Utils;
 using Ressy.Versions;
 using Xunit;
@@ -83,6 +84,7 @@ public class VersionInfoSpecs
 
             // Assert
             portableExecutable.GetVersionInfo().Should().BeEquivalentTo(versionInfo);
+            portableExecutable.RemoveMuiInfo();
         }
 
         // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
@@ -132,6 +134,7 @@ public class VersionInfoSpecs
 
             // Assert
             versionInfo = portableExecutable.GetVersionInfo();
+            portableExecutable.RemoveMuiInfo();
         }
 
         versionInfo
@@ -214,6 +217,7 @@ public class VersionInfoSpecs
                 .NotContain(r => r.Type.Code == ResourceType.Version.Code);
 
             portableExecutable.TryGetVersionInfo().Should().BeNull();
+            portableExecutable.RemoveMuiInfo();
         }
 
         // FileVersionInfo.GetVersionInfo() on non-Windows reads .NET assembly metadata
