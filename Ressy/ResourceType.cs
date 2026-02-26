@@ -256,5 +256,5 @@ public partial class ResourceType
     /// Corresponds to "MUI".
     /// </summary>
     // https://learn.microsoft.com/windows/win32/intl/mui-resource-technology
-    public static ResourceType Mui { get; } = FromString("MUI");
+    public static ResourceType Mui { get; } = FromString("\"MUI\"");
 }
