@@ -190,7 +190,7 @@ public static class StringTableExtensions
 
             portableExecutable.SetStringTable(builder.Build(), language);
         }
-        
+
         /// <summary>
         /// Removes all existing string table resources.
         /// </summary>
