@@ -15,7 +15,19 @@ public class MuiSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = PortableExecutable.OpenRead(file.Path);
+        using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
+        portableExecutable.SetMuiInfo(
+            new MuiInfo(
+                MuiFileType.LanguageNeutral,
+                checksum: new byte[16],
+                serviceChecksum: new byte[16],
+                mainResourceTypes: [ResourceType.String],
+                fallbackResourceTypes: [ResourceType.Version],
+                language: null,
+                fallbackLanguage: null,
+                ultimateFallbackLanguage: "en"
+            )
+        );
 
         // Act
         var muiInfo = portableExecutable.GetMuiInfo();
@@ -25,8 +37,8 @@ public class MuiSpecs
         muiInfo.Language.Should().BeNull();
         muiInfo.FallbackLanguage.Should().BeNull();
         muiInfo.UltimateFallbackLanguage.Should().Be("en");
-        muiInfo.MainResourceTypes.Should().BeEmpty();
-        muiInfo.FallbackResourceTypes.Should().BeEmpty();
+        muiInfo.MainResourceTypes.Should().ContainSingle(t => t.Equals(ResourceType.String));
+        muiInfo.FallbackResourceTypes.Should().ContainSingle(t => t.Equals(ResourceType.Version));
     }
 
     [Fact]
