@@ -64,3 +64,7 @@ BEGIN
     5   "Au revoir, le monde !"
     18  "Bip blop boup"
 END
+
+// MUI resource
+LANGUAGE 0x0000, SUBLANG_NEUTRAL
+1 "MUI" "Mui.bin"
