@@ -66,12 +66,6 @@ public static class VersionExtensions
             ?? throw new InvalidOperationException("Version info resource does not exist.");
 
         /// <summary>
-        /// Removes all existing version info resources.
-        /// </summary>
-        public void RemoveVersionInfo() =>
-            portableExecutable.RemoveResources(r => r.Type.Code == ResourceType.Version.Code);
-
-        /// <summary>
         /// Adds or overwrites a version info resource with the specified data.
         /// </summary>
         /// <remarks>
@@ -111,14 +105,18 @@ public static class VersionExtensions
                 ?? new ResourceIdentifier(ResourceType.Version, ResourceName.FromCode(1));
 
             // If the resource already exists, use the data as base
-            if (existingResource is not null)
-            {
+            if (existingResource is not null) 
                 builder.SetAll(existingResource.ReadAsVersionInfo());
-            }
 
             modify(builder);
 
             portableExecutable.SetResource(new Resource(identifier, builder.Build().Serialize()));
         }
+        
+        /// <summary>
+        /// Removes all existing version info resources.
+        /// </summary>
+        public void RemoveVersionInfo() =>
+            portableExecutable.RemoveResources(r => r.Type.Code == ResourceType.Version.Code);
     }
 }
