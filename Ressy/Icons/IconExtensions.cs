@@ -13,14 +13,6 @@ public static class IconExtensions
     extension(PortableExecutable portableExecutable)
     {
         /// <summary>
-        /// Removes all existing icon and icon group resources.
-        /// </summary>
-        public void RemoveIcon() =>
-            portableExecutable.RemoveResources(r =>
-                r.Type.Code == ResourceType.Icon.Code || r.Type.Code == ResourceType.IconGroup.Code
-            );
-
-        /// <summary>
         /// Adds or overwrites icon and icon group resources based on the specified ICO file stream.
         /// </summary>
         /// <remarks>
@@ -89,5 +81,13 @@ public static class IconExtensions
             using var iconStream = File.OpenRead(iconFilePath);
             portableExecutable.SetIcon(iconStream);
         }
+        
+        /// <summary>
+        /// Removes all existing icon and icon group resources.
+        /// </summary>
+        public void RemoveIcon() =>
+            portableExecutable.RemoveResources(r =>
+                r.Type.Code == ResourceType.Icon.Code || r.Type.Code == ResourceType.IconGroup.Code
+            );
     }
 }

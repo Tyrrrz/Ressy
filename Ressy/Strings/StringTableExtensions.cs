@@ -111,12 +111,6 @@ public static class StringTableExtensions
             ?? throw new InvalidOperationException("String table resource does not exist.");
 
         /// <summary>
-        /// Removes all existing string table resources.
-        /// </summary>
-        public void RemoveStringTable() =>
-            portableExecutable.RemoveResources(r => r.Type.Code == ResourceType.String.Code);
-
-        /// <summary>
         /// Adds or overwrites string table resource blocks with the specified data.
         /// </summary>
         /// <remarks>
@@ -196,5 +190,11 @@ public static class StringTableExtensions
 
             portableExecutable.SetStringTable(builder.Build(), language);
         }
+        
+        /// <summary>
+        /// Removes all existing string table resources.
+        /// </summary>
+        public void RemoveStringTable() =>
+            portableExecutable.RemoveResources(r => r.Type.Code == ResourceType.String.Code);
     }
 }

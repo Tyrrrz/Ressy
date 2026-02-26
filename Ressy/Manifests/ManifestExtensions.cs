@@ -73,12 +73,6 @@ public static class ManifestExtensions
             ?? throw new InvalidOperationException("Application manifest resource does not exist.");
 
         /// <summary>
-        /// Removes all existing manifest resources.
-        /// </summary>
-        public void RemoveManifest() =>
-            portableExecutable.RemoveResources(r => r.Type.Code == ResourceType.Manifest.Code);
-
-        /// <summary>
         /// Adds or overwrites a manifest resource with the specified XML text string.
         /// </summary>
         /// <remarks>
@@ -98,5 +92,11 @@ public static class ManifestExtensions
                 new Resource(identifier, (encoding ?? DefaultManifestEncoding).GetBytes(manifest))
             );
         }
+        
+        /// <summary>
+        /// Removes all existing manifest resources.
+        /// </summary>
+        public void RemoveManifest() =>
+            portableExecutable.RemoveResources(r => r.Type.Code == ResourceType.Manifest.Code);
     }
 }
