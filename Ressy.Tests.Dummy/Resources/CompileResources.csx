@@ -35,30 +35,33 @@ public class CompileResourcesCommand : ICommand
         throw new CommandException(
             OperatingSystem.IsWindows()
                 ? """
-                  Could not compile resources: neither windres nor rc.exe was found or succeeded.
-                  Install the Windows SDK (includes rc.exe):
-                    winget install Microsoft.WindowsSDK.10.0.26100
-                  """
+                Could not compile resources: neither windres nor rc.exe was found or succeeded.
+                Install the Windows SDK (includes rc.exe):
+                  winget install Microsoft.WindowsSDK.10.0.26100
+                """
             : OperatingSystem.IsLinux()
                 ? """
-                  Could not compile resources: neither windres nor rc.exe was found or succeeded.
-                  Install mingw-w64 (includes windres):
-                    sudo apt install mingw-w64
-                  """
+                Could not compile resources: neither windres nor rc.exe was found or succeeded.
+                Install mingw-w64 (includes windres):
+                  sudo apt install mingw-w64
+                """
             : OperatingSystem.IsMacOS()
                 ? """
-                  Could not compile resources: neither windres nor rc.exe was found or succeeded.
-                  Install mingw-w64 (includes windres):
-                    brew install mingw-w64
-                  """
+                Could not compile resources: neither windres nor rc.exe was found or succeeded.
+                Install mingw-w64 (includes windres):
+                  brew install mingw-w64
+                """
             : """
-              Could not compile resources: neither windres nor rc.exe was found or succeeded.
-              Install the Windows SDK (rc.exe) or mingw-w64 (windres).
-              """
+            Could not compile resources: neither windres nor rc.exe was found or succeeded.
+            Install the Windows SDK (rc.exe) or mingw-w64 (windres).
+            """
         );
     }
 
-    private async Task<bool> InvokeWindresAsync(IConsole console, CancellationToken cancellationToken)
+    private async Task<bool> InvokeWindresAsync(
+        IConsole console,
+        CancellationToken cancellationToken
+    )
     {
         var candidates = new string[]
         {
