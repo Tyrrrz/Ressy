@@ -98,18 +98,16 @@ if (Invoke-Windres) {
     exit 0
 }
 
-Write-Error "Could not compile resources: neither rc.exe nor windres was found or succeeded.`n$(
-    if ($IsWindows) {
-        "Install the Windows SDK (includes rc.exe):`n" +
-        "  winget install Microsoft.WindowsSDK.10.0.26100"
-    } elseif ($IsLinux) {
-        "Install mingw-w64 (includes windres):`n" +
-        "  sudo apt install mingw-w64"
-    } elseif ($IsMacOS) {
-        "Install mingw-w64 (includes windres):`n" +
-        "  brew install mingw-w64"
-    } else {
-        "Install the Windows SDK (rc.exe) or mingw-w64 (windres)."
-    }
-)"
+Write-Error "Could not compile resources: neither rc.exe nor windres was found or succeeded."
+
+if ($IsWindows) {
+    Write-Error "Install the Windows SDK (includes rc.exe):`n  winget install Microsoft.WindowsSDK.10.0.26100"
+} elseif ($IsLinux) {
+    Write-Error "Install mingw-w64 (includes windres):`n  sudo apt install mingw-w64"
+} elseif ($IsMacOS) {
+    Write-Error "Install mingw-w64 (includes windres):`n  brew install mingw-w64"
+} else {
+    Write-Error "Install the Windows SDK (rc.exe) or mingw-w64 (windres)."
+}
+
 exit 1
