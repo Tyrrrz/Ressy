@@ -19,14 +19,13 @@ namespace Ressy;
 public partial class PortableExecutable(
     Stream stream,
     IReadOnlyList<Stream> satelliteImageStreams,
-    bool isReadOnly = false,
     bool disposeStream = false
-) : IDisposable
+) : IPortableExecutable
 {
     private PEInfo _info = ParsePEInfo(stream);
 
     private IReadOnlyList<PortableExecutable> _satellites = satelliteImageStreams
-        .Select(s => new PortableExecutable(s, [], true, disposeStream))
+        .Select(s => new PortableExecutable(s, [], disposeStream))
         .ToArray();
 
     // Reads resource identifiers from this file only (excludes satellites).
@@ -85,13 +84,7 @@ public partial class PortableExecutable(
         return data is not null ? new Resource(identifier, data) : null;
     }
 
-    /// <summary>
-    /// Gets the identifiers of all existing resources.
-    /// </summary>
-    /// <remarks>
-    /// If satellite files are included, this method returns the union of identifiers
-    /// from the main file and all satellite files.
-    /// </remarks>
+    /// <inheritdoc />
     public IReadOnlyList<ResourceIdentifier> GetResourceIdentifiers()
     {
         var own = GetOwnResourceIdentifiers();
@@ -111,13 +104,7 @@ public partial class PortableExecutable(
         return seen.ToArray();
     }
 
-    /// <summary>
-    /// Gets all existing resources, along with their stored binary data.
-    /// </summary>
-    /// <remarks>
-    /// If satellite files are included, resources from satellite files override
-    /// the main file's resources when their identifiers fully match.
-    /// </remarks>
+    /// <inheritdoc />
     public IReadOnlyList<Resource> GetResources()
     {
         var own = GetOwnResources();
@@ -133,14 +120,7 @@ public partial class PortableExecutable(
         return dict.Values.ToArray();
     }
 
-    /// <summary>
-    /// Gets the specified resource.
-    /// Returns <c>null</c> if the resource doesn't exist.
-    /// </summary>
-    /// <remarks>
-    /// If satellite files are included, the satellite version takes preference
-    /// when the identifier fully matches.
-    /// </remarks>
+    /// <inheritdoc />
     public Resource? TryGetResource(ResourceIdentifier identifier)
     {
         // Check satellites first (they take priority)
@@ -154,24 +134,14 @@ public partial class PortableExecutable(
         return TryGetOwnResource(identifier);
     }
 
-    /// <summary>
-    /// Gets the specified resource.
-    /// </summary>
+    /// <inheritdoc />
     public Resource GetResource(ResourceIdentifier identifier) =>
         TryGetResource(identifier)
         ?? throw new InvalidOperationException($"Resource '{identifier}' does not exist.");
 
-    /// <summary>
-    /// Adds or overwrites the specified resources, optionally removing the rest.
-    /// </summary>
-    /// <remarks>
-    /// Write operations only affect the main file, not satellite files.
-    /// </remarks>
+    /// <inheritdoc />
     public void SetResources(IReadOnlyList<Resource> resources, bool removeOthers = false)
     {
-        if (isReadOnly)
-            throw new InvalidOperationException("Cannot modify resources in a read-only PE file.");
-
         if (removeOthers)
         {
             UpdateResources(resources);
@@ -186,37 +156,24 @@ public partial class PortableExecutable(
         UpdateResources(resourcesByIdentifier.Values.ToArray());
     }
 
-    /// <summary>
-    /// Adds or overwrites the specified resource.
-    /// </summary>
+    /// <inheritdoc />
     public void SetResource(Resource resource) => SetResources([resource]);
 
-    /// <summary>
-    /// Removes all resources matching the specified predicate.
-    /// </summary>
-    /// <remarks>
-    /// Write operations only affect the main file, not satellite files.
-    /// </remarks>
+    /// <inheritdoc />
     public void RemoveResources(Func<ResourceIdentifier, bool> predicate)
     {
         var resourcesToKeep = GetOwnResources().Where(r => !predicate(r.Identifier)).ToArray();
         SetResources(resourcesToKeep, true);
     }
 
-    /// <summary>
-    /// Removes the specified resources.
-    /// </summary>
+    /// <inheritdoc />
     public void RemoveResources(IReadOnlyList<ResourceIdentifier> identifiers) =>
         RemoveResources(identifiers.ToHashSet().Contains);
 
-    /// <summary>
-    /// Removes all existing resources.
-    /// </summary>
+    /// <inheritdoc />
     public void RemoveResources() => SetResources([], true);
 
-    /// <summary>
-    /// Removes the specified resource.
-    /// </summary>
+    /// <inheritdoc />
     public void RemoveResource(ResourceIdentifier identifier) => RemoveResources([identifier]);
 
     /// <inheritdoc />
@@ -284,32 +241,6 @@ public partial class PortableExecutable
     }
 
     /// <summary>
-    /// Creates a <see cref="PortableExecutable" /> from a stream.
-    /// </summary>
-    public static PortableExecutable FromStream(Stream stream, bool isReadOnly = false) =>
-        new(stream, [], isReadOnly);
-
-    /// <summary>
-    /// Creates a <see cref="PortableExecutable" /> from a file stream,
-    /// optionally discovering and including satellite MUI resource files.
-    /// </summary>
-    /// <remarks>
-    /// Satellite files are located by searching for <c>&lt;filename&gt;.mui</c>
-    /// files in immediate subdirectories whose names are valid locale identifiers
-    /// (e.g. <c>en-US/app.exe.mui</c>).
-    /// </remarks>
-    public static PortableExecutable FromStream(FileStream stream, bool openSatellites)
-    {
-        var readOnly = !stream.CanWrite;
-
-        if (!openSatellites)
-            return FromStream(stream, readOnly);
-
-        var satelliteStreams = DiscoverSatelliteStreams(stream.Name);
-        return new(stream, satelliteStreams, readOnly);
-    }
-
-    /// <summary>
     /// Opens the portable executable at the specified file path with the specified access and sharing options.
     /// </summary>
     public static PortableExecutable Open(
@@ -320,20 +251,44 @@ public partial class PortableExecutable
     )
     {
         var mainStream = File.Open(filePath, FileMode.Open, fileAccess, fileShare);
-        var readOnly = fileAccess == FileAccess.Read;
 
         if (!openSatellites)
-            return new(mainStream, [], readOnly, true);
+            return new(mainStream, [], true);
 
         var satelliteStreams = DiscoverSatelliteStreams(filePath);
-        return new(mainStream, satelliteStreams, readOnly, true);
+        return new(mainStream, satelliteStreams, true);
     }
 
     /// <summary>
-    /// Opens the portable executable at the specified file path with read and write access.
+    /// Opens the portable executable with read/write access from the specified stream.
     /// </summary>
-    public static PortableExecutable OpenWrite(string filePath) =>
-        Open(filePath, FileAccess.ReadWrite, FileShare.None);
+    /// <remarks>
+    /// Satellite file discovery is not available for stream-based access.
+    /// When initializing from a stream, make sure that the stream supports seeking.
+    /// </remarks>
+    public static IPortableExecutable OpenWrite(Stream stream) =>
+        new PortableExecutable(stream, []);
+
+    /// <summary>
+    /// Opens the portable executable at the specified file path with read/write access.
+    /// </summary>
+    /// <remarks>
+    /// Write operations only affect the main PE file.
+    /// If <paramref name="openSatellites" /> is <see langword="true" />, satellite files are used
+    /// exclusively for reading — to modify a satellite file's resources, open it directly.
+    /// </remarks>
+    public static IPortableExecutable OpenWrite(string filePath, bool openSatellites = false) =>
+        Open(filePath, FileAccess.ReadWrite, FileShare.None, openSatellites);
+
+    /// <summary>
+    /// Opens the portable executable with read-only access from the specified stream.
+    /// </summary>
+    /// <remarks>
+    /// Satellite file discovery is not available for stream-based access.
+    /// When initializing from a stream, make sure that the stream supports seeking.
+    /// </remarks>
+    public static IReadOnlyPortableExecutable OpenRead(Stream stream) =>
+        new PortableExecutable(stream, []);
 
     /// <summary>
     /// Opens the portable executable at the specified file path with read-only access.
@@ -342,6 +297,8 @@ public partial class PortableExecutable
     /// Opening a PE file with read-only access allows reading data when the file is in use by another process
     /// (e.g. to extract resources from a currently running executable), but prevents any modifications to it.
     /// </remarks>
-    public static PortableExecutable OpenRead(string filePath, bool openSatellites = false) =>
-        Open(filePath, FileAccess.Read, FileShare.Read, openSatellites);
+    public static IReadOnlyPortableExecutable OpenRead(
+        string filePath,
+        bool openSatellites = false
+    ) => Open(filePath, FileAccess.Read, FileShare.Read, openSatellites);
 }

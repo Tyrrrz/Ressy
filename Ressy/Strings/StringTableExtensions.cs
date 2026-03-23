@@ -32,7 +32,7 @@ public static class StringTableExtensions
     }
 
     /// <inheritdoc cref="StringTableExtensions" />
-    extension(PortableExecutable portableExecutable)
+    extension(IReadOnlyPortableExecutable portableExecutable)
     {
         private ResourceIdentifier? TryGetStringTableBlockResourceIdentifier(
             int blockId,
@@ -109,7 +109,11 @@ public static class StringTableExtensions
         public StringTable GetStringTable(Language? language = null) =>
             portableExecutable.TryGetStringTable(language)
             ?? throw new InvalidOperationException("String table resource does not exist.");
+    }
 
+    /// <inheritdoc cref="StringTableExtensions" />
+    extension(IPortableExecutable portableExecutable)
+    {
         /// <summary>
         /// Adds or overwrites string table resource blocks with the specified data.
         /// </summary>

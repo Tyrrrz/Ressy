@@ -25,7 +25,7 @@ public static class ManifestExtensions
     }
 
     /// <inheritdoc cref="ManifestExtensions" />
-    extension(PortableExecutable portableExecutable)
+    extension(IReadOnlyPortableExecutable portableExecutable)
     {
         private ResourceIdentifier? TryGetManifestResourceIdentifier() =>
             portableExecutable
@@ -71,7 +71,11 @@ public static class ManifestExtensions
         public string GetManifest(Encoding? encoding = null) =>
             portableExecutable.TryGetManifest(encoding)
             ?? throw new InvalidOperationException("Application manifest resource does not exist.");
+    }
 
+    /// <inheritdoc cref="ManifestExtensions" />
+    extension(IPortableExecutable portableExecutable)
+    {
         /// <summary>
         /// Adds or overwrites a manifest resource with the specified XML text string.
         /// </summary>

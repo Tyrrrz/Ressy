@@ -19,7 +19,7 @@ public static class VersionExtensions
     }
 
     /// <inheritdoc cref="VersionExtensions" />
-    extension(PortableExecutable portableExecutable)
+    extension(IReadOnlyPortableExecutable portableExecutable)
     {
         private ResourceIdentifier? TryGetVersionInfoResourceIdentifier() =>
             portableExecutable
@@ -64,7 +64,11 @@ public static class VersionExtensions
         public VersionInfo GetVersionInfo() =>
             portableExecutable.TryGetVersionInfo()
             ?? throw new InvalidOperationException("Version info resource does not exist.");
+    }
 
+    /// <inheritdoc cref="VersionExtensions" />
+    extension(IPortableExecutable portableExecutable)
+    {
         /// <summary>
         /// Adds or overwrites a version info resource with the specified data.
         /// </summary>

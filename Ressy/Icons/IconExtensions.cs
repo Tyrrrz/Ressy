@@ -10,7 +10,7 @@ namespace Ressy.Icons;
 public static class IconExtensions
 {
     /// <inheritdoc cref="IconExtensions" />
-    extension(PortableExecutable portableExecutable)
+    extension(IPortableExecutable portableExecutable)
     {
         /// <summary>
         /// Adds or overwrites icon and icon group resources based on the specified ICO file stream.

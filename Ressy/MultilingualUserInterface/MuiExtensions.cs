@@ -20,7 +20,7 @@ public static class MuiExtensions
     }
 
     /// <inheritdoc cref="MuiExtensions" />
-    extension(PortableExecutable portableExecutable)
+    extension(IReadOnlyPortableExecutable portableExecutable)
     {
         private ResourceIdentifier? TryGetMuiResourceIdentifier() =>
             portableExecutable
@@ -65,7 +65,11 @@ public static class MuiExtensions
         public MuiInfo GetMuiInfo() =>
             portableExecutable.TryGetMuiInfo()
             ?? throw new InvalidOperationException("MUI resource does not exist.");
+    }
 
+    /// <inheritdoc cref="MuiExtensions" />
+    extension(IPortableExecutable portableExecutable)
+    {
         /// <summary>
         /// Adds or overwrites a MUI resource with the specified data.
         /// </summary>

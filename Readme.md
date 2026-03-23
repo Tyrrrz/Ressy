@@ -52,19 +52,20 @@ using var portableExecutable = PortableExecutable.OpenWrite("some_app.exe");
 // ...
 ```
 
-Alternatively, you can also initialize a `PortableExecutable` from a `Stream`, which is useful when you need to work on PE files that are not stored on disk:
+Alternatively, you can also initialize from a `Stream`, which is useful when you need to work on PE files that are not stored on disk:
 
 ```csharp
 using Ressy;
 
 using var stream = File.OpenRead("some_app.exe");
-using var portableExecutable = new PortableExecutable(stream);
+using var portableExecutable = PortableExecutable.OpenRead(stream);
 
 // ...
 ```
 
 > [!IMPORTANT]
-> When initializing a `PortableExecutable` from a stream, make sure that the stream supports seeking.
+> When initializing from a stream, make sure that the stream supports seeking.
+> Satellite file discovery is not available for stream-based access.
 
 ### Reading resources
 

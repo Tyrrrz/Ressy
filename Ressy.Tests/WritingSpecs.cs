@@ -284,16 +284,21 @@ public class WritingSpecs
         using var file = TempFile.Create();
         File.Copy(Dummy.Program.Path, file.Path);
 
-        using var portableExecutable = PortableExecutable.OpenRead(file.Path);
-
-        // Act & Assert
-        Assert.Throws<InvalidOperationException>(() =>
-            portableExecutable.SetResource(
-                new Resource(
-                    new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1)),
-                    [1, 2, 3, 4, 5]
+        // OpenRead returns IReadOnlyPortableExecutable, which only exposes read methods at compile time.
+        // Casting to IPortableExecutable bypasses the compile-time safety; the underlying stream
+        // enforces read-only access and throws NotSupportedException.
+        var portableExecutable = (IPortableExecutable)PortableExecutable.OpenRead(file.Path);
+        using (portableExecutable)
+        {
+            // Act & Assert
+            Assert.Throws<NotSupportedException>(() =>
+                portableExecutable.SetResource(
+                    new Resource(
+                        new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1)),
+                        [1, 2, 3, 4, 5]
+                    )
                 )
-            )
-        );
+            );
+        }
     }
 }
