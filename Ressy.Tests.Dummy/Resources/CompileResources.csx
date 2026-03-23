@@ -1,10 +1,10 @@
 #:package CliWrap
 #:package CliFx
 
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using CliFx;
 using CliFx.Attributes;
+using CliFx.Exceptions;
 using CliFx.Infrastructure;
 using CliWrap;
 
@@ -14,57 +14,47 @@ return await new CliApplicationBuilder().AddCommand<CompileResourcesCommand>().B
 public class CompileResourcesCommand : ICommand
 {
     [CommandOption("input", 'i', IsRequired = true)]
-    public string InputFile { get; set; } = "";
+    public string InputFilePath { get; set; } = "";
 
     [CommandOption("output", 'o', IsRequired = true)]
-    public string OutputFile { get; set; } = "";
-
-    private IConsole _console = null!;
+    public string OutputFilePath { get; set; } = "";
 
     public async ValueTask ExecuteAsync(IConsole console)
     {
-        _console = console;
+        var cancellationToken = console.RegisterCancellationHandler();
 
-        if (await InvokeWindresAsync() || await InvokeRcAsync())
+        if (
+            await InvokeWindresAsync(console, cancellationToken)
+            || await InvokeRcAsync(console, cancellationToken)
+        )
             return;
 
-        if (File.Exists(OutputFile))
+        // Graceful fallback: if the output file already exists (e.g. committed to the repo),
+        // emit warnings but succeed — used by CI environments that don't install windres/rc.exe.
+        if (File.Exists(OutputFilePath))
         {
-            await _console.Error.WriteLineAsync(
+            await console.Error.WriteLineAsync(
                 "Warning: Could not compile resources: neither windres nor rc.exe was found or succeeded."
             );
-            await _console.Error.WriteLineAsync(
-                "Warning: "
-                    + (
-                        RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                            ? "Install the Windows SDK (includes rc.exe):\n  winget install Microsoft.WindowsSDK.10.0.26100"
-                        : RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                            ? "Install mingw-w64 (includes windres):\n  sudo apt install mingw-w64"
-                        : RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-                            ? "Install mingw-w64 (includes windres):\n  brew install mingw-w64"
-                        : "Install the Windows SDK (rc.exe) or mingw-w64 (windres)."
-                    )
-            );
-            await _console.Error.WriteLineAsync("Warning: Using the existing output file.");
+            await console.Error.WriteLineAsync("Warning: Using the existing output file.");
             return;
         }
 
-        await _console.Error.WriteLineAsync(
-            "Error: Could not compile resources: neither windres nor rc.exe was found or succeeded."
+        throw new CommandException(
+            "Could not compile resources: neither windres nor rc.exe was found or succeeded.\n"
+                + (
+                    OperatingSystem.IsWindows()
+                        ? "Install the Windows SDK (includes rc.exe):\n  winget install Microsoft.WindowsSDK.10.0.26100"
+                    : OperatingSystem.IsLinux()
+                        ? "Install mingw-w64 (includes windres):\n  sudo apt install mingw-w64"
+                    : OperatingSystem.IsMacOS()
+                        ? "Install mingw-w64 (includes windres):\n  brew install mingw-w64"
+                    : "Install the Windows SDK (rc.exe) or mingw-w64 (windres)."
+                )
         );
-        await _console.Error.WriteLineAsync(
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? "Install the Windows SDK (includes rc.exe):\n  winget install Microsoft.WindowsSDK.10.0.26100"
-            : RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                ? "Install mingw-w64 (includes windres):\n  sudo apt install mingw-w64"
-            : RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-                ? "Install mingw-w64 (includes windres):\n  brew install mingw-w64"
-            : "Install the Windows SDK (rc.exe) or mingw-w64 (windres)."
-        );
-        Environment.Exit(1);
     }
 
-    private async Task<bool> InvokeWindresAsync()
+    private async Task<bool> InvokeWindresAsync(IConsole console, CancellationToken cancellationToken)
     {
         string[] candidates =
         [
@@ -76,21 +66,26 @@ public class CompileResourcesCommand : ICommand
 
         foreach (var candidate in candidates)
         {
-            var path = FindExecutable(candidate);
-            if (path is null)
+            CommandResult result;
+            try
+            {
+                result = await Cli.Wrap(candidate)
+                    .WithArguments(["-i", InputFilePath, "-o", OutputFilePath, "-O", "res"])
+                    .WithValidation(CommandResultValidation.None)
+                    .ExecuteAsync(cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
                 continue;
-
-            await _console.Output.WriteLineAsync($"Using windres: {path}");
-
-            var result = await Cli.Wrap(path)
-                .WithArguments(["-i", InputFile, "-o", OutputFile, "-O", "res"])
-                .WithValidation(CommandResultValidation.None)
-                .ExecuteAsync();
+            }
 
             if (result.ExitCode == 0)
+            {
+                await console.Output.WriteLineAsync($"Using windres: {candidate}");
                 return true;
+            }
 
-            await _console.Error.WriteLineAsync(
+            await console.Error.WriteLineAsync(
                 $"Warning: {candidate} failed with exit code {result.ExitCode}."
             );
         }
@@ -98,9 +93,9 @@ public class CompileResourcesCommand : ICommand
         return false;
     }
 
-    private async Task<bool> InvokeRcAsync()
+    private async Task<bool> InvokeRcAsync(IConsole console, CancellationToken cancellationToken)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (!OperatingSystem.IsWindows())
             return false;
 
         var windowsKitsPath = @"C:\Program Files (x86)\Windows Kits";
@@ -122,61 +117,31 @@ public class CompileResourcesCommand : ICommand
         if (rcExe is null)
             return false;
 
-        await _console.Output.WriteLineAsync($"Using rc.exe: {rcExe}");
+        await console.Output.WriteLineAsync($"Using rc.exe: {rcExe}");
 
-        var includeArgs = new List<string>();
-        var versionMatch = Regex.Match(rcExe, @"\\bin\\([\d.]+)\\");
-        if (versionMatch.Success)
-        {
-            var sdkVersion = versionMatch.Groups[1].Value;
-            var sdkRoot = Path.GetFullPath(
-                Path.Combine(Path.GetDirectoryName(rcExe)!, "..", "..", "..")
-            );
-            foreach (var subdir in new[] { "um", "shared" })
-            {
-                var includePath = Path.Combine(sdkRoot, "Include", sdkVersion, subdir);
-                if (Directory.Exists(includePath))
-                {
-                    includeArgs.Add("/I");
-                    includeArgs.Add(includePath);
-                }
-            }
-        }
-
-        var allArgs = new List<string>(includeArgs) { "/fo", OutputFile, InputFile };
         var result = await Cli.Wrap(rcExe)
-            .WithArguments(allArgs)
-            .WithValidation(CommandResultValidation.None)
-            .ExecuteAsync();
-        return result.ExitCode == 0;
-    }
-
-    private static string? FindExecutable(string name)
-    {
-        var paths = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(
-            Path.PathSeparator,
-            StringSplitOptions.RemoveEmptyEntries
-        );
-
-        var hasExtension = Path.GetExtension(name).Length > 0;
-        var extensions =
-            !hasExtension && RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? (Environment.GetEnvironmentVariable("PATHEXT") ?? ".exe;.cmd;.bat").Split(
-                    ';',
-                    StringSplitOptions.RemoveEmptyEntries
-                )
-                : (string[])[""];
-
-        foreach (var dir in paths)
-        {
-            foreach (var ext in extensions)
+            .WithArguments(args =>
             {
-                var fullPath = Path.Combine(dir, name + ext);
-                if (File.Exists(fullPath))
-                    return fullPath;
-            }
-        }
+                var versionMatch = Regex.Match(rcExe, @"\\bin\\([\d.]+)\\");
+                if (versionMatch.Success)
+                {
+                    var sdkVersion = versionMatch.Groups[1].Value;
+                    var sdkRoot = Path.GetFullPath(
+                        Path.Combine(Path.GetDirectoryName(rcExe)!, "..", "..", "..")
+                    );
+                    foreach (var subdir in new[] { "um", "shared" })
+                    {
+                        var includePath = Path.Combine(sdkRoot, "Include", sdkVersion, subdir);
+                        if (Directory.Exists(includePath))
+                            args.Add("/I").Add(includePath);
+                    }
+                }
 
-        return null;
+                args.Add("/fo").Add(OutputFilePath).Add(InputFilePath);
+            })
+            .WithValidation(CommandResultValidation.None)
+            .ExecuteAsync(cancellationToken);
+
+        return result.ExitCode == 0;
     }
 }
