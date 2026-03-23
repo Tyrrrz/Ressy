@@ -79,10 +79,14 @@ public class CompileResourcesCommand : ICommand
                 var result = await Cli.Wrap(candidate)
                     .WithArguments(["-i", InputFilePath, "-o", OutputFilePath, "-O", "res"])
                     .WithStandardOutputPipe(
-                        PipeTarget.ToDelegate(async line => await console.Output.WriteLineAsync(line))
+                        PipeTarget.ToDelegate(async line =>
+                            await console.Output.WriteLineAsync(line)
+                        )
                     )
                     .WithStandardErrorPipe(
-                        PipeTarget.ToDelegate(async line => await console.Error.WriteLineAsync(line))
+                        PipeTarget.ToDelegate(async line =>
+                            await console.Error.WriteLineAsync(line)
+                        )
                     )
                     .WithValidation(CommandResultValidation.None)
                     .ExecuteAsync(cancellationToken);
