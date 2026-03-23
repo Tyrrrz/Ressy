@@ -603,7 +603,22 @@ Returned object should contain data similar to this:
 > If there are multiple MUI resources, this method retrieves the first one it finds, giving preference to resources with lower ordinal name (ID) and in the neutral language.
 
 Language-specific resources are split out into satellite `.mui` files placed in a language-named subdirectory next to the original executable.
-You can use `GetSatelliteFilePath(...)` on a `MuiInfo` instance to compute the path to the satellite file, then open it with `PortableExecutable.OpenRead(...)`:
+You can open a PE with satellite discovery enabled by passing `openSatellites: true`, which automatically merges resources from all discovered satellite files:
+
+```csharp
+using Ressy;
+using Ressy.Strings;
+
+// Open with automatic satellite discovery
+using var pe = PortableExecutable.OpenRead("notepad.exe", openSatellites: true);
+
+// GetResourceIdentifiers() and GetResources() now include resources from satellites.
+// Satellite resources take priority when identifiers fully match.
+var identifiers = pe.GetResourceIdentifiers();
+var stringTable = pe.GetStringTable();
+```
+
+Alternatively, you can use `GetSatelliteFilePath(...)` on a `MuiInfo` instance to compute the path to a specific satellite file and open it manually:
 
 ```csharp
 using Ressy;
@@ -621,9 +636,6 @@ var satellitePath = muiInfo.GetSatelliteFilePath("notepad.exe");
 // Open the satellite MUI file and read its localized string table
 using var satellitePe = PortableExecutable.OpenRead(satellitePath);
 var stringTable = satellitePe.GetStringTable();
-
-// stringTable.GetString(1) => "Open"
-// stringTable.GetString(2) => "Save"
 ```
 
 ##### Set MUI info
