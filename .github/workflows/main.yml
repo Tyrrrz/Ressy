@@ -23,17 +23,15 @@ on:
 
 jobs:
   # This test job is defined locally (instead of relying on the one in the reusable nuget.yml workflow)
-  # because we need to install mingw-w64 on all platforms for resource compilation.
+  # because we need to install mingw-w64 on Linux and macOS for resource compilation.
   test:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            install-windres: sudo apt install -y mingw-w64
-          - os: windows-latest
-          - os: macos-latest
-            install-windres: brew install mingw-w64
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
@@ -53,9 +51,13 @@ jobs:
       - name: Install .NET
         uses: actions/setup-dotnet@baa11fbfe1d6520db94683bd5c7a3818018e4309 # v5.1.0
 
-      - name: Install mingw-w64
-        if: ${{ matrix.install-windres }}
-        run: ${{ matrix.install-windres }}
+      - name: Install windres (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt install -y mingw-w64
+
+      - name: Install windres (macOS)
+        if: runner.os == 'macOS'
+        run: brew install mingw-w64
 
       - name: Run tests
         run: >
