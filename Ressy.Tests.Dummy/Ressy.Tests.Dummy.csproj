@@ -4,8 +4,8 @@
     <TargetFramework>net10.0-windows</TargetFramework>
 
     <!--
-      Use rc.exe from Windows SDK or windres from mingw-w64 to compile this file from an .rc file.
-      If neither tool is available on the system, the pre-compiled resource file will be used.
+      If rc.exe from Windows SDK or windres from mingw-w64 is available,
+      the resources will be compiled automatically on build.
     -->
     <Win32Resource>Resources/Resources.res</Win32Resource>
   </PropertyGroup>
