@@ -66,7 +66,12 @@ function Invoke-Rc {
 }
 
 function Invoke-Windres {
-    $windresCandidates = @("x86_64-w64-mingw32-windres", "i686-w64-mingw32-windres")
+    $windresCandidates = @(
+        "x86_64-w64-mingw32-windres",
+        "i686-w64-mingw32-windres",
+        "windres",
+        "windres.exe"
+    )
 
     foreach ($windres in $windresCandidates) {
         $windresCmd = Get-Command $windres -ErrorAction SilentlyContinue
