@@ -59,7 +59,7 @@ function Invoke-Rc {
 
     }
 
-    $allArgs = $includeArgs + @($rcFile)
+    $allArgs = $includeArgs + @("/fo", $resFile, $rcFile)
     & $latestRcExe.FullName @allArgs
 
     return $LASTEXITCODE -eq 0
