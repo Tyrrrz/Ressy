@@ -150,6 +150,7 @@ public class CompileResourcesCommand : ICommand
                     var sdkRoot = Path.GetFullPath(
                         Path.Combine(Path.GetDirectoryName(rcFilePath)!, "..", "..", "..")
                     );
+
                     foreach (var subdir in new[] { "um", "shared" })
                     {
                         var includePath = Path.Combine(sdkRoot, "Include", sdkVersion, subdir);
