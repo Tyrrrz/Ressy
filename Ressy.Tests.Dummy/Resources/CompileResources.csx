@@ -29,17 +29,6 @@ public class CompileResourcesCommand : ICommand
         )
             return;
 
-        // Graceful fallback: if the output file already exists (e.g. committed to the repo),
-        // emit warnings but succeed — used by CI environments that don't install windres/rc.exe.
-        if (File.Exists(OutputFilePath))
-        {
-            await console.Error.WriteLineAsync(
-                "Warning: Could not compile resources: neither windres nor rc.exe was found or succeeded."
-            );
-            await console.Error.WriteLineAsync("Warning: Using the existing output file.");
-            return;
-        }
-
         throw new CommandException(
             "Could not compile resources: neither windres nor rc.exe was found or succeeded.\n"
                 + (
