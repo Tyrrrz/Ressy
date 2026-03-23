@@ -27,7 +27,9 @@ public class CompileResourcesCommand : ICommand
             await InvokeWindresAsync(console, cancellationToken)
             || await InvokeRcAsync(console, cancellationToken)
         )
+        {
             return;
+        }
 
         throw new CommandException(
             "Could not compile resources: neither windres nor rc.exe was found or succeeded.\n"
