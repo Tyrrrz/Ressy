@@ -14,10 +14,10 @@ return await new CliApplicationBuilder().AddCommand<CompileResourcesCommand>().B
 public class CompileResourcesCommand : ICommand
 {
     [CommandOption("input", 'i', IsRequired = true)]
-    public string InputFilePath { get; set; } = "";
+    public required string InputFilePath { get; set; }
 
     [CommandOption("output", 'o', IsRequired = true)]
-    public string OutputFilePath { get; set; } = "";
+    public required string OutputFilePath { get; set; }
 
     public async ValueTask ExecuteAsync(IConsole console)
     {
