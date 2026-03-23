@@ -22,9 +22,59 @@ on:
       - prime
 
 jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+
+    env:
+      # Secrets can't be referenced in conditionals, but environment variables can.
+      # https://github.com/github/docs/issues/6861#issuecomment-870757186
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@baa11fbfe1d6520db94683bd5c7a3818018e4309 # v5.1.0
+
+      - name: Install mingw-w64 (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: brew install mingw-w64
+
+      - name: Run tests
+        run: >
+          dotnet test
+          -p:CSharpier_Bypass=true
+          --configuration Release
+          --logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
+          --collect:"XPlat Code Coverage"
+          --
+          RunConfiguration.CollectSourceInformation=true
+          DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+      - name: Upload coverage
+        if: ${{ env.CODECOV_TOKEN }}
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   main:
+    needs: test
     uses: Tyrrrz/.github/.github/workflows/nuget.yml@prime
     with:
+      skip-tests: true
       deploy: ${{ inputs.deploy || github.ref_type == 'tag' }}
       package-version: ${{ inputs.package-version || (github.ref_type == 'tag' && github.ref_name) || format('0.0.0-ci-{0}', github.sha) }}
     secrets:
