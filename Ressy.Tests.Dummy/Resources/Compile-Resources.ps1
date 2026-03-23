@@ -57,7 +57,6 @@ function Invoke-Rc {
             $includeArgs += $path
         }
 
-        Write-Host "SDK Version: $sdkVersion"
     }
 
     $allArgs = $includeArgs + @($rcFile)
