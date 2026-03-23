@@ -1,3 +1,4 @@
+#!/usr/bin/env dotnet-run
 #:package CliWrap
 #:package CliFx
 
