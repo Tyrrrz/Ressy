@@ -10,3 +10,6 @@ obj/
 
 # Test results
 TestResults/
+
+# Generated resource file (produced by CompileResources.csx at build time)
+Ressy.Tests.Dummy/Resources/Resources.res
