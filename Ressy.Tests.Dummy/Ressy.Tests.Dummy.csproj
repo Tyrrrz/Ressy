@@ -4,8 +4,7 @@
     <TargetFramework>net10.0-windows</TargetFramework>
 
     <!--
-      If rc.exe from Windows SDK or windres from mingw-w64 is available,
-      the resources will be compiled automatically on build.
+      Resources are compiled automatically on build.
     -->
     <Win32Resource>Resources/Resources.res</Win32Resource>
   </PropertyGroup>
@@ -15,10 +14,8 @@
   </ItemGroup>
 
   <Target Name="CompileResources" BeforeTargets="BeforeBuild">
-    <!-- Allow command to fail because rc.exe may not be available on every system -->
     <Exec
       Command="pwsh -ExecutionPolicy Bypass -File $(ProjectDir)/Resources/Compile-Resources.ps1"
-      ContinueOnError="true"
     />
   </Target>
 </Project>

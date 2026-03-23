@@ -2,7 +2,7 @@
 $rcFile = Join-Path $resourcesDir "Resources.rc"
 $resFile = Join-Path $resourcesDir "Resources.res"
 
-function Invoke-RcExe {
+function Invoke-Rc {
     $windowsKitsPath = "C:\Program Files (x86)\Windows Kits"
 
     if (-not (Test-Path $windowsKitsPath)) {
@@ -58,8 +58,6 @@ function Invoke-RcExe {
         }
 
         Write-Host "SDK Version: $sdkVersion"
-        Write-Host "Include paths:"
-        $includePaths | ForEach-Object { Write-Host "  $_" }
     }
 
     $allArgs = $includeArgs + @($rcFile)
@@ -91,7 +89,7 @@ function Invoke-Windres {
     return $false
 }
 
-if (Invoke-RcExe) {
+if (Invoke-Rc) {
     Write-Host "Resource compilation completed successfully using rc.exe."
     exit 0
 }
@@ -101,19 +99,18 @@ if (Invoke-Windres) {
     exit 0
 }
 
-$instructions = if ($IsWindows) {
-    "Install the Windows SDK (includes rc.exe):`n" +
-    "  winget install Microsoft.WindowsSDK.10.0.26100`n" +
-    "Or install mingw-w64 (includes windres) and ensure it is in PATH."
-} elseif ($IsLinux) {
-    "Install mingw-w64 (includes windres):`n" +
-    "  sudo apt install mingw-w64"
-} elseif ($IsMacOS) {
-    "Install mingw-w64 (includes windres):`n" +
-    "  brew install mingw-w64"
-} else {
-    "Install the Windows SDK (rc.exe) or mingw-w64 (windres)."
-}
-
-Write-Error "Could not compile resources: neither rc.exe nor windres was found or succeeded.`n$instructions"
+Write-Error "Could not compile resources: neither rc.exe nor windres was found or succeeded.`n$(
+    if ($IsWindows) {
+        "Install the Windows SDK (includes rc.exe):`n" +
+        "  winget install Microsoft.WindowsSDK.10.0.26100"
+    } elseif ($IsLinux) {
+        "Install mingw-w64 (includes windres):`n" +
+        "  sudo apt install mingw-w64"
+    } elseif ($IsMacOS) {
+        "Install mingw-w64 (includes windres):`n" +
+        "  brew install mingw-w64"
+    } else {
+        "Install the Windows SDK (rc.exe) or mingw-w64 (windres)."
+    }
+)"
 exit 1
