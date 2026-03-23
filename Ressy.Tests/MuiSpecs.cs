@@ -291,34 +291,47 @@ public class MuiSpecs
     [Fact]
     public void I_can_get_the_MUI_info_and_FileVersionInfo_still_works()
     {
-        // Verify that injecting a MUI resource via Ressy's API does not
-        // break Windows FileVersionInfo when MainResourceTypes includes
-        // RT_VERSION (indicating version info stays in the neutral file).
+        // Verify that injecting a MUI resource via Ressy's API does not break Windows
+        // FileVersionInfo. When a MUI resource is present, Windows always redirects
+        // FileVersionInfo to the satellite file. We therefore create a satellite copy of
+        // the dummy PE at <locale>/<filename>.mui so that Windows finds it and reads the
+        // version strings from there.
         if (!OperatingSystem.IsWindows())
             return;
 
         // Arrange
-        using var file = TempFile.Create();
-        File.Copy(Dummy.Program.Path, file.Path);
+        using var dir = TempDir.Create();
+        var fileName = Guid.NewGuid() + ".exe";
+        var neutralPath = Path.Combine(dir.Path, fileName);
+        File.Copy(Dummy.Program.Path, neutralPath);
 
-        using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
+        // Determine the current UI culture; the satellite must live under that locale
+        var locale = System.Globalization.CultureInfo.CurrentUICulture.Name;
+
+        using (var portableExecutable = PortableExecutable.OpenWrite(neutralPath))
         {
             portableExecutable.SetMuiInfo(
                 new MuiInfo(
                     MuiFileType.LanguageNeutral,
                     checksum: new byte[16],
                     serviceChecksum: new byte[16],
-                    mainResourceTypes: [ResourceType.Version],
+                    mainResourceTypes: [],
                     fallbackResourceTypes: [],
-                    null,
-                    null,
-                    "en"
+                    language: locale,
+                    fallbackLanguage: locale,
+                    ultimateFallbackLanguage: "en"
                 )
             );
         }
 
+        // Create a satellite file at <locale>/<filename>.mui — a copy of the dummy PE
+        // that already has the RT_VERSION resource with the expected version strings.
+        var satelliteDir = Path.Combine(dir.Path, locale);
+        Directory.CreateDirectory(satelliteDir);
+        File.Copy(Dummy.Program.Path, Path.Combine(satelliteDir, fileName + ".mui"));
+
         // Act
-        var versionInfo = FileVersionInfo.GetVersionInfo(file.Path);
+        var versionInfo = FileVersionInfo.GetVersionInfo(neutralPath);
 
         // Assert
         versionInfo.ProductName.Should().Be("TestProduct");
