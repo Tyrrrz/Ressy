@@ -13,9 +13,8 @@ public class MuiSpecs
     [Fact]
     public void I_can_get_the_MUI_info()
     {
-        // The MUI resource is not embedded in the dummy PE via .rc because
-        // its presence causes Windows to redirect FileVersionInfo lookups to
-        // a satellite .mui file, which doesn't exist at the test path.
+        // The rc compiler doesn't have a macro for MUI's binary structure, so it's
+        // really difficult to inject a valid and consistent MUI resource outside of Ressy.
         // Instead, we inject it through Ressy's API and then read it back.
 
         // Arrange
@@ -151,6 +150,145 @@ public class MuiSpecs
     }
 
     [Fact]
+    public void I_can_get_resources_with_no_satellites()
+    {
+        // Arrange
+        using var file = TempFile.Create();
+        File.Copy(Dummy.Program.Path, file.Path);
+
+        // Act
+        using var pe = PortableExecutable.OpenRead(file.Path, openSatellites: true);
+        var identifiers = pe.GetResourceIdentifiers();
+
+        // Assert — should return the same as without satellites
+        using var peBaseline = PortableExecutable.OpenRead(file.Path);
+        identifiers.Should().BeEquivalentTo(peBaseline.GetResourceIdentifiers());
+    }
+
+    [Fact]
+    public void I_can_get_resources_with_satellites()
+    {
+        // Arrange — create a directory with a main PE and a satellite
+        using var dir = TempDir.Create();
+
+        var mainPath = Path.Combine(dir.Path, "test.exe");
+        File.Copy(Dummy.Program.Path, mainPath);
+
+        var satelliteDir = Path.Combine(dir.Path, "fr-FR");
+        Directory.CreateDirectory(satelliteDir);
+
+        var satellitePath = Path.Combine(satelliteDir, "test.exe.mui");
+        File.Copy(Dummy.Program.Path, satellitePath);
+
+        // Add a unique resource to the satellite so we can detect it
+        using (var satellitePe = PortableExecutable.OpenWrite(satellitePath))
+        {
+            satellitePe.SetResource(
+                new Resource(
+                    new ResourceIdentifier(
+                        ResourceType.FromCode(255),
+                        ResourceName.FromCode(1),
+                        Language.Neutral
+                    ),
+                    new byte[] { 0xCA, 0xFE }
+                )
+            );
+        }
+
+        // Act
+        using var pe = PortableExecutable.OpenRead(mainPath, openSatellites: true);
+        var identifiers = pe.GetResourceIdentifiers();
+
+        // Assert — should include the unique resource from the satellite
+        identifiers
+            .Should()
+            .Contain(
+                new ResourceIdentifier(
+                    ResourceType.FromCode(255),
+                    ResourceName.FromCode(1),
+                    Language.Neutral
+                )
+            );
+    }
+
+    [Fact]
+    public void I_can_get_satellite_resource_data()
+    {
+        // Arrange
+        using var dir = TempDir.Create();
+
+        var mainPath = Path.Combine(dir.Path, "test.exe");
+        File.Copy(Dummy.Program.Path, mainPath);
+
+        var satelliteDir = Path.Combine(dir.Path, "en-US");
+        Directory.CreateDirectory(satelliteDir);
+
+        var satellitePath = Path.Combine(satelliteDir, "test.exe.mui");
+        File.Copy(Dummy.Program.Path, satellitePath);
+
+        var expectedData = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF };
+        var resourceId = new ResourceIdentifier(
+            ResourceType.FromCode(200),
+            ResourceName.FromCode(1),
+            Language.Neutral
+        );
+
+        using (var satellitePe = PortableExecutable.OpenWrite(satellitePath))
+        {
+            satellitePe.SetResource(new Resource(resourceId, expectedData));
+        }
+
+        // Act
+        using var pe = PortableExecutable.OpenRead(mainPath, openSatellites: true);
+        var resource = pe.TryGetResource(resourceId);
+
+        // Assert
+        resource.Should().NotBeNull();
+        resource!.Data.Should().Equal(expectedData);
+    }
+
+    [Fact]
+    public void Satellite_resource_overrides_main_resource()
+    {
+        // Arrange
+        using var dir = TempDir.Create();
+
+        var mainPath = Path.Combine(dir.Path, "test.exe");
+        File.Copy(Dummy.Program.Path, mainPath);
+
+        var resourceId = new ResourceIdentifier(
+            ResourceType.FromCode(201),
+            ResourceName.FromCode(1),
+            Language.Neutral
+        );
+
+        // Add resource to the main file
+        using (var mainPe = PortableExecutable.OpenWrite(mainPath))
+        {
+            mainPe.SetResource(new Resource(resourceId, new byte[] { 0x01 }));
+        }
+
+        // Add the same resource to a satellite with different data
+        var satelliteDir = Path.Combine(dir.Path, "en-US");
+        Directory.CreateDirectory(satelliteDir);
+
+        var satellitePath = Path.Combine(satelliteDir, "test.exe.mui");
+        File.Copy(mainPath, satellitePath);
+
+        using (var satellitePe = PortableExecutable.OpenWrite(satellitePath))
+        {
+            satellitePe.SetResource(new Resource(resourceId, new byte[] { 0x02 }));
+        }
+
+        // Act
+        using var pe = PortableExecutable.OpenRead(mainPath, openSatellites: true);
+        var resource = pe.GetResource(resourceId);
+
+        // Assert — satellite data should take precedence
+        resource.Data.Should().Equal(new byte[] { 0x02 });
+    }
+
+    [Fact]
     public void I_can_get_the_MUI_info_and_FileVersionInfo_still_works()
     {
         // Verify that injecting a MUI resource via Ressy's API does not
@@ -190,7 +328,7 @@ public class MuiSpecs
     }
 
     [Fact]
-    public void I_can_get_more_resources_from_notepad_with_satellites()
+    public void I_can_get_more_resources_from_Notepad_with_satellites()
     {
         // On Windows, notepad.exe has satellite .mui files in language subdirectories.
         // Opening with satellites should yield more resource identifiers.

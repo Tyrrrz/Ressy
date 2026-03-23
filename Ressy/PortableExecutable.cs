@@ -1,44 +1,33 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using Ressy.Utils.Extensions;
 
 namespace Ressy;
 
 /// <summary>
 /// Portable executable image file.
 /// </summary>
+/// <remarks>
+/// Each satellite stream is wrapped in a read-only <see cref="PortableExecutable" /> instance.
+/// When querying resources, satellite resources are merged with the main file's resources,
+/// giving preference to the satellite version when identifiers fully match.
+/// </remarks>
 public partial class PortableExecutable(
     Stream stream,
+    IReadOnlyList<Stream> satelliteImageStreams,
     bool isReadOnly = false,
     bool disposeStream = false
 ) : IDisposable
 {
     private PEInfo _info = ParsePEInfo(stream);
-    private IReadOnlyList<PortableExecutable> _satellites = [];
 
-    /// <summary>
-    /// Initializes a new instance of <see cref="PortableExecutable" /> with satellite resource streams.
-    /// </summary>
-    /// <remarks>
-    /// Each satellite stream is wrapped in a read-only <see cref="PortableExecutable" /> instance.
-    /// When querying resources, satellite resources are merged with the main file's resources,
-    /// giving preference to the satellite version when identifiers fully match.
-    /// </remarks>
-    public PortableExecutable(
-        Stream neutralImageStream,
-        IReadOnlyList<Stream> satelliteImageStreams,
-        bool isReadOnly = false,
-        bool disposeStream = false
-    )
-        : this(neutralImageStream, isReadOnly, disposeStream)
-    {
-        _satellites = satelliteImageStreams
-            .Select(s => new PortableExecutable(s, true, disposeStream))
-            .ToList();
-    }
+    private IReadOnlyList<PortableExecutable> _satellites = satelliteImageStreams
+        .Select(s => new PortableExecutable(s, [], true, disposeStream))
+        .ToArray();
 
     // Reads resource identifiers from this file only (excludes satellites).
     private IReadOnlyList<ResourceIdentifier> GetOwnResourceIdentifiers()
@@ -110,14 +99,16 @@ public partial class PortableExecutable(
             return own;
 
         var seen = new HashSet<ResourceIdentifier>(own);
-        var result = new List<ResourceIdentifier>(own);
 
         foreach (var satellite in _satellites)
-        foreach (var id in satellite.GetResourceIdentifiers())
-            if (seen.Add(id))
-                result.Add(id);
+        {
+            foreach (var id in satellite.GetResourceIdentifiers())
+            {
+                seen.Add(id);
+            }
+        }
 
-        return result;
+        return seen.ToArray();
     }
 
     /// <summary>
@@ -139,7 +130,7 @@ public partial class PortableExecutable(
         foreach (var r in satellite.GetResources())
             dict[r.Identifier] = r;
 
-        return dict.Values.ToList();
+        return dict.Values.ToArray();
     }
 
     /// <summary>
@@ -231,8 +222,7 @@ public partial class PortableExecutable(
     /// <inheritdoc />
     public void Dispose()
     {
-        foreach (var satellite in _satellites)
-            satellite.Dispose();
+        _satellites.DisposeAll();
 
         stream.Flush();
 
@@ -243,21 +233,10 @@ public partial class PortableExecutable(
 
 public partial class PortableExecutable
 {
-    private static bool IsValidLocale(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return false;
-
-        try
-        {
-            var culture = CultureInfo.GetCultureInfo(name);
-            return !string.IsNullOrEmpty(culture.Name);
-        }
-        catch (CultureNotFoundException)
-        {
-            return false;
-        }
-    }
+    private static readonly Regex LocalePattern = new(
+        @"^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{1,8})*$",
+        RegexOptions.Compiled
+    );
 
     private static IReadOnlyList<Stream> DiscoverSatelliteStreams(string filePath)
     {
@@ -273,7 +252,7 @@ public partial class PortableExecutable
             foreach (var subDir in Directory.GetDirectories(directory))
             {
                 var localeName = Path.GetFileName(subDir);
-                if (localeName is null || !IsValidLocale(localeName))
+                if (localeName is null || !LocalePattern.IsMatch(localeName))
                     continue;
 
                 var muiPath = Path.Combine(subDir, muiFileName);
@@ -297,8 +276,7 @@ public partial class PortableExecutable
         catch
         {
             // Dispose any already-opened streams on unexpected failure
-            foreach (var s in streams)
-                s.Dispose();
+            streams.DisposeAll();
             throw;
         }
 
@@ -308,11 +286,8 @@ public partial class PortableExecutable
     /// <summary>
     /// Creates a <see cref="PortableExecutable" /> from a stream.
     /// </summary>
-    public static PortableExecutable FromStream(
-        Stream stream,
-        bool isReadOnly = false,
-        bool disposeStream = false
-    ) => new(stream, isReadOnly, disposeStream);
+    public static PortableExecutable FromStream(Stream stream, bool isReadOnly = false) =>
+        new(stream, [], isReadOnly);
 
     /// <summary>
     /// Creates a <see cref="PortableExecutable" /> from a file stream,
@@ -323,19 +298,15 @@ public partial class PortableExecutable
     /// files in immediate subdirectories whose names are valid locale identifiers
     /// (e.g. <c>en-US/app.exe.mui</c>).
     /// </remarks>
-    public static PortableExecutable FromStream(
-        FileStream stream,
-        bool openSatellites,
-        bool disposeStream = false
-    )
+    public static PortableExecutable FromStream(FileStream stream, bool openSatellites)
     {
         var readOnly = !stream.CanWrite;
 
         if (!openSatellites)
-            return new(stream, readOnly, disposeStream);
+            return FromStream(stream, readOnly);
 
         var satelliteStreams = DiscoverSatelliteStreams(stream.Name);
-        return new(stream, satelliteStreams, readOnly, disposeStream);
+        return new(stream, satelliteStreams, readOnly);
     }
 
     /// <summary>
@@ -352,7 +323,7 @@ public partial class PortableExecutable
         var readOnly = fileAccess == FileAccess.Read;
 
         if (!openSatellites)
-            return new(mainStream, readOnly, true);
+            return new(mainStream, [], readOnly, true);
 
         var satelliteStreams = DiscoverSatelliteStreams(filePath);
         return new(mainStream, satelliteStreams, readOnly, true);
