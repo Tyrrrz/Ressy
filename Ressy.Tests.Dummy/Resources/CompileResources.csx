@@ -1,12 +1,17 @@
-using System.Diagnostics;
+#:package CliWrap
+
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using CliWrap;
 
-var resourcesDir = args.Length > 0 ? args[0] : Environment.CurrentDirectory;
+static string GetScriptDir([CallerFilePath] string path = "") => Path.GetDirectoryName(path)!;
+
+var resourcesDir = GetScriptDir();
 var rcFile = Path.Combine(resourcesDir, "Resources.rc");
 var resFile = Path.Combine(resourcesDir, "Resources.res");
 
-if (InvokeWindres() || InvokeRc())
+if (await InvokeWindres() || await InvokeRc())
     return;
 
 if (File.Exists(resFile))
@@ -14,7 +19,18 @@ if (File.Exists(resFile))
     Console.Error.WriteLine(
         "Warning: Could not compile resources: neither windres nor rc.exe was found or succeeded."
     );
-    WriteInstallHint(isError: false);
+    Console.Error.WriteLine(
+        "Warning: "
+            + (
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? "Install the Windows SDK (includes rc.exe):\n  winget install Microsoft.WindowsSDK.10.0.26100"
+                : RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                    ? "Install mingw-w64 (includes windres):\n  sudo apt install mingw-w64"
+                : RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                    ? "Install mingw-w64 (includes windres):\n  brew install mingw-w64"
+                : "Install the Windows SDK (rc.exe) or mingw-w64 (windres)."
+            )
+    );
     Console.Error.WriteLine("Warning: Using the existing Resources.res file.");
     return;
 }
@@ -22,10 +38,18 @@ if (File.Exists(resFile))
 Console.Error.WriteLine(
     "Error: Could not compile resources: neither windres nor rc.exe was found or succeeded."
 );
-WriteInstallHint(isError: true);
+Console.Error.WriteLine(
+    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+        ? "Install the Windows SDK (includes rc.exe):\n  winget install Microsoft.WindowsSDK.10.0.26100"
+    : RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+        ? "Install mingw-w64 (includes windres):\n  sudo apt install mingw-w64"
+    : RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+        ? "Install mingw-w64 (includes windres):\n  brew install mingw-w64"
+    : "Install the Windows SDK (rc.exe) or mingw-w64 (windres)."
+);
 Environment.Exit(1);
 
-bool InvokeWindres()
+async Task<bool> InvokeWindres()
 {
     string[] candidates =
     [
@@ -43,17 +67,21 @@ bool InvokeWindres()
 
         Console.WriteLine($"Using windres: {path}");
 
-        var exitCode = RunProcess(path, "-i", rcFile, "-o", resFile, "-O", "res");
-        if (exitCode == 0)
+        var result = await Cli.Wrap(path)
+            .WithArguments(["-i", rcFile, "-o", resFile, "-O", "res"])
+            .WithValidation(CommandResultValidation.None)
+            .ExecuteAsync();
+
+        if (result.ExitCode == 0)
             return true;
 
-        Console.Error.WriteLine($"Warning: {candidate} failed with exit code {exitCode}.");
+        Console.Error.WriteLine($"Warning: {candidate} failed with exit code {result.ExitCode}.");
     }
 
     return false;
 }
 
-bool InvokeRc()
+async Task<bool> InvokeRc()
 {
     if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         return false;
@@ -99,7 +127,11 @@ bool InvokeRc()
     }
 
     var allArgs = new List<string>(includeArgs) { "/fo", resFile, rcFile };
-    return RunProcess(rcExe, [.. allArgs]) == 0;
+    var result = await Cli.Wrap(rcExe)
+        .WithArguments(allArgs)
+        .WithValidation(CommandResultValidation.None)
+        .ExecuteAsync();
+    return result.ExitCode == 0;
 }
 
 string? FindExecutable(string name)
@@ -129,33 +161,4 @@ string? FindExecutable(string name)
     }
 
     return null;
-}
-
-int RunProcess(string executable, params string[] arguments)
-{
-    var psi = new ProcessStartInfo(executable) { UseShellExecute = false };
-    foreach (var arg in arguments)
-        psi.ArgumentList.Add(arg);
-
-    using var process =
-        Process.Start(psi)
-        ?? throw new InvalidOperationException($"Failed to start '{executable}'.");
-    process.WaitForExit();
-    return process.ExitCode;
-}
-
-void WriteInstallHint(bool isError)
-{
-    var prefix = isError ? "" : "Warning: ";
-
-    string hint =
-        RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? "Install the Windows SDK (includes rc.exe):\n  winget install Microsoft.WindowsSDK.10.0.26100"
-        : RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-            ? "Install mingw-w64 (includes windres):\n  sudo apt install mingw-w64"
-        : RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-            ? "Install mingw-w64 (includes windres):\n  brew install mingw-w64"
-        : "Install the Windows SDK (rc.exe) or mingw-w64 (windres).";
-
-    Console.Error.WriteLine(prefix + hint);
 }
