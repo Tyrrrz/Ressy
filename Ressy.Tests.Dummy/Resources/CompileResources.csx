@@ -121,7 +121,7 @@ public class CompileResourcesCommand : ICommand
                 var match = Regex.Match(p, @"\\bin\\([\d.]+)\\");
                 return match.Success ? Version.Parse(match.Groups[1].Value) : new Version(0, 0);
             })
-            .ThenBy(p => p.Contains(@"\x86\"))
+            .ThenBy(p => p.Contains(@"\x86\", StringComparison.OrdinalIgnoreCase))
             .FirstOrDefault();
 
         if (rcFilePath is null)
