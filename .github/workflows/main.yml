@@ -32,7 +32,6 @@ jobs:
           - os: ubuntu-latest
             install-windres: sudo apt install -y mingw-w64
           - os: windows-latest
-            install-windres: choco install mingw -y
           - os: macos-latest
             install-windres: brew install mingw-w64
 
@@ -55,8 +54,8 @@ jobs:
         uses: actions/setup-dotnet@baa11fbfe1d6520db94683bd5c7a3818018e4309 # v5.1.0
 
       - name: Install mingw-w64
+        if: ${{ matrix.install-windres }}
         run: ${{ matrix.install-windres }}
-        shell: bash
 
       - name: Run tests
         run: >
