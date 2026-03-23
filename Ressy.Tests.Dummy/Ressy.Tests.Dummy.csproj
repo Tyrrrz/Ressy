@@ -2,23 +2,14 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
-
-    <!--
-      Use rc.exe from Windows SDK to compile this file from an .rc file.
-      If rc.exe is available on the system, the resource file will be compiled automatically.
-    -->
     <Win32Resource>Resources/Resources.res</Win32Resource>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CSharpier.MsBuild" Version="1.2.5" PrivateAssets="all" />
+    <PackageReference Include="CSharpier.MsBuild" PrivateAssets="all" />
   </ItemGroup>
 
   <Target Name="CompileResources" BeforeTargets="BeforeBuild">
-    <!-- Allow command to fail because rc.exe may not be available on every system -->
-    <Exec
-      Command="pwsh -ExecutionPolicy Bypass -File $(ProjectDir)/Resources/Compile-Resources.ps1"
-      ContinueOnError="true"
-    />
+    <Exec Command="dotnet run --file &quot;$(ProjectDir)Resources/CompileResources.csx&quot; -- --input &quot;$(ProjectDir)Resources/Resources.rc&quot; --output &quot;$(ProjectDir)Resources/Resources.res&quot;" />
   </Target>
 </Project>

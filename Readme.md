@@ -1,9 +1,9 @@
 # Ressy
 
-[![Status](https://img.shields.io/badge/status-maintenance-ffd700.svg)](https://github.com/Tyrrrz/.github/blob/master/docs/project-status.md)
+[![Status](https://img.shields.io/badge/status-maintenance-ffd700.svg)](https://github.com/Tyrrrz/.github/blob/prime/docs/project-status.md)
 [![Made in Ukraine](https://img.shields.io/badge/made_in-ukraine-ffd700.svg?labelColor=0057b7)](https://tyrrrz.me/ukraine)
-[![Build](https://img.shields.io/github/actions/workflow/status/Tyrrrz/Ressy/main.yml?branch=master)](https://github.com/Tyrrrz/Ressy/actions)
-[![Coverage](https://img.shields.io/codecov/c/github/Tyrrrz/Ressy/master)](https://codecov.io/gh/Tyrrrz/Ressy)
+[![Build](https://img.shields.io/github/actions/workflow/status/Tyrrrz/Ressy/main.yml?branch=prime)](https://github.com/Tyrrrz/Ressy/actions)
+[![Coverage](https://img.shields.io/codecov/c/github/Tyrrrz/Ressy/prime)](https://codecov.io/gh/Tyrrrz/Ressy)
 [![Version](https://img.shields.io/nuget/v/Ressy.svg)](https://nuget.org/packages/Ressy)
 [![Downloads](https://img.shields.io/nuget/dt/Ressy.svg)](https://nuget.org/packages/Ressy)
 [![Discord](https://img.shields.io/discord/869237470565392384?label=discord)](https://discord.gg/2SUWKFnHSm)
@@ -22,7 +22,7 @@
 **Ressy** is a library for managing native resources stored in portable executable images (i.e. EXE and DLL files).
 It works on Windows, Linux, and macOS by parsing PE files directly, without relying on the Windows API.
 
-## Terms of use<sup>[[?]](https://github.com/Tyrrrz/.github/blob/master/docs/why-so-political.md)</sup>
+## Terms of use<sup>[[?]](https://github.com/Tyrrrz/.github/blob/prime/docs/why-so-political.md)</sup>
 
 By using this project or its source code, for any purpose and in any shape or form, you grant your **implicit agreement** to all the following statements:
 
@@ -377,10 +377,10 @@ Returned object should contain data similar to this:
   "AttributeTables": [
     {
       "Language": {
-        "Id": 1033
+        "Id": 1033,
       },
       "CodePage": {
-        "Id": 1200
+        "Id": 1200,
       },
       "Attributes": {
         "CompanyName": "Microsoft Corporation",
@@ -390,10 +390,10 @@ Returned object should contain data similar to this:
         "LegalCopyright": "© Microsoft Corporation. All rights reserved.",
         "OriginalFilename": "NOTEPAD.EXE.MUI",
         "ProductName": "Microsoft® Windows® Operating System",
-        "ProductVersion": "10.0.19041.1"
-      }
-    }
-  ]
+        "ProductVersion": "10.0.19041.1",
+      },
+    },
+  ],
 }
 ```
 
