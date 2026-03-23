@@ -9,9 +9,11 @@ function Invoke-Rc {
         return $false
     }
 
-    # Find all rc.exe files in Windows SDK
-    $rcExePaths = Get-ChildItem -Path $windowsKitsPath -Filter "rc.exe" -Recurse -ErrorAction SilentlyContinue |
-        Where-Object { $_.FullName -match "\\bin\\.*\\(x64|x86)\\rc\.exe$" } |
+    # Find all rc.exe files in Windows SDK bin directories (x64/x86) without full-tree recursion
+    $rcExePaths = Get-ChildItem -Path @(
+            "$windowsKitsPath\*\bin\*\x64\rc.exe",
+            "$windowsKitsPath\*\bin\*\x86\rc.exe"
+        ) -File -ErrorAction SilentlyContinue |
         Sort-Object {
             # Extract version number from path for sorting
             if ($_.FullName -match "\\bin\\([\d\.]+)\\") {
