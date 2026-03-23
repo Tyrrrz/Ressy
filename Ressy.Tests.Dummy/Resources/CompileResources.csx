@@ -1,6 +1,7 @@
 #:package CliWrap
 #:package CliFx
 
+using System.ComponentModel;
 using System.Text.RegularExpressions;
 using CliFx;
 using CliFx.Attributes;
@@ -59,38 +60,38 @@ public class CompileResourcesCommand : ICommand
 
     private async Task<bool> InvokeWindresAsync(IConsole console, CancellationToken cancellationToken)
     {
-        string[] candidates =
-        [
+        var candidates = new string[]
+        {
             "x86_64-w64-mingw32-windres",
             "i686-w64-mingw32-windres",
             "windres",
             "windres.exe",
-        ];
+        };
 
         foreach (var candidate in candidates)
         {
-            CommandResult result;
             try
             {
-                result = await Cli.Wrap(candidate)
+                var result = await Cli.Wrap(candidate)
                     .WithArguments(["-i", InputFilePath, "-o", OutputFilePath, "-O", "res"])
                     .WithValidation(CommandResultValidation.None)
                     .ExecuteAsync(cancellationToken);
+
+                if (result.ExitCode == 0)
+                {
+                    await console.Output.WriteLineAsync($"Using windres: {candidate}");
+                    return true;
+                }
+
+                await console.Error.WriteLineAsync(
+                    $"Warning: {candidate} failed with exit code {result.ExitCode}."
+                );
             }
-            catch (Exception ex) when (ex is not OperationCanceledException)
+            // Target executable not found
+            catch (Win32Exception)
             {
                 continue;
             }
-
-            if (result.ExitCode == 0)
-            {
-                await console.Output.WriteLineAsync($"Using windres: {candidate}");
-                return true;
-            }
-
-            await console.Error.WriteLineAsync(
-                $"Warning: {candidate} failed with exit code {result.ExitCode}."
-            );
         }
 
         return false;
@@ -105,32 +106,35 @@ public class CompileResourcesCommand : ICommand
         if (!Directory.Exists(windowsKitsPath))
             return false;
 
-        var rcExe = Directory
+        var rcFilePath = Directory
             .EnumerateFiles(windowsKitsPath, "rc.exe", SearchOption.AllDirectories)
-            .Where(p => p.Contains(@"\x64\rc.exe") || p.Contains(@"\x86\rc.exe"))
+            .Where(p =>
+                p.Contains(@"\x64\rc.exe", StringComparison.OrdinalIgnoreCase)
+                || p.Contains(@"\x86\rc.exe", StringComparison.OrdinalIgnoreCase)
+            )
             .Where(p => Regex.IsMatch(p, @"\\bin\\[\d.]+\\"))
             .OrderByDescending(p =>
             {
-                var m = Regex.Match(p, @"\\bin\\([\d.]+)\\");
-                return m.Success ? Version.Parse(m.Groups[1].Value) : new Version(0, 0);
+                var match = Regex.Match(p, @"\\bin\\([\d.]+)\\");
+                return match.Success ? Version.Parse(match.Groups[1].Value) : new Version(0, 0);
             })
-            .ThenBy(p => p.Contains(@"\x86\") ? 1 : 0)
+            .ThenBy(p => p.Contains(@"\x86\", StringComparison.OrdinalIgnoreCase) ? 1 : 0)
             .FirstOrDefault();
 
-        if (rcExe is null)
+        if (rcFilePath is null)
             return false;
 
-        await console.Output.WriteLineAsync($"Using rc.exe: {rcExe}");
+        await console.Output.WriteLineAsync($"Using rc.exe: {rcFilePath}");
 
-        var result = await Cli.Wrap(rcExe)
+        var result = await Cli.Wrap(rcFilePath)
             .WithArguments(args =>
             {
-                var versionMatch = Regex.Match(rcExe, @"\\bin\\([\d.]+)\\");
+                var versionMatch = Regex.Match(rcFilePath, @"\\bin\\([\d.]+)\\");
                 if (versionMatch.Success)
                 {
                     var sdkVersion = versionMatch.Groups[1].Value;
                     var sdkRoot = Path.GetFullPath(
-                        Path.Combine(Path.GetDirectoryName(rcExe)!, "..", "..", "..")
+                        Path.Combine(Path.GetDirectoryName(rcFilePath)!, "..", "..", "..")
                     );
                     foreach (var subdir in new[] { "um", "shared" })
                     {
