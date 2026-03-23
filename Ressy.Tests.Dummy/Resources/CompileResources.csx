@@ -78,6 +78,12 @@ public class CompileResourcesCommand : ICommand
             {
                 var result = await Cli.Wrap(candidate)
                     .WithArguments(["-i", InputFilePath, "-o", OutputFilePath, "-O", "res"])
+                    .WithStandardOutputPipe(
+                        PipeTarget.ToDelegate(line => console.Output.WriteLineAsync(line))
+                    )
+                    .WithStandardErrorPipe(
+                        PipeTarget.ToDelegate(line => console.Error.WriteLineAsync(line))
+                    )
                     .WithValidation(CommandResultValidation.None)
                     .ExecuteAsync(cancellationToken);
 
@@ -150,6 +156,12 @@ public class CompileResourcesCommand : ICommand
 
                 args.Add("/fo").Add(OutputFilePath).Add(InputFilePath);
             })
+            .WithStandardOutputPipe(
+                PipeTarget.ToDelegate(line => console.Output.WriteLineAsync(line))
+            )
+            .WithStandardErrorPipe(
+                PipeTarget.ToDelegate(line => console.Error.WriteLineAsync(line))
+            )
             .WithValidation(CommandResultValidation.None)
             .ExecuteAsync(cancellationToken);
 
