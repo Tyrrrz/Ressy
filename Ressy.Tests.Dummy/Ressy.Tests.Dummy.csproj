@@ -2,10 +2,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
-
-    <!--
-      Resources are compiled automatically on build.
-    -->
     <Win32Resource>Resources/Resources.res</Win32Resource>
   </PropertyGroup>
 
@@ -14,6 +10,6 @@
   </ItemGroup>
 
   <Target Name="CompileResources" BeforeTargets="BeforeBuild">
-    <Exec Command="dotnet run --file &quot;$(ProjectDir)Resources/CompileResources.csx&quot;" />
+    <Exec Command="dotnet run --file &quot;$(ProjectDir)Resources/CompileResources.csx&quot; -- --input &quot;$(ProjectDir)Resources/Resources.rc&quot; --output &quot;$(ProjectDir)Resources/Resources.res&quot;" />
   </Target>
 </Project>
