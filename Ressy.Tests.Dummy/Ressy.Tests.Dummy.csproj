@@ -14,8 +14,6 @@
   </ItemGroup>
 
   <Target Name="CompileResources" BeforeTargets="BeforeBuild">
-    <Exec
-      Command="pwsh -ExecutionPolicy Bypass -File $(ProjectDir)/Resources/Compile-Resources.ps1"
-    />
+    <Exec Command="dotnet run --file &quot;$(ProjectDir)Resources/CompileResources.csx&quot; -- &quot;$(ProjectDir)Resources&quot;" />
   </Target>
 </Project>
