@@ -291,35 +291,56 @@ public class MuiSpecs
     [Fact]
     public void I_can_get_the_MUI_info_and_FileVersionInfo_still_works()
     {
-        // Verify that injecting a MUI resource via Ressy's API does not break Windows
-        // FileVersionInfo. By declaring RT_VERSION in mainResourceTypes, we tell Windows
-        // that version info is a non-localizable resource in the language-neutral file
-        // itself — so FileVersionInfo reads it directly without satellite redirection.
+        // When a MUI resource is present, Windows redirects FileVersionInfo lookups
+        // to a satellite .mui file. We create satellite files (copies of the dummy PE
+        // with its version strings) so that Windows can find them through the redirect.
         if (!OperatingSystem.IsWindows())
             return;
 
         // Arrange
-        using var file = TempFile.Create();
-        File.Copy(Dummy.Program.Path, file.Path, overwrite: true);
+        using var dir = TempDir.Create();
+        var mainPath = Path.Combine(dir.Path, "test.exe");
+        File.Copy(Dummy.Program.Path, mainPath);
 
-        using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
+        // Create satellites for the current UI culture and its parents,
+        // so Windows can find version strings regardless of the exact locale.
+        var culture = System.Globalization.CultureInfo.CurrentUICulture;
+        var created = false;
+        while (!string.IsNullOrEmpty(culture.Name))
         {
-            portableExecutable.SetMuiInfo(
+            var satDir = Path.Combine(dir.Path, culture.Name);
+            Directory.CreateDirectory(satDir);
+            File.Copy(Dummy.Program.Path, Path.Combine(satDir, "test.exe.mui"));
+            culture = culture.Parent;
+            created = true;
+        }
+
+        if (!created)
+        {
+            var satDir = Path.Combine(dir.Path, "en-US");
+            Directory.CreateDirectory(satDir);
+            File.Copy(Dummy.Program.Path, Path.Combine(satDir, "test.exe.mui"));
+        }
+
+        // Inject a MUI resource into the main file
+        using (var pe = PortableExecutable.OpenWrite(mainPath))
+        {
+            pe.SetMuiInfo(
                 new MuiInfo(
                     MuiFileType.LanguageNeutral,
                     checksum: new byte[16],
                     serviceChecksum: new byte[16],
                     mainResourceTypes: [ResourceType.Version],
                     fallbackResourceTypes: [],
-                    language: "en-US",
-                    fallbackLanguage: "en-US",
+                    language: null,
+                    fallbackLanguage: null,
                     ultimateFallbackLanguage: "en"
                 )
             );
         }
 
         // Act
-        var versionInfo = FileVersionInfo.GetVersionInfo(file.Path);
+        var versionInfo = FileVersionInfo.GetVersionInfo(mainPath);
 
         // Assert
         versionInfo.ProductName.Should().Be("TestProduct");
