@@ -302,24 +302,18 @@ public class MuiSpecs
         var mainPath = Path.Combine(dir.Path, "test.exe");
         File.Copy(Dummy.Program.Path, mainPath);
 
-        // Create satellites for the current UI culture and its parents,
+        // Create satellites for the current UI culture and its parent cultures,
         // so Windows can find version strings regardless of the exact locale.
         var culture = System.Globalization.CultureInfo.CurrentUICulture;
-        var created = false;
+        if (string.IsNullOrEmpty(culture.Name))
+            culture = new System.Globalization.CultureInfo("en-US");
+
         while (!string.IsNullOrEmpty(culture.Name))
         {
             var satDir = Path.Combine(dir.Path, culture.Name);
             Directory.CreateDirectory(satDir);
             File.Copy(Dummy.Program.Path, Path.Combine(satDir, "test.exe.mui"));
             culture = culture.Parent;
-            created = true;
-        }
-
-        if (!created)
-        {
-            var satDir = Path.Combine(dir.Path, "en-US");
-            Directory.CreateDirectory(satDir);
-            File.Copy(Dummy.Program.Path, Path.Combine(satDir, "test.exe.mui"));
         }
 
         // Inject a MUI resource into the main file
