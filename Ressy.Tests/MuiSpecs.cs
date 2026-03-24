@@ -291,33 +291,18 @@ public class MuiSpecs
     [Fact]
     public void I_can_get_the_MUI_info_and_FileVersionInfo_still_works()
     {
-        // When a MUI resource is present, Windows redirects FileVersionInfo lookups
-        // to a satellite .mui file. We create satellite files (copies of the dummy PE
-        // with its version strings) so that Windows can find them through the redirect.
+        // When a MUI resource is present with mainResourceTypes listing RT_VERSION,
+        // Windows reads version info directly from the language-neutral file.
+        // This is how real Windows executables like explorer.exe work.
         if (!OperatingSystem.IsWindows())
             return;
 
         // Arrange
-        using var dir = TempDir.Create();
-        var mainPath = Path.Combine(dir.Path, "test.exe");
-        File.Copy(Dummy.Program.Path, mainPath);
+        using var file = TempFile.Create();
+        File.Copy(Dummy.Program.Path, file.Path, true);
 
-        // Create satellites for the current UI culture and its parent cultures,
-        // so Windows can find version strings regardless of the exact locale.
-        var culture = System.Globalization.CultureInfo.CurrentUICulture;
-        if (string.IsNullOrEmpty(culture.Name))
-            culture = new System.Globalization.CultureInfo("en-US");
-
-        while (!string.IsNullOrEmpty(culture.Name))
-        {
-            var satDir = Path.Combine(dir.Path, culture.Name);
-            Directory.CreateDirectory(satDir);
-            File.Copy(Dummy.Program.Path, Path.Combine(satDir, "test.exe.mui"));
-            culture = culture.Parent;
-        }
-
-        // Inject a MUI resource into the main file
-        using (var pe = PortableExecutable.OpenWrite(mainPath))
+        // Inject a MUI resource
+        using (var pe = PortableExecutable.OpenWrite(file.Path))
         {
             pe.SetMuiInfo(
                 new MuiInfo(
@@ -334,7 +319,7 @@ public class MuiSpecs
         }
 
         // Act
-        var versionInfo = FileVersionInfo.GetVersionInfo(mainPath);
+        var versionInfo = FileVersionInfo.GetVersionInfo(file.Path);
 
         // Assert
         versionInfo.ProductName.Should().Be("TestProduct");

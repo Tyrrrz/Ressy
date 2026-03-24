@@ -5,8 +5,8 @@ namespace Ressy.MultilingualUserInterface;
 
 public partial class MuiInfo
 {
-    // Header is always 0x7C (124) bytes
-    private const uint HeaderSize = 0x7Cu;
+    // Header is always 0x74 (116) bytes, matching the Windows MUI_RESOURCE struct size.
+    private const uint HeaderSize = 0x74u;
 
     private static (uint offset, uint size, byte[] bytes) BuildLanguageEntry(
         string? value,
@@ -75,7 +75,7 @@ public partial class MuiInfo
         var (ultimateFallbackOffset, ultimateFallbackSize, ultimateFallbackBytes) =
             BuildLanguageEntry(UltimateFallbackLanguage, ref currentOffset);
 
-        // Write header (124 bytes)
+        // Write header (116 bytes)
 
         // dwSignature
         writer.Write(MuiSignature);
@@ -131,9 +131,6 @@ public partial class MuiInfo
         // dwUltimateFallbackLanguageOffset, dwUltimateFallbackLanguageSize
         writer.Write(ultimateFallbackOffset);
         writer.Write(ultimateFallbackSize);
-
-        // Reserved padding to complete the 124-byte header
-        writer.Write(new byte[8]);
 
         // Write variable-length data
         if (typeIDMainBytes.Length > 0)
