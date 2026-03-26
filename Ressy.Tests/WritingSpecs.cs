@@ -286,14 +286,16 @@ public class WritingSpecs
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
-        // Act & Assert
-        Assert.Throws<InvalidOperationException>(() =>
+        // Act
+        var act = () =>
             portableExecutable.SetResource(
                 new Resource(
                     new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1)),
                     [1, 2, 3, 4, 5]
                 )
-            )
-        );
+            );
+
+        // Act & Assert
+        act.Should().Throw<InvalidOperationException>();
     }
 }
