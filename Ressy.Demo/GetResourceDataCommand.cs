@@ -1,25 +1,25 @@
 using System.Globalization;
 using System.Threading.Tasks;
 using CliFx;
-using CliFx.Attributes;
+using CliFx.Binding;
 using CliFx.Infrastructure;
 
 namespace Ressy.Demo;
 
 [Command("read", Description = "Reads a specific resource from a PE file.")]
-public class GetResourceDataCommand : ICommand
+public partial class GetResourceDataCommand : ICommand
 {
     [CommandOption("file", 'f', Description = "PE file to read the resource from.")]
-    public required string FilePath { get; init; }
+    public required string FilePath { get; set; }
 
     [CommandOption("type", 't', Description = "Type of the resource to read.")]
-    public required string Type { get; init; }
+    public required string Type { get; set; }
 
     [CommandOption("name", 'n', Description = "Name of the resource to read.")]
-    public required string Name { get; init; }
+    public required string Name { get; set; }
 
     [CommandOption("lang", 'l', Description = "Language of the resource to read.")]
-    public int Language { get; init; } = Ressy.Language.Neutral.Id;
+    public int Language { get; set; } = Ressy.Language.Neutral.Id;
 
     public ValueTask ExecuteAsync(IConsole console)
     {

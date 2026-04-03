@@ -10,6 +10,9 @@
   </ItemGroup>
 
   <Target Name="CompileResources" BeforeTargets="BeforeBuild">
-    <Exec Command="dotnet run --file &quot;$(ProjectDir)Resources/CompileResources.csx&quot; -- --input &quot;$(ProjectDir)Resources/Resources.rc&quot; --output &quot;$(ProjectDir)Resources/Resources.res&quot;" />
+    <Exec
+      Command="dotnet run --file &quot;$(ProjectDir)Resources/CompileResources.csx&quot; -- --input &quot;$(ProjectDir)Resources/Resources.rc&quot; --output &quot;$(ProjectDir)Resources/Resources.res&quot;"
+      LogStandardErrorAsError="true"
+    />
   </Target>
 </Project>

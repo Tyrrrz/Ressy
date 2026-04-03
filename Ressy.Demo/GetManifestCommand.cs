@@ -1,17 +1,17 @@
 using System.IO;
 using System.Threading.Tasks;
 using CliFx;
-using CliFx.Attributes;
+using CliFx.Binding;
 using CliFx.Infrastructure;
 using Ressy.Manifests;
 
 namespace Ressy.Demo;
 
 [Command("read manifest", Description = "Reads the manifest resource from a PE file.")]
-public class GetManifestCommand : ICommand
+public partial class GetManifestCommand : ICommand
 {
     [CommandOption("file", 'f', Description = "PE file to read the manifest resource from.")]
-    public required string FilePath { get; init; }
+    public required string FilePath { get; set; }
 
     public string FileName => Path.GetFileName(FilePath);
 

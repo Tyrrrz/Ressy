@@ -1,19 +1,19 @@
 ﻿using System.Threading.Tasks;
 using CliFx;
-using CliFx.Attributes;
+using CliFx.Binding;
 using CliFx.Infrastructure;
 using Ressy.Strings;
 
 namespace Ressy.Demo;
 
 [Command("read strings", Description = "Reads string table resource blocks from a PE file.")]
-public class GetStringTableCommand : ICommand
+public partial class GetStringTableCommand : ICommand
 {
     [CommandOption("file", 'f', Description = "PE file to read string table resource blocks from.")]
-    public required string FilePath { get; init; }
+    public required string FilePath { get; set; }
 
     [CommandOption("lang", 'l', Description = "Language of the string to read.")]
-    public int Language { get; init; } = Ressy.Language.Neutral.Id;
+    public int Language { get; set; } = Ressy.Language.Neutral.Id;
 
     public ValueTask ExecuteAsync(IConsole console)
     {

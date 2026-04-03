@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CliFx;
-using CliFx.Attributes;
+using CliFx.Binding;
 using CliFx.Infrastructure;
 using Ressy.Demo.Utils;
 using Ressy.Versions;
@@ -10,10 +10,10 @@ using Ressy.Versions;
 namespace Ressy.Demo;
 
 [Command("read version", Description = "Reads the version info resource from a PE file.")]
-public class GetVersionInfoCommand : ICommand
+public partial class GetVersionInfoCommand : ICommand
 {
     [CommandOption("file", 'f', Description = "PE file to read the version info resource from.")]
-    public required string FilePath { get; init; }
+    public required string FilePath { get; set; }
 
     public ValueTask ExecuteAsync(IConsole console)
     {

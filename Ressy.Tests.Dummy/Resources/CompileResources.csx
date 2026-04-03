@@ -5,20 +5,17 @@
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using CliFx;
-using CliFx.Attributes;
-using CliFx.Exceptions;
+using CliFx.Binding;
 using CliFx.Infrastructure;
 using CliWrap;
 
-return await new CliApplicationBuilder().AddCommand<CompileResourcesCommand>().Build().RunAsync();
-
 [Command]
-public class CompileResourcesCommand : ICommand
+public partial class CompileResourcesCommand : ICommand
 {
-    [CommandOption("input", 'i', IsRequired = true)]
+    [CommandOption("input", 'i')]
     public required string InputFilePath { get; set; }
 
-    [CommandOption("output", 'o', IsRequired = true)]
+    [CommandOption("output", 'o')]
     public required string OutputFilePath { get; set; }
 
     public async ValueTask ExecuteAsync(IConsole console)

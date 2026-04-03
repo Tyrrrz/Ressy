@@ -1,15 +1,15 @@
 using System.Threading.Tasks;
 using CliFx;
-using CliFx.Attributes;
+using CliFx.Binding;
 using CliFx.Infrastructure;
 
 namespace Ressy.Demo;
 
 [Command("list", Description = "Lists all available resources in a PE file.")]
-public class ListResourcesCommand : ICommand
+public partial class ListResourcesCommand : ICommand
 {
     [CommandOption("file", 'f', Description = "PE file to list resources from.")]
-    public required string FilePath { get; init; }
+    public required string FilePath { get; set; }
 
     public ValueTask ExecuteAsync(IConsole console)
     {
