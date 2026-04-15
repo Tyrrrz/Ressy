@@ -18,7 +18,7 @@ public class IconSpecs
         // Arrange
         var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
 
-        using var file = TempFile.Create(preCreate: false);
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
@@ -81,7 +81,7 @@ public class IconSpecs
     public void I_can_remove_the_icon()
     {
         // Arrange
-        using var file = TempFile.Create(preCreate: false);
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
