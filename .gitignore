@@ -10,3 +10,6 @@ obj/
 
 # Test results
 TestResults/
+
+# Generated test resources
+Ressy.Tests.Dummy/Resources/Resources.res
