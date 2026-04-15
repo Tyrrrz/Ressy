@@ -1,7 +1,7 @@
 using System;
 using System.IO;
+using PowerKit.Extensions;
 using Ressy.Utils;
-using Ressy.Utils.Extensions;
 
 namespace Ressy.Versions;
 

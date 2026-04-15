@@ -15,13 +15,5 @@ internal static class BinaryWriterExtensions
                 writer.Write('\0');
             }
         }
-
-        public void WriteNullTerminatedString(string value)
-        {
-            foreach (var c in value)
-                writer.Write(c);
-
-            writer.Write('\0');
-        }
     }
 }

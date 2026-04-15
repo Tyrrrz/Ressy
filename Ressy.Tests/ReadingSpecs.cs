@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using FluentAssertions;
-using Ressy.Tests.Utils;
+using PowerKit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -15,7 +15,7 @@ public class ReadingSpecs(ITestOutputHelper testOutput)
     public void I_can_get_a_list_of_resource_identifiers()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(preCreate: false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
@@ -112,7 +112,7 @@ public class ReadingSpecs(ITestOutputHelper testOutput)
     public void I_can_get_a_specific_resource()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(preCreate: false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
@@ -130,7 +130,7 @@ public class ReadingSpecs(ITestOutputHelper testOutput)
     public void I_can_try_to_get_a_non_existing_resource_and_receive_null_instead()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(preCreate: false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);

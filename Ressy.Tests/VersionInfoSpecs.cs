@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using FluentAssertions;
-using Ressy.Tests.Utils;
+using PowerKit;
 using Ressy.Versions;
 using Xunit;
 
@@ -15,7 +15,7 @@ public class VersionInfoSpecs
     public void I_can_get_the_version_info()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(preCreate: false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
@@ -71,7 +71,7 @@ public class VersionInfoSpecs
             .SetAttribute("Custom", "Value")
             .Build();
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(preCreate: false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
@@ -114,7 +114,7 @@ public class VersionInfoSpecs
     public void I_can_modify_the_version_info()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(preCreate: false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         VersionInfo? versionInfo;
@@ -199,7 +199,7 @@ public class VersionInfoSpecs
     public void I_can_remove_the_version_info()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(preCreate: false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
