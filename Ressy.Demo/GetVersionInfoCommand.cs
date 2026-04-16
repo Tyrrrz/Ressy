@@ -1,10 +1,10 @@
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CliFx;
 using CliFx.Binding;
 using CliFx.Infrastructure;
-using Ressy.Demo.Utils;
 using Ressy.Versions;
 
 namespace Ressy.Demo;
@@ -22,15 +22,25 @@ public partial class GetVersionInfoCommand : ICommand
 
         console.Output.WriteLine(
             JsonSerializer.Serialize(
-                versionInfo,
+                new
+                {
+                    versionInfo.FileVersion,
+                    versionInfo.ProductVersion,
+                    versionInfo.FileFlags,
+                    versionInfo.FileOperatingSystem,
+                    versionInfo.FileType,
+                    versionInfo.FileSubType,
+                    AttributeTables = versionInfo.AttributeTables.Select(t => new
+                    {
+                        t.Language,
+                        t.CodePage,
+                        Attributes = t.Attributes.ToDictionary(kv => kv.Key.Raw, kv => kv.Value),
+                    }),
+                },
                 new JsonSerializerOptions
                 {
                     WriteIndented = true,
-                    Converters =
-                    {
-                        new JsonStringEnumConverter(),
-                        new VersionAttributesJsonConverter(),
-                    },
+                    Converters = { new JsonStringEnumConverter() },
                 }
             )
         );
