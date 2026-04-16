@@ -79,8 +79,10 @@ jobs:
   main:
     needs: test
     uses: Tyrrrz/.github/.github/workflows/nuget.yml@prime
+    permissions:
+      actions: write
+      contents: write
     with:
-      # Run format/pack on Windows because the Dummy project requires rc.exe (pre-installed via Windows SDK)
       windows-only: true
       skip-tests: true
       deploy: ${{ inputs.deploy || github.ref_type == 'tag' }}

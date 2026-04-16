@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Misc/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="License.txt" />
+    <File Path="NuGet.config" />
+    <File Path="Readme.md" />
+  </Folder>
+
+  <Project Path="Ressy/Ressy.csproj" />
+  <Project Path="Ressy.Demo/Ressy.Demo.csproj" />
+  <Project Path="Ressy.Tests.Dummy/Ressy.Tests.Dummy.csproj" />
+  <Project Path="Ressy.Tests/Ressy.Tests.csproj" />
+</Solution>
