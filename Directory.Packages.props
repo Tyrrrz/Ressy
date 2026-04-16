@@ -2,6 +2,7 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageVersion Include="CliWrap" Version="3.10.1" />
     <PackageVersion Include="CliFx" Version="3.0.0" />
