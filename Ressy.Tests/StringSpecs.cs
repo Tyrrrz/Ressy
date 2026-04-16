@@ -1,7 +1,7 @@
 using System.IO;
 using FluentAssertions;
+using PowerKit;
 using Ressy.Strings;
-using Ressy.Tests.Utils;
 using Xunit;
 
 namespace Ressy.Tests;
@@ -12,7 +12,7 @@ public class StringSpecs
     public void I_can_get_the_string_table()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
@@ -34,7 +34,7 @@ public class StringSpecs
     public void I_can_get_the_string_table_in_a_specific_language()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
@@ -62,7 +62,7 @@ public class StringSpecs
             .SetString(100, "OneHundred")
             .Build();
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -85,7 +85,7 @@ public class StringSpecs
             .SetString(100, "Cent")
             .Build();
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -102,7 +102,7 @@ public class StringSpecs
     public void I_can_modify_the_string_table()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -141,7 +141,7 @@ public class StringSpecs
     public void I_can_remove_the_string_table()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);

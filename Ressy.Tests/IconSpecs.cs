@@ -2,8 +2,8 @@ using System;
 using System.Drawing;
 using System.IO;
 using FluentAssertions;
+using PowerKit;
 using Ressy.Icons;
-using Ressy.Tests.Utils;
 using Ressy.Tests.Utils.Extensions;
 using Xunit;
 
@@ -15,9 +15,14 @@ public class IconSpecs
     public void I_can_set_the_icon()
     {
         // Arrange
-        var iconFilePath = Path.Combine(DirectoryEx.ExecutingDirectoryPath, "TestData", "Icon.ico");
+        var iconFilePath = Path.Combine(
+            Path.GetDirectoryName(typeof(IconSpecs).Assembly.Location)
+                ?? Directory.GetCurrentDirectory(),
+            "TestData",
+            "Icon.ico"
+        );
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
@@ -80,7 +85,7 @@ public class IconSpecs
     public void I_can_remove_the_icon()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);

@@ -1,7 +1,7 @@
 using System.IO;
 using FluentAssertions;
+using PowerKit;
 using Ressy.Manifests;
-using Ressy.Tests.Utils;
 using Xunit;
 
 namespace Ressy.Tests;
@@ -12,7 +12,7 @@ public class ManifestSpecs
     public void I_can_get_the_manifest()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
@@ -41,7 +41,7 @@ public class ManifestSpecs
                 </assembly>
                 """;
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -58,7 +58,7 @@ public class ManifestSpecs
     public void I_can_remove_the_manifest()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);

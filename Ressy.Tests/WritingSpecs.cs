@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using FluentAssertions;
-using Ressy.Tests.Utils;
+using PowerKit;
 using Xunit;
 
 namespace Ressy.Tests;
@@ -15,7 +15,7 @@ public class WritingSpecs
         // Arrange
         var identifier = new ResourceIdentifier(ResourceType.FromCode(6), ResourceName.FromCode(7));
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -48,7 +48,7 @@ public class WritingSpecs
             ResourceName.FromCode(7)
         );
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -81,7 +81,7 @@ public class WritingSpecs
             ResourceName.FromCode(7)
         );
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -114,7 +114,7 @@ public class WritingSpecs
             ResourceName.FromString("BAR")
         );
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -147,7 +147,7 @@ public class WritingSpecs
             ResourceName.FromString("BAR")
         );
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -181,7 +181,7 @@ public class WritingSpecs
             Language.FromCultureInfo(CultureInfo.GetCultureInfo("uk-UA"))
         );
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -211,7 +211,7 @@ public class WritingSpecs
         // Arrange
         var identifier = new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -240,7 +240,7 @@ public class WritingSpecs
         // Arrange
         var identifier = new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -265,7 +265,7 @@ public class WritingSpecs
     public void I_can_remove_all_resources()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
@@ -281,7 +281,7 @@ public class WritingSpecs
     public void I_cannot_modify_resources_in_a_read_only_file()
     {
         // Arrange
-        using var file = TempFile.Create();
+        using var file = TempFile.Create(false);
         File.Copy(Dummy.Program.Path, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
