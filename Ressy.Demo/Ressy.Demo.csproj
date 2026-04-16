@@ -11,6 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ressy\Ressy.csproj" />
+    <ProjectReference Include="../Ressy/Ressy.csproj" />
   </ItemGroup>
 </Project>

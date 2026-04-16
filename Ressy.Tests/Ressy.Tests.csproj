@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ressy.Tests.Dummy\Ressy.Tests.Dummy.csproj" />
-    <ProjectReference Include="..\Ressy\Ressy.csproj" />
+    <ProjectReference Include="../Ressy.Tests.Dummy/Ressy.Tests.Dummy.csproj" />
+    <ProjectReference Include="../Ressy/Ressy.csproj" />
   </ItemGroup>
 </Project>
