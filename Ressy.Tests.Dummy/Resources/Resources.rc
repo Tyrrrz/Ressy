@@ -1,4 +1,4 @@
-﻿#include <windows.h>
+#include <windows.h>
 
 // Default language (Neutral)
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
