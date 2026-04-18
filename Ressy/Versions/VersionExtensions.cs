@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using PowerKit.Extensions;
 
 namespace Ressy.Versions;
 
@@ -29,14 +30,10 @@ public static class VersionExtensions
                 .ThenBy(r => r.Name.Code ?? int.MaxValue)
                 .FirstOrDefault();
 
-        private Resource? TryGetVersionInfoResource()
-        {
-            var identifier = portableExecutable.TryGetVersionInfoResourceIdentifier();
-            if (identifier is null)
-                return null;
-
-            return portableExecutable.TryGetResource(identifier);
-        }
+        private Resource? TryGetVersionInfoResource() =>
+            portableExecutable
+                .TryGetVersionInfoResourceIdentifier()
+                ?.Pipe(portableExecutable.TryGetResource);
 
         /// <summary>
         /// Gets the version info resource and deserializes it.

@@ -46,18 +46,10 @@ public static class StringTableExtensions
                     && r.Language.Id == language.Id
                 );
 
-        private Resource? TryGetStringTableBlockResource(int blockId, Language language)
-        {
-            var identifier = portableExecutable.TryGetStringTableBlockResourceIdentifier(
-                blockId,
-                language
-            );
-
-            if (identifier is null)
-                return null;
-
-            return portableExecutable.TryGetResource(identifier);
-        }
+        private Resource? TryGetStringTableBlockResource(int blockId, Language language) =>
+            portableExecutable
+                .TryGetStringTableBlockResourceIdentifier(blockId, language)
+                ?.Pipe(portableExecutable.TryGetResource);
 
         /// <summary>
         /// Gets all string table resource blocks, deserializes them, and returns a unified view over them.

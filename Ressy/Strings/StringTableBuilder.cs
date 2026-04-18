@@ -8,7 +8,7 @@ namespace Ressy.Strings;
 /// </summary>
 public class StringTableBuilder
 {
-    private readonly Dictionary<int, string> _strings = new();
+    private readonly Dictionary<int, string> _strings = [];
 
     /// <summary>
     /// Sets the string with the specified ID.

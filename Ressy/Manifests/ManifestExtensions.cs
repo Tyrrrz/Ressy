@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using PowerKit.Extensions;
 
 namespace Ressy.Manifests;
 
@@ -35,14 +36,10 @@ public static class ManifestExtensions
                 .ThenBy(r => r.Name.Code ?? int.MaxValue)
                 .FirstOrDefault();
 
-        private Resource? TryGetManifestResource()
-        {
-            var identifier = portableExecutable.TryGetManifestResourceIdentifier();
-            if (identifier is null)
-                return null;
-
-            return portableExecutable.TryGetResource(identifier);
-        }
+        private Resource? TryGetManifestResource() =>
+            portableExecutable
+                .TryGetManifestResourceIdentifier()
+                ?.Pipe(portableExecutable.TryGetResource);
 
         /// <summary>
         /// Gets the manifest resource and reads its data as an XML text string.

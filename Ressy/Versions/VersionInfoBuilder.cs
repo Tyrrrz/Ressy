@@ -19,7 +19,7 @@ public class VersionInfoBuilder
     private readonly Dictionary<
         (Language, CodePage),
         Dictionary<VersionAttributeName, string>
-    > _attributeTables = new();
+    > _attributeTables = [];
 
     private Dictionary<VersionAttributeName, string> GetAttributeTable(
         Language language,
@@ -27,7 +27,7 @@ public class VersionInfoBuilder
     ) =>
         _attributeTables.TryGetValue((language, codePage), out var table)
             ? table
-            : _attributeTables[(language, codePage)] = new();
+            : _attributeTables[(language, codePage)] = [];
 
     /// <summary>
     /// Sets file version.
