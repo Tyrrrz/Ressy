@@ -16,7 +16,7 @@ public class VersionInfoSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
@@ -72,7 +72,7 @@ public class VersionInfoSpecs
             .Build();
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
         {
@@ -115,7 +115,7 @@ public class VersionInfoSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         VersionInfo? versionInfo;
         using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
@@ -200,7 +200,7 @@ public class VersionInfoSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
         {

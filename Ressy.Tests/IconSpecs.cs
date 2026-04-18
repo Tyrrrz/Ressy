@@ -23,7 +23,7 @@ public class IconSpecs
         );
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using (var portableExecutable = PortableExecutable.OpenWrite(file.Path))
         {
@@ -86,7 +86,7 @@ public class IconSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 

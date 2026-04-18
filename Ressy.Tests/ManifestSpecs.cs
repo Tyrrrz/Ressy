@@ -13,7 +13,7 @@ public class ManifestSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
@@ -42,7 +42,7 @@ public class ManifestSpecs
                 """;
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveManifest();
@@ -59,7 +59,7 @@ public class ManifestSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 

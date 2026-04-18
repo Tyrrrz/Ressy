@@ -16,7 +16,7 @@ public class ReadingSpecs(ITestOutputHelper testOutput)
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
@@ -113,7 +113,7 @@ public class ReadingSpecs(ITestOutputHelper testOutput)
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
@@ -131,7 +131,7 @@ public class ReadingSpecs(ITestOutputHelper testOutput)
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 

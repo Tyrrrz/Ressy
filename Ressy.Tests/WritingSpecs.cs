@@ -16,7 +16,7 @@ public class WritingSpecs
         var identifier = new ResourceIdentifier(ResourceType.FromCode(6), ResourceName.FromCode(7));
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveResources();
@@ -49,7 +49,7 @@ public class WritingSpecs
         );
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveResources();
@@ -82,7 +82,7 @@ public class WritingSpecs
         );
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveResources();
@@ -115,7 +115,7 @@ public class WritingSpecs
         );
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveResources();
@@ -148,7 +148,7 @@ public class WritingSpecs
         );
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveResources();
@@ -182,7 +182,7 @@ public class WritingSpecs
         );
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveResources();
@@ -212,7 +212,7 @@ public class WritingSpecs
         var identifier = new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 
@@ -241,7 +241,7 @@ public class WritingSpecs
         var identifier = new ResourceIdentifier(ResourceType.Manifest, ResourceName.FromCode(1));
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 
@@ -266,7 +266,7 @@ public class WritingSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 
@@ -282,7 +282,7 @@ public class WritingSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 

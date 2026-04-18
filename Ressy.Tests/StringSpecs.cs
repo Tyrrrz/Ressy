@@ -13,7 +13,7 @@ public class StringSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
@@ -35,7 +35,7 @@ public class StringSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenRead(file.Path);
 
@@ -63,7 +63,7 @@ public class StringSpecs
             .Build();
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveStringTable();
@@ -86,7 +86,7 @@ public class StringSpecs
             .Build();
 
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
         portableExecutable.RemoveStringTable();
@@ -103,7 +103,7 @@ public class StringSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 
@@ -142,7 +142,7 @@ public class StringSpecs
     {
         // Arrange
         using var file = TempFile.Create(false);
-        File.Copy(Dummy.Program.Path, file.Path);
+        File.Copy(Dummy.Program.FilePath, file.Path);
 
         using var portableExecutable = PortableExecutable.OpenWrite(file.Path);
 
