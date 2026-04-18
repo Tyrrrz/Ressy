@@ -72,7 +72,7 @@ public class IconSpecs
 
         // Icon.ExtractAssociatedIcon() is a Win32 API wrapper with no cross-platform equivalent;
         // it throws PlatformNotSupportedException on non-Windows.
-        if (OperatingSystem.IsWindows())
+        if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
         {
             using var sourceIcon = new Icon(iconFilePath);
             using var actualIcon = Icon.ExtractAssociatedIcon(file.Path);
