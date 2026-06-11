@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="CSharpier.MsBuild" PrivateAssets="all" />
+    <PackageReference Include="PowerKit" />
   </ItemGroup>
 
   <Target Name="CompileResources" BeforeTargets="BeforeBuild">
