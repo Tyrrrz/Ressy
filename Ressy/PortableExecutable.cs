@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using PowerKit.Extensions;
 
 namespace Ressy;
 
@@ -36,7 +37,7 @@ public partial class PortableExecutable(
         var sectionSize = (int)resource.SizeOfRawData;
 
         using var reader = new BinaryReader(stream, Encoding.UTF8, true);
-        return ReadIdentifiers(reader, sectionBase, sectionSize, 0, null, null).ToList();
+        return ReadIdentifiers(reader, sectionBase, sectionSize, 0, null, null).ToArray();
     }
 
     /// <summary>
@@ -68,6 +69,7 @@ public partial class PortableExecutable(
             throw new InvalidDataException("Resource section is too large to be processed.");
 
         using var reader = new BinaryReader(stream, Encoding.UTF8, true);
+
         var data = FindResourceData(
             reader,
             (int)resource.PointerToRawData,
@@ -77,7 +79,7 @@ public partial class PortableExecutable(
             0
         );
 
-        return data is not null ? new Resource(identifier, data) : null;
+        return data?.Pipe(d => new Resource(identifier, d));
     }
 
     /// <summary>

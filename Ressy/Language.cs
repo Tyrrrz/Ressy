@@ -48,4 +48,10 @@ public partial struct Language : IEquatable<Language>
 
     /// <inheritdoc />
     public override int GetHashCode() => Id;
+
+    /// <inheritdoc />
+    public static bool operator ==(Language left, Language right) => left.Equals(right);
+
+    /// <inheritdoc />
+    public static bool operator !=(Language left, Language right) => !(left == right);
 }

@@ -121,4 +121,12 @@ public partial struct VersionAttributeName : IEquatable<VersionAttributeName>
 
     /// <inheritdoc />
     public override int GetHashCode() => Raw.GetHashCode(StringComparison.Ordinal);
+
+    /// <inheritdoc />
+    public static bool operator ==(VersionAttributeName left, VersionAttributeName right) =>
+        left.Equals(right);
+
+    /// <inheritdoc />
+    public static bool operator !=(VersionAttributeName left, VersionAttributeName right) =>
+        !(left == right);
 }

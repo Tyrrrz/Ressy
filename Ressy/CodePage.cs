@@ -42,4 +42,10 @@ public partial struct CodePage : IEquatable<CodePage>
 
     /// <inheritdoc />
     public override int GetHashCode() => Id;
+
+    /// <inheritdoc />
+    public static bool operator ==(CodePage left, CodePage right) => left.Equals(right);
+
+    /// <inheritdoc />
+    public static bool operator !=(CodePage left, CodePage right) => !(left == right);
 }
