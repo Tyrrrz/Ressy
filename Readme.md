@@ -37,6 +37,9 @@ To learn more about the war and how you can help, [click here](https://tyrrrz.me
 
 - 📦 [NuGet](https://nuget.org/packages/Ressy): `dotnet add package Ressy`
 
+> [!TIP]
+> You can use [**Binternal**](https://github.com/Tyrrrz/Binternal) to internalize this library if you prefer to avoid taking an external dependency.
+
 ## Usage
 
 **Ressy**'s functionality is provided entirely through the `PortableExecutable` class.
