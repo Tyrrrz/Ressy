@@ -7,7 +7,7 @@ internal static class VersionExtensions
     extension(Version version)
     {
         // .NET versions can have components set to -1 which indicates that they are not used.
-        // E.g. new Version(1, 2) creates a version with components 1, 2, -1, -1.
+        // e.g., new Version(1, 2) creates a version with components 1, 2, -1, -1.
         // Sane version representations are not supposed to do that, so we need a way to correct such cases.
         public Version ClampComponents()
         {

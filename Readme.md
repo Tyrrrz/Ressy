@@ -19,7 +19,7 @@
     <img src="favicon.png" alt="Icon" />
 </p>
 
-**Ressy** is a library for managing native resources stored in portable executable images (i.e. EXE and DLL files).
+**Ressy** is a library for managing native resources stored in portable executable images (i.e., EXE and DLL files).
 It works on Windows, Linux, and macOS by parsing PE files directly, without relying on the Windows API.
 
 ## Terms of use<sup>[[?]](https://github.com/Tyrrrz/.github/blob/prime/docs/why-so-political.md)</sup>

@@ -178,7 +178,7 @@ public partial class PortableExecutable
     /// </summary>
     /// <remarks>
     /// Opening a PE file with read-only access allows reading data when the file is in use by another process
-    /// (e.g. to extract resources from a currently running executable), but prevents any modifications to it.
+    /// (e.g., to extract resources from a currently running executable), but prevents any modifications to it.
     /// </remarks>
     public static PortableExecutable OpenRead(string filePath) =>
         Open(filePath, FileAccess.Read, FileShare.Read);
