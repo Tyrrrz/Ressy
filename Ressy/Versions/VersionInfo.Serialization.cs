@@ -199,9 +199,8 @@ public partial class VersionInfo
             writer.Write((ushort)length);
     }
 
-    internal byte[] Serialize()
+    internal void Serialize(Stream stream)
     {
-        using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, Encoding);
 
         // -- VS_VERSIONINFO
@@ -243,6 +242,12 @@ public partial class VersionInfo
             writer.Write((ushort)length);
 
         writer.Flush();
+    }
+
+    internal byte[] Serialize()
+    {
+        using var stream = new MemoryStream();
+        Serialize(stream);
 
         return stream.ToArray();
     }

@@ -1,18 +1,21 @@
 using System;
 using System.IO;
+using Ressy.Utils.Extensions;
 
 namespace Ressy.Icons;
 
 internal partial class IconGroup
 {
-    public static IconGroup Deserialize(Stream stream)
+    private static IconGroup DeserializeFromSeekable(Stream stream)
     {
         using var reader = new BinaryReader(stream);
 
         if (reader.ReadUInt16() != 0 || reader.ReadUInt16() != 1)
+        {
             throw new InvalidOperationException(
-                "Invalid ICO file: missing or unexpected magic number."
+                "Invalid ICO format: missing or unexpected magic number."
             );
+        }
 
         var iconCount = reader.ReadUInt16();
         var icons = new Icon[iconCount];
@@ -46,5 +49,16 @@ internal partial class IconGroup
         }
 
         return new IconGroup(icons);
+    }
+
+    public static IconGroup Deserialize(Stream stream)
+    {
+        if (!stream.CanSeek)
+        {
+            using var seekableStream = stream.ToMemoryStream();
+            return DeserializeFromSeekable(seekableStream);
+        }
+
+        return DeserializeFromSeekable(stream);
     }
 }
