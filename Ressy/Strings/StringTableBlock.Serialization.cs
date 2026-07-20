@@ -6,7 +6,7 @@ public partial class StringTableBlock
 {
     internal void Serialize(Stream stream)
     {
-        using var writer = new BinaryWriter(stream, Encoding);
+        using var writer = new BinaryWriter(stream, Encoding, true);
 
         foreach (var str in Strings)
         {
