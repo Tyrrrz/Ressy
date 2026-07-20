@@ -4,9 +4,8 @@ namespace Ressy.Strings;
 
 public partial class StringTableBlock
 {
-    internal byte[] Serialize()
+    internal void Serialize(Stream stream)
     {
-        using var stream = new MemoryStream();
         using var writer = new BinaryWriter(stream, Encoding);
 
         foreach (var str in Strings)
@@ -16,6 +15,12 @@ public partial class StringTableBlock
             foreach (var ch in str)
                 writer.Write(ch);
         }
+    }
+
+    internal byte[] Serialize()
+    {
+        using var stream = new MemoryStream();
+        Serialize(stream);
 
         return stream.ToArray();
     }

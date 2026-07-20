@@ -199,9 +199,9 @@ public partial class VersionInfo
             writer.Write((ushort)length);
     }
 
-    internal void Serialize(Stream stream)
+    private void SerializeToSeekable(Stream stream)
     {
-        using var writer = new BinaryWriter(stream, Encoding);
+        using var writer = new BinaryWriter(stream, Encoding, true);
 
         // -- VS_VERSIONINFO
 
@@ -242,6 +242,22 @@ public partial class VersionInfo
             writer.Write((ushort)length);
 
         writer.Flush();
+    }
+
+    internal void Serialize(Stream stream)
+    {
+        if (!stream.CanSeek)
+        {
+            using var seekableStream = new MemoryStream();
+            SerializeToSeekable(seekableStream);
+
+            seekableStream.Position = 0;
+            seekableStream.CopyTo(stream);
+        }
+        else
+        {
+            SerializeToSeekable(stream);
+        }
     }
 
     internal byte[] Serialize()

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using Ressy.Utils.Extensions;
 
 namespace Ressy.Icons;
@@ -8,7 +9,7 @@ internal partial class IconGroup
 {
     private static IconGroup DeserializeFromSeekable(Stream stream)
     {
-        using var reader = new BinaryReader(stream);
+        using var reader = new BinaryReader(stream, Encoding.UTF8, true);
 
         if (reader.ReadUInt16() != 0 || reader.ReadUInt16() != 1)
         {

@@ -8,14 +8,14 @@ internal static class StreamExtensions
     {
         public MemoryStream ToMemoryStream()
         {
-            if (stream is MemoryStream memoryStream)
-                return memoryStream;
+            if (stream is MemoryStream asMemoryStream)
+                return asMemoryStream;
 
-            var result = new MemoryStream();
-            stream.CopyTo(result);
-            result.Position = 0;
+            var memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
+            memoryStream.Position = 0;
 
-            return result;
+            return memoryStream;
         }
     }
 }

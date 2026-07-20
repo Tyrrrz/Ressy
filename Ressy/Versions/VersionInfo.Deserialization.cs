@@ -117,7 +117,7 @@ public partial class VersionInfo
 
     private static VersionInfo DeserializeFromSeekable(Stream stream)
     {
-        using var reader = new BinaryReader(stream, Encoding);
+        using var reader = new BinaryReader(stream, Encoding, true);
 
         var builder = new VersionInfoBuilder();
 
