@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using PowerKit.Extensions;
 using Ressy.Utils;
+using Ressy.Utils.Extensions;
 
 namespace Ressy.Versions;
 
@@ -11,9 +12,11 @@ public partial class VersionInfo
     {
         // dwSignature
         if (reader.ReadUInt32() != 0xFEEF04BD)
+        {
             throw new InvalidOperationException(
                 "Invalid version resource: missing 'VS_FIXEDFILEINFO'."
             );
+        }
 
         // dwStrucVersion
         _ = reader.ReadUInt32();
@@ -112,10 +115,9 @@ public partial class VersionInfo
         }
     }
 
-    internal static VersionInfo Deserialize(byte[] data)
+    private static VersionInfo DeserializeFromSeekable(Stream stream)
     {
-        using var stream = new MemoryStream(data);
-        using var reader = new BinaryReader(stream, Encoding);
+        using var reader = new BinaryReader(stream, Encoding, true);
 
         var builder = new VersionInfoBuilder();
 
@@ -197,5 +199,22 @@ public partial class VersionInfo
         }
 
         return builder.Build();
+    }
+
+    internal static VersionInfo Deserialize(Stream stream)
+    {
+        if (!stream.CanSeek)
+        {
+            using var seekableStream = stream.ToMemoryStream();
+            return DeserializeFromSeekable(seekableStream);
+        }
+
+        return DeserializeFromSeekable(stream);
+    }
+
+    internal static VersionInfo Deserialize(byte[] data)
+    {
+        using var stream = new MemoryStream(data);
+        return Deserialize(stream);
     }
 }

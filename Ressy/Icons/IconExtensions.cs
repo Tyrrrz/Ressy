@@ -13,15 +13,15 @@ public static class IconExtensions
     extension(PortableExecutable portableExecutable)
     {
         /// <summary>
-        /// Adds or overwrites icon and icon group resources based on the specified ICO file stream.
+        /// Adds or overwrites icon and icon group resources based on the specified ICO stream.
         /// </summary>
         /// <remarks>
         /// Consider calling <see cref="RemoveIcon" /> first to remove redundant
         /// icon and icon group resources left from previously existing icons.
         /// </remarks>
-        public void SetIcon(Stream iconFileStream)
+        public void SetIcon(Stream iconStream)
         {
-            var iconGroup = IconGroup.Deserialize(iconFileStream);
+            var iconGroup = IconGroup.Deserialize(iconStream);
             var resources = new List<Resource>();
 
             // Icon resources (written as-is)

@@ -4,10 +4,9 @@ namespace Ressy.Strings;
 
 public partial class StringTableBlock
 {
-    internal static StringTableBlock Deserialize(int blockId, byte[] data)
+    internal static StringTableBlock Deserialize(int blockId, Stream stream)
     {
-        using var stream = new MemoryStream(data);
-        using var reader = new BinaryReader(stream, Encoding);
+        using var reader = new BinaryReader(stream, Encoding, true);
 
         var strings = new string[BlockSize];
 
@@ -18,5 +17,11 @@ public partial class StringTableBlock
         }
 
         return new StringTableBlock(blockId, strings);
+    }
+
+    internal static StringTableBlock Deserialize(int blockId, byte[] data)
+    {
+        using var stream = new MemoryStream(data);
+        return Deserialize(blockId, stream);
     }
 }
