@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
-using Ressy.Utils.Extensions;
+using PowerKit;
 
 namespace Ressy.Icons;
 
@@ -56,7 +56,7 @@ internal partial class IconGroup
     {
         if (!stream.CanSeek)
         {
-            using var seekableStream = stream.ToMemoryStream();
+            using var seekableStream = new MemoryReadStream(stream);
             return DeserializeFromSeekable(seekableStream);
         }
 

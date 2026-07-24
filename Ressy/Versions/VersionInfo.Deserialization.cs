@@ -1,8 +1,8 @@
 using System;
 using System.IO;
+using PowerKit;
 using PowerKit.Extensions;
 using Ressy.Utils;
-using Ressy.Utils.Extensions;
 
 namespace Ressy.Versions;
 
@@ -205,7 +205,7 @@ public partial class VersionInfo
     {
         if (!stream.CanSeek)
         {
-            using var seekableStream = stream.ToMemoryStream();
+            using var seekableStream = new MemoryReadStream(stream);
             return DeserializeFromSeekable(seekableStream);
         }
 

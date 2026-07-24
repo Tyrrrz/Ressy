@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.IO;
+using PowerKit;
 using PowerKit.Extensions;
 using Ressy.Utils;
 using Ressy.Utils.Extensions;
@@ -248,11 +249,8 @@ public partial class VersionInfo
     {
         if (!stream.CanSeek)
         {
-            using var seekableStream = new MemoryStream();
+            using var seekableStream = new MemoryWriteStream(stream);
             SerializeToSeekable(seekableStream);
-
-            seekableStream.Position = 0;
-            seekableStream.CopyTo(stream);
         }
         else
         {
