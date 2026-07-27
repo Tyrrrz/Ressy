@@ -52,12 +52,7 @@ public static class VersionExtensions
         /// <summary>
         /// Gets the version info resource and deserializes it.
         /// </summary>
-        /// <remarks>
-        /// In case of multiple version info resources, this method retrieves
-        /// the one with the lowest ordinal resource name in the neutral language (<see cref="Language.Neutral" />).
-        /// If there are no resources matching aforementioned criteria, this method
-        /// retrieves the first version info resource it encounters.
-        /// </remarks>
+        /// <inheritdoc cref="TryGetVersionInfo" />
         public VersionInfo GetVersionInfo() =>
             portableExecutable.TryGetVersionInfo()
             ?? throw new InvalidOperationException("Version info resource does not exist.");

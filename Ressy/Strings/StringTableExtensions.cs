@@ -93,11 +93,7 @@ public static class StringTableExtensions
         /// <summary>
         /// Gets all string table resource blocks, deserializes them, and returns a unified view over them.
         /// </summary>
-        /// <remarks>
-        /// If the language is specified, this method retrieves string table resources only in that language.
-        /// If the language is not specified, this method retrieves string table resources
-        /// in the neutral language (<see cref="Language.Neutral" />).
-        /// </remarks>
+        /// <inheritdoc cref="TryGetStringTable" />
         public StringTable GetStringTable(Language? language = null) =>
             portableExecutable.TryGetStringTable(language)
             ?? throw new InvalidOperationException("String table resource does not exist.");

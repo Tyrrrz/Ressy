@@ -58,13 +58,7 @@ public static class ManifestExtensions
         /// <summary>
         /// Gets the manifest resource and reads its data as an XML text string.
         /// </summary>
-        /// <remarks>
-        /// If there are multiple manifest resources, this method retrieves the one
-        /// with the lowest ordinal name (ID), giving preference to resources
-        /// in the neutral language (<see cref="Language.Neutral" />).
-        /// If there are no matching resources, this method retrieves the first
-        /// manifest resource it finds.
-        /// </remarks>
+        /// <inheritdoc cref="TryGetManifest" />
         public string GetManifest(Encoding? encoding = null) =>
             portableExecutable.TryGetManifest(encoding)
             ?? throw new InvalidOperationException("Application manifest resource does not exist.");
