@@ -72,10 +72,7 @@ public static class IconExtensions
         /// <summary>
         /// Adds or overwrites icon and icon group resources based on the specified ICO file.
         /// </summary>
-        /// <remarks>
-        /// Consider calling <see cref="RemoveIcon" /> first to remove redundant
-        /// icon and icon group resources left from previously existing icons.
-        /// </remarks>
+        /// <inheritdoc cref="SetIcon(Ressy.PortableExecutable, System.IO.Stream)" />
         public void SetIcon(string iconFilePath)
         {
             using var iconStream = File.OpenRead(iconFilePath);
