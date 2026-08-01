@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using PowerKit;
+using PowerKit.Extensions;
 
 namespace Ressy.Icons;
 
@@ -20,8 +21,6 @@ internal partial class IconGroup
 
         var iconCount = reader.ReadUInt16();
         var icons = new Icon[iconCount];
-        var iconDataOffsets = new uint[iconCount];
-        var iconDataSets = new byte[iconCount][];
 
         // Icon directory
         for (var i = 0; i < iconCount; i++)
@@ -35,18 +34,11 @@ internal partial class IconGroup
             var dataLength = reader.ReadUInt32();
             var dataOffset = reader.ReadUInt32();
 
-            // Will fill this out at a later stage, just need a reference for now
-            var data = iconDataSets[i] = new byte[dataLength];
-            iconDataOffsets[i] = dataOffset;
+            var data = new byte[dataLength];
+            using (reader.BaseStream.CreatePortal(dataOffset).Jump())
+                reader.BaseStream.ReadExactly(data);
 
             icons[i] = new Icon(width, height, colorCount, colorPlanes, bitsPerPixel, data);
-        }
-
-        // Icon data
-        for (var i = 0; i < iconCount; i++)
-        {
-            reader.BaseStream.Seek(iconDataOffsets[i], SeekOrigin.Begin);
-            reader.BaseStream.ReadExactly(iconDataSets[i]);
         }
 
         return new IconGroup(icons);
