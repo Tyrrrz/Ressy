@@ -16,6 +16,7 @@
         "ms-dotnettools.csharp",
         "ms-dotnettools.csdevkit",
         "csharpier.csharpier-vscode",
+        "icsharpcode.ilspy-vscode",
         "streetsidesoftware.code-spell-checker"
       ],
       "settings": {
