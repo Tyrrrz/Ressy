@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using FluentAssertions;
+using AwesomeAssertions;
 using PowerKit;
 using Ressy.Versions;
 using Xunit;

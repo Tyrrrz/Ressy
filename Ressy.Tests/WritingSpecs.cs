@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-using FluentAssertions;
+using AwesomeAssertions;
 using PowerKit;
 using Xunit;
 

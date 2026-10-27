@@ -1,5 +1,5 @@
 using System.IO;
-using FluentAssertions;
+using AwesomeAssertions;
 using PowerKit;
 using Ressy.Strings;
 using Xunit;

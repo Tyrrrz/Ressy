@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 using System.IO;
-using FluentAssertions;
+using AwesomeAssertions;
 using PowerKit;
 using Ressy.Icons;
 using Ressy.Tests.Utils.Extensions;
