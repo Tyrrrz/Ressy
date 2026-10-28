@@ -11,7 +11,7 @@
     "--userns=keep-id:uid=1000,gid=1000"
   ],
   "containerUser": "vscode",
-  "updateRemoteUserUID": true,
+  "updateRemoteUserUID": false,
   "updateContentCommand": "sh .devcontainer/updateContentCommand.sh",
   "postCreateCommand": "sh .devcontainer/postCreateCommand.sh",
   "customizations": {
